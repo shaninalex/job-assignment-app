@@ -2,6 +2,8 @@
 
 Form submittion and validation example. Also example of implementing input and validation components ( to prevent masive and complex html templates)
 
+Article link: `writting in progress`
+
 TODO: 
 - super simple backend to send handle errors after submittion
 - validators with backend
