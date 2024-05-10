@@ -9,6 +9,7 @@ import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms'
 export class AppComponent {
     form = this.fb.group({
         "name": new FormControl("", Validators.required),
+        "email": new FormControl("", [Validators.required, Validators.email]),
         "skills": this.fb.array<any>([])
     })
 
@@ -21,7 +22,6 @@ export class AppComponent {
     }
 
     addSkills() {
-        console.log("add new row")
         const skillsForm = this.fb.group({
             "skill": new FormControl("", [Validators.required, Validators.minLength(3)]),
             "level": new FormControl("", [Validators.required, Validators.minLength(3)]),
@@ -30,12 +30,10 @@ export class AppComponent {
     }
 
     removeSkill(index: number) {
-        console.log("delete row:", index)
         this.skills.removeAt(index);
     }
 
     onSubmit() {
-        console.log("form submitted")
         console.log(this.form);
     }
 }

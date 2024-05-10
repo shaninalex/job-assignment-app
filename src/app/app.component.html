@@ -1,7 +1,24 @@
 <main class="container py-5">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-            <input class="form-control" type="text" formControlName="name" />
+            <input class="form-control" type="text" formControlName="name" autocomplete="off" />
+            @if (form.controls['name'].invalid && form.controls['name'].touched ) {
+                @if (form.controls['name'].errors?.['required']) {
+                    <div class="text-danger">Field is required</div>
+                }
+            }
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control" type="email" formControlName="email" autocomplete="off" />
+            @if (form.controls['email'].invalid && form.controls['email'].touched ) {
+                @if (form.controls['email'].errors?.['required']) {
+                    <div class="text-danger">Field is required</div>
+                }
+                @if (form.controls['email'].errors?.['email']) {
+                    <div class="text-danger">This is not an email</div>
+                }
+            }
         </div>
 
         <button class="btn btn-sm btn-info" type="button" (click)="addSkills()">Add</button>
@@ -33,6 +50,12 @@
                         ) {
                             @if (form.controls['skills'].controls[i].get('level')?.errors?.['required']) {
                                 <div class="text-danger">Field is required</div>
+                            }
+                            @if (form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']) {
+                                <div class="text-danger">
+                                    Required length - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['requiredLength']}}
+                                    You entered - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['actualLength']}}
+                                </div>
                             }
                         }
                     </div>
