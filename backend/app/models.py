@@ -1,8 +1,12 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, EmailStr, Field
 
 
-@dataclass
-class JWTTOkenPayload:
+class LoginPayload(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=5)
+
+        
+class JWTTOkenPayload(BaseModel):
     email: str
     exp: str
     sub: str
@@ -10,21 +14,18 @@ class JWTTOkenPayload:
     iss: str
 
 
-@dataclass
-class JWTTOkenResponse:
+class JWTTokenResponse(BaseModel):
     token: str
     refresh: str
 
 
-@dataclass
-class Position:
+class Position(BaseModel):
     id: int
     name: str
     description: str
 
 
-@dataclass
-class Candidate:
+class Candidate(BaseModel):
     id: int
     name: str
     email: str
@@ -32,4 +33,10 @@ class Candidate:
     about: str
     submitted: bool
     position_id: Position
+    created_at: str
+
+
+class User(BaseModel):
+    id: int
+    email: str
     created_at: str

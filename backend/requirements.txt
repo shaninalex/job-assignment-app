@@ -6,3 +6,7 @@ python-dotenv
 psycopg2-binary
 autopep8
 pydantic
+email_validator
+
+# https://pyjwt.readthedocs.io/en/latest/
+PyJWT
