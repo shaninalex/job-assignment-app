@@ -2,7 +2,7 @@ from sqlalchemy import update, insert, delete, select
 from app.db import log, RecordNotFound
 
 
-class LogsController:
+class LogsRepository:
     def __init__(self, connection):
         self.conn = connection
 
