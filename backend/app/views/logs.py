@@ -49,7 +49,7 @@ async def patch_item(request):
     async with request.app['db'].acquire() as conn:
         try:
             log_id = request.match_info['log_id']
-            data = await request.post() # form data
+            data = await request.post()  # form data
             updated_item = await LogsRepository(conn).update(log_id=log_id, text=data.get('text'))
             return web.json_response(updated_item)
         except app.db.RecordNotFound as e:
