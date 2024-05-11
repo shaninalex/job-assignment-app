@@ -1,3 +1,5 @@
+# Deprecated!
+# NOTE: Pending to delete
 from aiohttp import web
 from app.repositories.logs import LogsRepository
 import app.db

@@ -5,13 +5,9 @@ class LoginPayload(BaseModel):
     email: EmailStr
     password: str = Field(min_length=5)
 
-        
-class JWTTOkenPayload(BaseModel):
-    email: str
-    exp: str
-    sub: str
-    active: bool
-    iss: str
+
+class AdminCreateUserPayload(LoginPayload):
+    pass
 
 
 class JWTTokenResponse(BaseModel):
