@@ -1,12 +1,14 @@
 from app.views import (
     users,
     auth,
-    admin
+    admin,
+    form_apply,
 )
 
 
 def setup_routes(app):
     auth.setup_auth_routes(app)
+    form_apply.setup_apply_routes(app)
 
 
 def setup_auth_routes(admin_app):

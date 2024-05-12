@@ -8,7 +8,28 @@ from app.repositories import users
 
 
 def setup_admin_routes(app: web.Application):
-    app.router.add_post('/create-user', create_user)
+    app.router.add_post('/manage/create-user', create_user)
+    app.router.add_get('/manage/users-list', users_list)
+
+
+async def users_list(request):
+    if request["user"].role is not Role.admin:
+        return web.json_response({
+            "data": {
+                "error": "You have not enough permissions",
+            },
+            "message": "Request forbidden",
+            "success": False,
+        }, status=HTTPStatus.FORBIDDEN)
+
+
+    async with request.app['db'].acquire() as conn:
+        result = await users.list(conn)
+        return web.json_response({
+            "data": result,
+            "message": "",
+            "success": True,
+        }, status=HTTPStatus.OK)
 
 
 async def create_user(request):
