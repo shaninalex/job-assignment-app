@@ -1,4 +1,16 @@
+import time
 from aiohttp import web
+
+from app.settings import TIMEOUT
+
+
+@web.middleware
+async def timeout_middleware(request, handler):
+    # sinse this is just example backend, current middleware simulate
+    # slow request process. You can enable/disable this with settings
+    if TIMEOUT:
+        time.sleep(2)
+    return await handler(request)
 
 
 async def handle_404(request):
@@ -33,4 +45,5 @@ def setup_middlewares(app):
         404: handle_404,
         500: handle_500
     })
+    app.middlewares.append(timeout_middleware)
     app.middlewares.append(error_middleware)
