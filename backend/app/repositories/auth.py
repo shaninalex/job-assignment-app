@@ -1,34 +1,32 @@
-import logging
-
 from app import models
-from sqlalchemy import update, insert, delete, select
-from app.db import log, RecordNotFound
+from app.pkg import password, jwt
+from app.db import users, RecordNotFound
+from sqlalchemy import select
 
 
-class AuthRepository:
-    def __init__(self, connection):
-        self.conn = connection
+async def login(connection,
+                payload: models.LoginPayload) -> models.JWTTokenResponse | None:
+    """
+    Logs in the user.
+    Parameters
+    ----------
+    payload : LoginPayload
+        Validated user login payload
+    Returns
+    -------
+    list
+        signed JWT access/refresh tokens packed in JWTTokenResponse type
+    """
+    query = select(users).where(users.c.email == payload.email)
+    result = await connection.execute(query)
+    data = await result.fetchone()
+    if not data:
+        raise RecordNotFound
 
-    def refresh(self):
-        """
-        Refreshes the authentication token.
-        """
-        raise NotImplementedError(
-            "refresh method must be implemented in subclasses")
+    if not password.check_password(payload.password, data['password']):
+        print("password do not match")
+        return None
 
-    def login(self, payload: models.LoginPayload) -> models.JWTTokenResponse:
-        """
-        Logs in the user.
-        Parameters
-        ----------
-        payload : LoginPayload
-            Validated user login payload
-        Returns
-        -------
-        list
-            signed JWT access/refresh tokens packed in JWTTokenResponse type
-        """
-        logging.info(f"process authorization for {payload.email}")
-        response: models.JWTTokenResponse = models.JWTTokenResponse(
-            token="", refresh="")
-        return response
+    user = models.User(**data)
+    token = jwt.create_jwt_token(user)
+    return token

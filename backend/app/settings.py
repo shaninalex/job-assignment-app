@@ -10,6 +10,8 @@ DEBUG = int(os.getenv('DEBUG'))
 
 DSN = "postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+JWT_SECRET = os.getenv("JWT_SECRET")
+
 DATABASE_URI = DSN.format(
     DB_USERNAME=os.getenv('DB_USERNAME'),
     DB_PASSWORD=os.getenv('DB_PASSWORD'),

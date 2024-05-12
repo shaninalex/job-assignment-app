@@ -1,18 +1,20 @@
-import logging
-
+from datetime import datetime
+from sqlalchemy import insert, select
 from app.db import users
-from app.models import AdminCreateUserPayload
+from app.pkg import password
+from app.models import AdminCreateUserPayload, User
 
 
-class UserRepository:
-    def __init__(self, db_connection):
-        self.conn = db_connection
+async def create(connection, payload: AdminCreateUserPayload) -> bool:
+    hashed_password = password.get_hashed_password(payload.password)
+    query = insert(users).values(
+        email=payload.email,
+        password=hashed_password,
+    )
 
-    def login():
-        ...
-
-    def create(self,
-               payload: AdminCreateUserPayload,
-               admin: bool = False) -> bool:
-        print(payload)
+    try:
+        await connection.execute(query)
         return True
+    except Exception as e:
+        print(e)
+        return False

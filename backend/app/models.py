@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -12,7 +13,6 @@ class AdminCreateUserPayload(LoginPayload):
 
 class JWTTokenResponse(BaseModel):
     token: str
-    refresh: str
 
 
 class Position(BaseModel):
@@ -35,4 +35,11 @@ class Candidate(BaseModel):
 class User(BaseModel):
     id: int
     email: str
-    created_at: str
+    created_at: datetime
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "created_at": str(self.created_at)  # .strftime("%d-%m-%Y")
+        }

@@ -16,7 +16,9 @@ from sqlalchemy.sql import functions
 
 meta = MetaData()
 
-log = Table(
+# Deprecated!
+# Pending to delete
+log: Table = Table(
     'log',
     meta,
     Column('id', Integer, primary_key=True, index=True),
@@ -25,7 +27,7 @@ log = Table(
            nullable=False, server_default=functions.now()),
 )
 
-position = Table(
+position: Table = Table(
     'position',
     meta,
     Column('id', Integer, primary_key=True, index=True),
@@ -34,7 +36,7 @@ position = Table(
     # TODO: skills required
 )
 
-candidates = Table(
+candidates: Table = Table(
     'candidates',
     meta,
     Column('id', Integer, primary_key=True, index=True),
@@ -48,13 +50,13 @@ candidates = Table(
            nullable=False, server_default=functions.now()),
 )
 
-skills = Table(
+skills: Table  = Table(
     'skills',
     meta,
     Column('name', VARCHAR(15), primary_key=True, index=True, unique=True),
 )
 
-candidates_skills = Table(
+candidates_skills: Table  = Table(
     'candidates_skills',
     meta,
     Column("candidate_id", Integer, ForeignKey(
@@ -62,7 +64,7 @@ candidates_skills = Table(
     Column("skill", Text, ForeignKey("skills.name"), nullable=False),
 )
 
-user = Table(
+users: Table = Table(
     'users',
     meta,
     Column('id', Integer, primary_key=True, index=True),
@@ -72,7 +74,7 @@ user = Table(
            nullable=False, server_default=functions.now()),
 )
 
-candidates_skills = Table(
+candidates_skills: Table = Table(
     'candidates_submittions',
     meta,
     Column('id', Integer, primary_key=True, index=True),

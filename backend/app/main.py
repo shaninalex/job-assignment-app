@@ -2,10 +2,21 @@ import logging
 
 from aiohttp import web
 
-from .db import db_context
-from .middlewares import setup_middlewares
-from .routes import setup_routes
-from .settings import config
+from app.db import db_context
+from app.middlewares.auth import auth_middleware
+from app.middlewares.utils import setup_middlewares
+from app.routes import setup_auth_routes, setup_routes
+
+from app.settings import config
+
+
+async def init_admin_app() -> web.Application:
+    admin = web.Application()
+    admin['config'] = config()
+    admin.cleanup_ctx.append(db_context)
+    admin.middlewares.append(auth_middleware)
+    setup_auth_routes(admin)
+    return admin
 
 
 async def init_app():
@@ -20,6 +31,10 @@ async def init_app():
     setup_routes(app)
 
     setup_middlewares(app)
+
+    admin_app = await init_admin_app()
+
+    app.add_subapp("/api/admin/", admin_app)
 
     return app
 

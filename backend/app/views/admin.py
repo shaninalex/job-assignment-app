@@ -7,7 +7,7 @@ from app.repositories import users
 
 
 def setup_admin_routes(app: web.Application):
-    app.router.add_post('/api/admin/create-user', create_user)
+    app.router.add_post('/create-user', create_user)
 
 
 async def create_user(request):
@@ -22,9 +22,16 @@ async def create_user(request):
                 "field": error["loc"][0],
                 "error_message": error["msg"]
             })
-        return web.json_response({"errors": error_messages},
-                                 status=HTTPStatus.BAD_REQUEST)
+        return web.json_response({
+            "data": error_messages,
+            "message": "There some errors",
+            "success": False,
+        }, status=HTTPStatus.BAD_REQUEST)
 
     async with request.app['db'].acquire() as conn:
-        result = users.UserRepository(conn).create(payload)
-    return web.json_response({"status": result})
+        result = await users.create(conn, payload)
+    return web.json_response({
+        "data": result,
+        "message": "User was added",
+        "success": False,
+    }, status=201)
