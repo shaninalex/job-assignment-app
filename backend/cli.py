@@ -8,6 +8,7 @@ import os
 import argparse
 from sqlalchemy import create_engine, text
 
+from app.db import Role
 from app.settings import DATABASE_URI
 from app.pkg import password
 
@@ -15,13 +16,14 @@ from app.pkg import password
 def create_admin():
     engine = create_engine(DATABASE_URI)
     insert = text("""
-        INSERT INTO public.users (email, password) VALUES (:email, :password)
+        INSERT INTO public.users (email, role,  password) VALUES (:email, :role, :password)
     """)
     connection = engine.connect()
     hashed_password = password.get_hashed_password(os.getenv("ADMIN_PASSWORD"))
     connection.execute(
         insert,
         email=os.getenv("ADMIN_EMAIL"),
+        role=Role.admin.name,
         password=hashed_password
     )
 

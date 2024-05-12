@@ -16,6 +16,7 @@ async def init_admin_app() -> web.Application:
     admin.cleanup_ctx.append(db_context)
     admin.middlewares.append(auth_middleware)
     setup_auth_routes(admin)
+    logging.info("Admin app initialized")
     return admin
 
 
@@ -36,6 +37,7 @@ async def init_app():
 
     app.add_subapp("/api/admin/", admin_app)
 
+    logging.info("Main app initialized")
     return app
 
 

@@ -13,7 +13,6 @@ from app.settings import JWT_SECRET
 
 @web.middleware
 async def auth_middleware(request, handler):
-    print(request.headers)
     if "Authorization" not in request.headers:
         return web.json_response({"error": "unauthorized"}, status=401)
 

@@ -1,3 +1,4 @@
+import enum
 import aiopg.sa
 from datetime import datetime
 from sqlalchemy import (
@@ -10,11 +11,16 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     Boolean,
-    VARCHAR
+    VARCHAR,
+    Enum
 )
 from sqlalchemy.sql import functions
 
 meta = MetaData()
+
+class Role(enum.Enum):
+    admin = 1
+    manager = 2
 
 # Deprecated!
 # Pending to delete
@@ -70,6 +76,7 @@ users: Table = Table(
     Column('id', Integer, primary_key=True, index=True),
     Column('email', Text, unique=True, nullable=False),
     Column('password', Text, nullable=False),
+    Column('role', Enum(Role), default=Role.manager.name, nullable=False),
     Column('created_at', TIMESTAMP, default=datetime.now(),
            nullable=False, server_default=functions.now()),
 )
@@ -100,7 +107,9 @@ def create_tables(database_uri, echo):
 async def db_context(app):
     engine = await aiopg.sa.create_engine(
         dsn=app['config']['DATABASE_URL'],
-        echo=app['config']['DEBUG'])
+        echo=False,
+        #echo=app['config']['DEBUG'],
+    )
 
     app['db'] = engine
 

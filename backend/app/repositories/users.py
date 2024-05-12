@@ -1,20 +1,23 @@
 from datetime import datetime
-from sqlalchemy import insert, select
-from app.db import users
+
+from app.db import Role, users
 from app.pkg import password
 from app.models import AdminCreateUserPayload, User
 
 
-async def create(connection, payload: AdminCreateUserPayload) -> bool:
+async def create(connection, payload: AdminCreateUserPayload) -> User:
     hashed_password = password.get_hashed_password(payload.password)
-    query = insert(users).values(
+    query = users.insert().values(
         email=payload.email,
         password=hashed_password,
     )
 
-    try:
-        await connection.execute(query)
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    row = await connection.execute(query)
+    result = await row.fetchone() # get result id
+    new_user = User(
+        id=result[0],
+        email=payload.email,
+        role=Role.manager,
+        created_at=datetime.now(),
+    )
+    return new_user
