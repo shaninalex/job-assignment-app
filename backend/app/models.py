@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, List
 
 from app.db import Role
 
@@ -19,10 +19,21 @@ class JWTTokenResponse(BaseModel):
     token: str
 
 
+class Skill(BaseModel):
+    id: Optional[int] = None
+    name: str
+
+
 class Position(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
     description: str
+    skills: Optional[List[Skill]] = []
+
+
+class PositionSkill(BaseModel):
+    position_id: int
+    skill: int
 
 
 class Candidate(BaseModel):
@@ -32,7 +43,7 @@ class Candidate(BaseModel):
     phone: str
     about: str
     submitted: bool
-    position_id: Position
+    position: Position
     created_at: str
 
 
@@ -49,8 +60,3 @@ class User(BaseModel):
             "role": self.role.name,
             "created_at": str(self.created_at)  # .strftime("%d-%m-%Y")
         }
-
-
-class Skill(BaseModel):
-    id: Optional[int] = None
-    name: str
