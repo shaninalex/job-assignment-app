@@ -1,37 +1,29 @@
-import enum
-import aiopg.sa
 from datetime import datetime
+import enum
+
+import aiopg.sa
 from sqlalchemy import (
-    create_engine,
-    MetaData,
-    Table,
-    Column,
-    Text,
-    TIMESTAMP,
-    Integer,
-    ForeignKey,
     Boolean,
+    Column,
+    Enum,
+    ForeignKey,
+    Integer,
+    MetaData,
+    TIMESTAMP,
+    Table,
+    Text,
     VARCHAR,
-    Enum
+    create_engine,
 )
 from sqlalchemy.sql import functions
 
 meta = MetaData()
 
+
 class Role(enum.Enum):
     admin = 1
     manager = 2
 
-# Deprecated!
-# Pending to delete
-log: Table = Table(
-    'log',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column('text', Text),
-    Column('created_at', TIMESTAMP, default=datetime.now(),
-           nullable=False, server_default=functions.now()),
-)
 
 position: Table = Table(
     'position',
@@ -39,7 +31,6 @@ position: Table = Table(
     Column('id', Integer, primary_key=True, index=True),
     Column('name', Text, nullable=False, unique=True),
     Column('description', Text, nullable=False, unique=True),
-    # TODO: skills required
 )
 
 candidates: Table = Table(
@@ -56,18 +47,27 @@ candidates: Table = Table(
            nullable=False, server_default=functions.now()),
 )
 
-skills: Table  = Table(
+skills: Table = Table(
     'skills',
     meta,
-    Column('name', VARCHAR(15), primary_key=True, index=True, unique=True),
+    Column('id', Integer, primary_key=True, index=True),
+    Column('name', VARCHAR(15), index=True, unique=True),
 )
 
-candidates_skills: Table  = Table(
+candidates_skills: Table = Table(
     'candidates_skills',
     meta,
     Column("candidate_id", Integer, ForeignKey(
         "candidates.id"), nullable=False),
-    Column("skill", Text, ForeignKey("skills.name"), nullable=False),
+    Column("skill", Integer, ForeignKey("skills.id"), nullable=False),
+)
+
+position_skills: Table = Table(
+    'position_skills',
+    meta,
+    Column("position_id", Integer, ForeignKey(
+        "position.id"), nullable=False),
+    Column("skill", Integer, ForeignKey("skills.id"), nullable=False),
 )
 
 users: Table = Table(
@@ -108,7 +108,7 @@ async def db_context(app):
     engine = await aiopg.sa.create_engine(
         dsn=app['config']['DATABASE_URL'],
         echo=False,
-        #echo=app['config']['DEBUG'],
+        # echo=app['config']['DEBUG'],
     )
 
     app['db'] = engine

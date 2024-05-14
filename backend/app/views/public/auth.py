@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from aiohttp import web
 from pydantic import ValidationError
+from app.db import RecordNotFound
 from app.repositories import auth
 
 from app.models import LoginPayload
@@ -22,7 +23,8 @@ async def login_user(request: web.Request) -> web.Response:
                     "message": "successfully authenticated",
                     "success": True,
                 }, status=HTTPStatus.OK)
-            return web.json_response({"errors": "creadentials are incorrect"}, status=HTTPStatus.BAD_REQUEST)
+            return web.json_response({"errors": "creadentials are incorrect"},
+                                     status=HTTPStatus.BAD_REQUEST)
     except ValidationError as e:
         errors = e.errors()
         error_messages = []
@@ -36,4 +38,13 @@ async def login_user(request: web.Request) -> web.Response:
             "message": "There are some authentication errors",
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
-
+    except RecordNotFound:
+        return web.json_response({
+            "data": {
+                "global": [
+                    "creadentials are incorrect"
+                ]
+            },
+            "message": "There are some authentication errors",
+            "success": False,
+        }, status=HTTPStatus.BAD_REQUEST)

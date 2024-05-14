@@ -1,9 +1,11 @@
 from http import HTTPStatus
+from typing import List
 from aiohttp import web
 from pydantic import ValidationError
 
 from app.db import Role
 from app.models import AdminCreateUserPayload
+from app.pkg.helpers import validation_error
 from app.repositories import users
 
 
@@ -21,7 +23,6 @@ async def users_list(request):
             "message": "Request forbidden",
             "success": False,
         }, status=HTTPStatus.FORBIDDEN)
-
 
     async with request.app['db'].acquire() as conn:
         result = await users.list(conn)
@@ -65,17 +66,9 @@ async def create_user(request):
                 }, status=HTTPStatus.BAD_REQUEST)
 
     except ValidationError as e:
-        errors = e.errors()
-        error_messages = []
-        for error in errors:
-            error_messages.append({
-                "field": error["loc"][0],
-                "error_message": error["msg"]
-            })
+        error_messages = validation_error(e)
         return web.json_response({
             "data": error_messages,
             "message": "There some errors",
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
-
-

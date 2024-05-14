@@ -28,6 +28,23 @@ def create_admin():
     )
 
 
+def create_skills():
+    skills = [
+        "go", "python", "javascript", "typescript", "sql",
+    ]
+
+    engine = create_engine(DATABASE_URI)
+    insert = text("""
+        INSERT INTO public.skills (name) VALUES (:name)
+    """)
+    connection = engine.connect()
+    skills_data = [{'name': skill} for skill in skills]
+    connection.execute(
+        insert,
+        skills_data
+    )
+
+
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         usage="%(prog)s [OPTION]",
@@ -39,6 +56,7 @@ def init_argparse() -> argparse.ArgumentParser:
         version=f"{parser.prog} version 1.0.0"
     )
     parser.add_argument("-a", "--create-admin", action="store_true")
+    parser.add_argument("-s", "--create-skills", action="store_true")
     return parser
 
 
@@ -51,6 +69,9 @@ def main():
     args = parser.parse_args()
     if args.create_admin:
         create_admin()
+
+    if args.create_skills:
+        create_skills()
 
 
 if __name__ == "__main__":

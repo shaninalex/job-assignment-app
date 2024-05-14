@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 from app.db import Role
 
@@ -47,3 +49,8 @@ class User(BaseModel):
             "role": self.role.name,
             "created_at": str(self.created_at)  # .strftime("%d-%m-%Y")
         }
+
+
+class Skill(BaseModel):
+    id: Optional[int] = None
+    name: str
