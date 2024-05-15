@@ -20,7 +20,6 @@ def create_admin():
     """)
     connection = engine.connect()
     hashed_password = password.get_hashed_password(os.getenv("ADMIN_PASSWORD"))
-    print(hashed_password)
     connection.execute(
         insert,
         email=os.getenv("ADMIN_EMAIL"),

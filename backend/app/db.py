@@ -30,7 +30,7 @@ position: Table = Table(
     meta,
     Column('id', Integer, primary_key=True, index=True),
     Column('name', Text, nullable=False, unique=True),
-    Column('description', Text, nullable=False, unique=True),
+    Column('description', Text, nullable=False),
 )
 
 candidates: Table = Table(

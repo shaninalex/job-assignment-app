@@ -1,6 +1,6 @@
 from typing import List
 
-from app.db import skills, position_skills, position
+from app.db import position_skills, position
 from app.models import Position, PositionSkill, Skill
 from app.repositories import skills as skills_repository
 
@@ -15,22 +15,6 @@ async def position_skills_all(conn) -> List[PositionSkill]:
     return out
 
 
-async def get_skill(conn, id: int = None, name: str = None) -> Skill | None:
-    query = skills.select()
-    if id:
-        query = query.where(skills.c.id == id)
-    elif name:
-        query = query.where(skills.c.name == name)
-
-    results = await conn.execute(query)
-    data = await results.fetchone()
-    if not data:
-        return None
-
-    out: Skill = Skill(**data)
-    return out
-
-
 async def position_skills_by_post_id(conn, id: int) -> List[PositionSkill]:
     query = position_skills.select().where(position_skills.c.position_id == id)
     results = await conn.execute(query)
@@ -41,14 +25,12 @@ async def position_skills_by_post_id(conn, id: int) -> List[PositionSkill]:
     return out
 
 
-async def create_position_skill(conn, position: Position, skill: Skill) -> PositionSkill:
+async def create_position_skill(conn, position: Position, skill: Skill):
     q = position_skills.insert().values(
         position_id=position.id,
-        skill=skill.id
+        skill=skill.id,
     )
-    results = await conn.execute(q)
-    data = await results.fetchone()
-    return PositionSkill(**data)
+    await conn.execute(q)
 
 
 async def all(conn) -> List[Position]:
@@ -82,13 +64,13 @@ async def create(conn, payload: Position) -> Position:
     data = await result.fetchone()
     payload.id = data[0]
 
-    for s in payload.skills:
-        skill = get_skill(conn, s.name)
-        if skill:
-            await create_position_skill(conn, position, skill)
-        else:
-            skill = await skills_repository.create(conn, s)
-            await create_position_skill(conn, position, skill)
+    if payload.skills:
+        for s in payload.skills:
+            skill = await skills_repository.get_skill(conn, name=s.name)
+            if not skill:
+                skill = await skills_repository.create(conn, s)
+            await create_position_skill(conn, payload, skill)
+            s.id = skill.id
 
     return payload
 

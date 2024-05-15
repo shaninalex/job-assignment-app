@@ -24,7 +24,6 @@ async def login(connection,
         raise RecordNotFound
 
     if not password.check_password(payload.password, data['password']):
-        print("password do not match")
         return None
 
     user = models.User(**data)
