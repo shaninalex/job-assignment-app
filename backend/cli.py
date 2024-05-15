@@ -20,6 +20,7 @@ def create_admin():
     """)
     connection = engine.connect()
     hashed_password = password.get_hashed_password(os.getenv("ADMIN_PASSWORD"))
+    print(hashed_password)
     connection.execute(
         insert,
         email=os.getenv("ADMIN_EMAIL"),
@@ -55,8 +56,10 @@ def init_argparse() -> argparse.ArgumentParser:
         "-v", "--version", action="version",
         version=f"{parser.prog} version 1.0.0"
     )
-    parser.add_argument("-a", "--create-admin", action="store_true")
-    parser.add_argument("-s", "--create-skills", action="store_true")
+    parser.add_argument("-a", "--create-admin", action="store_true",
+                        help="Create administrator user")
+    parser.add_argument("-s", "--create-skills", action="store_true",
+                        help="Create default set of skills")
     return parser
 
 
