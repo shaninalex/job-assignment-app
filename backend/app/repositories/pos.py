@@ -41,13 +41,6 @@ async def position_skills_by_post_id(conn, id: int) -> List[PositionSkill]:
     return out
 
 
-async def create_skill(conn, skill: Skill) -> PositionSkill:
-    q = skills.insert().values(name=skill.name)
-    results = await conn.execute(q)
-    data = await results.fetchone()
-    return Skill(**data)
-
-
 async def create_position_skill(conn, position: Position, skill: Skill) -> PositionSkill:
     q = position_skills.insert().values(
         position_id=position.id,
@@ -61,7 +54,7 @@ async def create_position_skill(conn, position: Position, skill: Skill) -> Posit
 async def all(conn) -> List[Position]:
     # get all positions, skills and their relation table - position_skills
     # then for/in them and attach skills for positions by position_skills ids
-    query = skills.select()
+    query = position.select()
     results = await conn.execute(query)
     data = await results.fetchall()
     out: List[Position] = []
@@ -92,10 +85,10 @@ async def create(conn, payload: Position) -> Position:
     for s in payload.skills:
         skill = get_skill(conn, s.name)
         if skill:
-            create_position_skill(conn, position, skill)
+            await create_position_skill(conn, position, skill)
         else:
-            skill = create_skill(conn, s)
-            create_position_skill(conn, position, skill)
+            skill = await skills_repository.create(conn, s)
+            await create_position_skill(conn, position, skill)
 
     return payload
 

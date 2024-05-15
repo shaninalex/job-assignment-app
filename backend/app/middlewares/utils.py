@@ -45,5 +45,5 @@ def setup_middlewares(app):
         404: handle_404,
         500: handle_500
     })
-    app.middlewares.append(timeout_middleware)
+    # app.middlewares.append(timeout_middleware)
     app.middlewares.append(error_middleware)

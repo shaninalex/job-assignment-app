@@ -21,11 +21,23 @@ def setup_position_routes(app: web.Application):
 
 
 async def positions_list(request):
-    return web.json_response({
-        "data": [],
-        "message": "",
-        "success": True,
-    })
+    async with request.app['db'].acquire() as conn:
+        try:
+            result = await pos.all(conn)
+            out = []
+            for p in result:
+                out.append(p.model_dump())
+            return web.json_response({
+                "data": out,
+                "message": "",
+                "success": True,
+            })
+        except Exception as e:
+            return web.json_response({
+                "data": {"errors": str(e)},
+                "message": "There some errors",
+                "success": False,
+            }, status=HTTPStatus.BAD_REQUEST)
 
 
 async def positions_create(request: web.Request) -> web.Response:
@@ -34,7 +46,7 @@ async def positions_create(request: web.Request) -> web.Response:
         payload: Position = Position(**data)
         async with request.app['db'].acquire() as conn:
             try:
-                result = pos.create(conn, payload)
+                result = await pos.create(conn, payload)
                 return web.json_response({
                     "data": result.model_dump(),
                     "message": "",
@@ -68,7 +80,7 @@ async def positions_get(request):
     id = int(request.match_info.get('id', "0"))
     async with request.app['db'].acquire() as conn:
         try:
-            result = pos.get(conn, id)
+            result = await pos.get(conn, id)
             return web.json_response({
                 "data": result.model_dump(),
                 "message": "",

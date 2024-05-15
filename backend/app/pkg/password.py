@@ -1,13 +1,8 @@
-import bcrypt
+from passlib.hash import pbkdf2_sha256
 
 
 def get_hashed_password(plain_text_password):
-    # Hash a password for the first time
-    #   (Using bcrypt, the salt is saved into the hash itself)
-    return bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
-
+    return pbkdf2_sha256.hash(plain_text_password)
 
 def check_password(plain_text_password, hashed_password):
-    # Check hashed password. Using bcrypt, the salt is saved into the
-    # hash itself
-    return bcrypt.checkpw(plain_text_password, hashed_password)
+    return pbkdf2_sha256.verify(plain_text_password, hashed_password)

@@ -7,7 +7,7 @@ psycopg2-binary
 autopep8
 pydantic
 email_validator
-bcrypt
+passlib
 
 # https://pyjwt.readthedocs.io/en/latest/
 PyJWT
