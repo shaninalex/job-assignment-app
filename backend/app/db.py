@@ -1,23 +1,13 @@
-from datetime import datetime
 import enum
-
-import aiopg.sa
-from sqlalchemy import (
-    Boolean,
-    Column,
-    Enum,
-    ForeignKey,
-    Integer,
-    MetaData,
-    TIMESTAMP,
-    Table,
-    Text,
-    VARCHAR,
-    create_engine,
-)
+from datetime import datetime
+from typing import List
+from sqlalchemy import String, Boolean, TIMESTAMP, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import functions
 
-meta = MetaData()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Role(enum.Enum):
@@ -25,34 +15,35 @@ class Role(enum.Enum):
     manager = 2
 
 
-position: Table = Table(
-    'position',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column('name', Text, nullable=False, unique=True),
-    Column('description', Text, nullable=False),
-)
+class Skill(Base):
+    __tablename__ = "skills"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
 
-candidates: Table = Table(
-    'candidates',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column('name', Text, nullable=False),
-    Column('email', Text, nullable=False, unique=True),
-    Column('phone', Text),
-    Column('about', Text),
-    Column('submitted', Boolean, default=False),
-    Column("position_id", Integer, ForeignKey("position.id"), nullable=False),
-    Column('created_at', TIMESTAMP, default=datetime.now(),
-           nullable=False, server_default=functions.now()),
-)
 
-skills: Table = Table(
-    'skills',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column('name', VARCHAR(15), index=True, unique=True),
-)
+class Position(Base):
+    __tablename__ = "positions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), unique=True)
+    description: Mapped[str] = mapped_column(String(500), nullable=False)
+    skills: Mapped[List["Skill"]] = relationship(cascade="all, delete-orphan")
+
+
+class Candidate(Base):
+    __tablename__ = "positions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(30), nullable=False)
+    email: Mapped[str] = mapped_column(String(30), unique=True)
+    phone: Mapped[str] = mapped_column(String(30))
+    about: Mapped[str] = mapped_column(String(250))
+    submitted: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[str] = mapped_column(TIMESTAMP, default=datetime.now(),
+                                            nullable=False,
+                                            server_default=functions.now())
+
+    position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"))
+    position: Mapped["Position"] = relationship(cascade="all, delete-orphan")
+
 
 candidates_skills: Table = Table(
     'candidates_skills',
