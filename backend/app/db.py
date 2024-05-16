@@ -38,7 +38,7 @@ candidates: Table = Table(
     meta,
     Column('id', Integer, primary_key=True, index=True),
     Column('name', Text, nullable=False),
-    Column('email', Text, nullable=False),
+    Column('email', Text, nullable=False, unique=True),
     Column('phone', Text),
     Column('about', Text),
     Column('submitted', Boolean, default=False),
@@ -81,7 +81,7 @@ users: Table = Table(
            nullable=False, server_default=functions.now()),
 )
 
-candidates_skills: Table = Table(
+candidates_submittions: Table = Table(
     'candidates_submittions',
     meta,
     Column('id', Integer, primary_key=True, index=True),

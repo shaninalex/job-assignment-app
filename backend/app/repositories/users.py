@@ -16,7 +16,7 @@ async def create(connection, payload: AdminCreateUserPayload) -> User:
     )
 
     row = await connection.execute(query)
-    result = await row.fetchone() # get result id
+    result = await row.fetchone()  # get result id
     new_user = User(
         id=result[0],
         email=payload.email,

@@ -1,22 +1,12 @@
 from typing import List
 
-from app.db import position_skills, position
+from app.db import position_skills, position, skills
 from app.models import Position, PositionSkill, Skill
 from app.repositories import skills as skills_repository
 
 
 async def position_skills_all(conn) -> List[PositionSkill]:
     query = position_skills.select()
-    results = await conn.execute(query)
-    data = await results.fetchall()
-    out: List[PositionSkill] = []
-    for d in data:
-        out.append(PositionSkill(**d))
-    return out
-
-
-async def position_skills_by_post_id(conn, id: int) -> List[PositionSkill]:
-    query = position_skills.select().where(position_skills.c.position_id == id)
     results = await conn.execute(query)
     data = await results.fetchall()
     out: List[PositionSkill] = []
@@ -48,9 +38,12 @@ async def all(conn) -> List[Position]:
     position_skills_list = await position_skills_all(conn)
 
     for p in out:
-        skills_ids = [
-            si for si in position_skills_list if si.position_id == p.id]
-        p.skills = [s for s in all_skills if s in skills_ids]
+        for s in [si for si in position_skills_list if si.position_id == p.id]:
+            for a in all_skills:
+                if s.skill == a.id:
+                    p.skills.append(a)
+                    break
+
     return out
 
 
@@ -79,4 +72,22 @@ async def get(conn, id: int) -> Position:
     query = position.select().where(position.c.id == id)
     result = await conn.execute(query)
     data = await result.fetchone()
-    return Position(**data)
+    pos = Position(**data)
+
+    rows = await conn.execute(
+        position_skills.select().where(position_skills.c.position_id == pos.id)
+    )
+    data = await rows.fetchall()
+    skills_ids = [d[1] for d in data]
+
+    skills_from_db = await conn.execute(
+        skills.select().where(skills.c.id.in_(skills_ids))
+    )
+    skills_results = await skills_from_db.fetchall()
+    skills_list: List[Skill] = []
+    for s in skills_results:
+        skills_list.append(Skill(id=s[0], name=s[1]))
+
+    pos.skills = skills_list
+
+    return pos

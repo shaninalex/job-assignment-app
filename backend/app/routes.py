@@ -10,3 +10,4 @@ def setup_auth_routes(admin_app):
     admin.setup_admin_routes(admin_app)
     admin.setup_user_routes(admin_app)
     admin.setup_position_routes(admin_app)
+    admin.setup_candidates_routes(admin_app)

@@ -52,3 +52,13 @@ async def get_skill(conn, id: int | None = None, name: str | None = None) -> Ski
 
     out: Skill = Skill(id=data[0], name=data[1])
     return out
+
+
+async def save_skills_list(conn, skills_list: List[Skill]) -> List[Skill]:
+    for s in skills_list:
+        dbskill = await get_skill(conn, name=s.name)
+        if not dbskill:
+            dbskill = await create(conn, s)
+        s.id = dbskill.id
+
+    return skills_list

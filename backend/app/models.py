@@ -30,10 +30,28 @@ class Position(BaseModel):
     description: str
     skills: Optional[List[Skill]] = []
 
+    def to_json(self):
+        print(self.skills)
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "skills": [d.model_dump() for d in self.skills]
+        }
+
 
 class PositionSkill(BaseModel):
     position_id: int
     skill: int
+
+
+class ApplyPayload(BaseModel):
+    name: str
+    email: str
+    phone: str
+    about: str
+    position_id: int
+    skills: Optional[List[Skill]]
 
 
 class Candidate(BaseModel):
@@ -43,8 +61,20 @@ class Candidate(BaseModel):
     phone: str
     about: str
     submitted: bool
-    position: Position
+    position: Optional[Position] = None
     created_at: str
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "about": self.about,
+            "submitted": self.submitted,
+            "position": self.position.to_json(),
+            "created_at": str(self.created_at)
+        }
 
 
 class User(BaseModel):
@@ -58,5 +88,5 @@ class User(BaseModel):
             "id": self.id,
             "email": self.email,
             "role": self.role.name,
-            "created_at": str(self.created_at)  # .strftime("%d-%m-%Y")
+            "created_at": str(self.created_at)
         }
