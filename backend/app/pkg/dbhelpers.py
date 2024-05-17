@@ -17,4 +17,3 @@ def get_or_create_skills(session, payload: List[SkillModel]) -> List[Skill]:
             skills.append(s)
 
     return skills
-

@@ -11,7 +11,7 @@ from app.settings import config
 
 def init_admin_app() -> web.Application:
     admin = web.Application()
-    admin['config'] = config()
+    admin["config"] = config()
     admin.cleanup_ctx.append(db_context)
     admin.middlewares.append(auth_middleware)
     setup_auth_routes(admin)
@@ -22,7 +22,7 @@ def init_admin_app() -> web.Application:
 async def init_app():
     app = web.Application()
 
-    app['config'] = config()
+    app["config"] = config()
 
     # create db connection on startup, shutdown on exit
     app.cleanup_ctx.append(db_context)
@@ -40,4 +40,4 @@ def main():
     app = init_app()
     logging.basicConfig(level=logging.DEBUG)
     conf = config()
-    web.run_app(app, host=conf['APP_HOST'], port=conf['APP_PORT'])
+    web.run_app(app, host=conf["APP_HOST"], port=conf["APP_PORT"])

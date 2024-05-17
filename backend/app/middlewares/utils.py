@@ -14,11 +14,11 @@ async def timeout_middleware(request, handler):
 
 
 async def handle_404(request):
-    return web.json_response({'error': 404}, status=404)
+    return web.json_response({"error": 404}, status=404)
 
 
 async def handle_500(request):
-    return web.json_response({'error': 500}, status=500)
+    return web.json_response({"error": 500}, status=500)
 
 
 def create_error_middleware(overrides):
@@ -41,9 +41,6 @@ def create_error_middleware(overrides):
 
 
 def setup_middlewares(app):
-    error_middleware = create_error_middleware({
-        404: handle_404,
-        500: handle_500
-    })
+    error_middleware = create_error_middleware({404: handle_404, 500: handle_500})
     # app.middlewares.append(timeout_middleware)
     app.middlewares.append(error_middleware)

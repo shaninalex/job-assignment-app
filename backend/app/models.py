@@ -36,7 +36,7 @@ class Position(BaseModel):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "skills": [d.model_dump() for d in self.skills]
+            "skills": [d.model_dump() for d in self.skills],
         }
 
 
@@ -73,7 +73,7 @@ class Candidate(BaseModel):
             "about": self.about,
             "submitted": self.submitted,
             "position": self.position.to_json(),
-            "created_at": str(self.created_at)
+            "created_at": str(self.created_at),
         }
 
 
@@ -88,5 +88,5 @@ class User(BaseModel):
             "id": self.id,
             "email": self.email,
             "role": self.role.name,
-            "created_at": str(self.created_at)
+            "created_at": str(self.created_at),
         }
