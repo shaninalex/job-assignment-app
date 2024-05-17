@@ -9,8 +9,9 @@ import os
 import argparse
 from sqlite3 import DatabaseError
 from typing import List
+from getpass import getpass
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from app.db import Role, User, Skill
@@ -20,7 +21,9 @@ from app.pkg import password
 
 def create_admin():
     engine = create_engine(DATABASE_URI)
-    hashed_password = password.get_hashed_password(os.getenv("ADMIN_PASSWORD"))
+
+    hashed_password = password.get_hashed_password(
+        getpass(prompt='Input your password: '))
     user: User = User(
         email=os.getenv("ADMIN_EMAIL"),
         role=Role.admin,
