@@ -1,9 +1,17 @@
 import enum
 from datetime import datetime
 from typing import List
-from sqlalchemy import String, Boolean, TIMESTAMP, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import String, Boolean, TIMESTAMP, ForeignKey, Enum, create_engine, Integer
 from sqlalchemy.sql import functions
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    mapped_column,
+    relationship,
+    Session,
+)
+
+from app.settings import DATABASE_URI
 
 
 class Base(DeclarativeBase):
@@ -20,70 +28,104 @@ class Skill(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30), unique=True)
 
+    def json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
+
 
 class Position(Base):
     __tablename__ = "positions"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30), unique=True)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
-    skills: Mapped[List["Skill"]] = relationship(cascade="all, delete-orphan")
+    skills: Mapped[List["PositionSkill"]] = relationship(back_populates="position", cascade="all, delete-orphan")
+
+    def json(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "skills": [s.skill.json() for s in self.skills],
+        }
+
+
+class PositionSkill(Base):
+    __tablename__ = "position_skills"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    skill_id: Mapped[int] = mapped_column(Integer, ForeignKey("skills.id"))
+    skill: Mapped["Skill"] = relationship("Skill", back_populates="positions")
+    position_id: Mapped[int] = mapped_column(Integer, ForeignKey("positions.id"))
+    position: Mapped["Position"] = relationship("Position", back_populates="skills")
+
+
+Skill.positions = relationship("PositionSkill", back_populates="skill")
 
 
 class Candidate(Base):
-    __tablename__ = "positions"
+    __tablename__ = "candidates"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30), nullable=False)
     email: Mapped[str] = mapped_column(String(30), unique=True)
     phone: Mapped[str] = mapped_column(String(30))
     about: Mapped[str] = mapped_column(String(250))
     submitted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[str] = mapped_column(TIMESTAMP, default=datetime.now(),
-                                            nullable=False,
-                                            server_default=functions.now())
+    created_at: Mapped[str] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now(),
+        nullable=False,
+        server_default=functions.now(),
+    )
 
     position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"))
-    position: Mapped["Position"] = relationship(cascade="all, delete-orphan")
+    position: Mapped["Position"] = relationship(cascade="all")
+    skills: Mapped[List["CandidateSkill"]] = relationship(back_populates="candidate", cascade="all, delete-orphan")
 
 
-candidates_skills: Table = Table(
-    'candidates_skills',
-    meta,
-    Column("candidate_id", Integer, ForeignKey(
-        "candidates.id"), nullable=False),
-    Column("skill", Integer, ForeignKey("skills.id"), nullable=False),
-)
+class CandidateSkill(Base):
+    __tablename__ = "candidate_skills"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    skill_id: Mapped[int] = mapped_column(ForeignKey("skills.id"))
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"))
+    candidate: Mapped["Candidate"] = relationship(back_populates="skills")
 
-position_skills: Table = Table(
-    'position_skills',
-    meta,
-    Column("position_id", Integer, ForeignKey(
-        "position.id"), nullable=False),
-    Column("skill", Integer, ForeignKey("skills.id"), nullable=False),
-)
 
-users: Table = Table(
-    'users',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column('email', Text, unique=True, nullable=False),
-    Column('password', Text, nullable=False),
-    Column('role', Enum(Role), default=Role.manager.name, nullable=False),
-    Column('created_at', TIMESTAMP, default=datetime.now(),
-           nullable=False, server_default=functions.now()),
-)
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
+    role: Mapped[Role] = mapped_column(Enum(Role), default=Role.manager.name, nullable=False)
+    created_at: Mapped[str] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now(),
+        nullable=False,
+        server_default=functions.now(),
+    )
 
-candidates_submittions: Table = Table(
-    'candidates_submittions',
-    meta,
-    Column('id', Integer, primary_key=True, index=True),
-    Column("candidate_id", Integer, ForeignKey(
-        "candidates.id"), nullable=False),
-    Column("user_id", Integer, ForeignKey("users.id"), nullable=False),
-    Column('submitted', Boolean, default=False),
-    Column('reason', Text),
-    Column('created_at', TIMESTAMP, default=datetime.now(),
-           nullable=False, server_default=functions.now()),
-)
+    def json(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "role": self.role.name,
+            "created_at": str(self.created_at),
+        }
+
+
+class CandidateSubmissions(Base):
+    __tablename__ = "candidates_submissions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    submitted: Mapped[bool] = mapped_column(Boolean, default=False)
+    reason: Mapped[str] = mapped_column(String)
+    created_at: Mapped[str] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now(),
+        nullable=False,
+        server_default=functions.now()
+    )
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
 
 class RecordNotFound(Exception):
@@ -92,19 +134,18 @@ class RecordNotFound(Exception):
 
 def create_tables(database_uri, echo):
     engine = create_engine(database_uri, echo=echo)
-    meta.create_all(engine)
+    Base.metadata.create_all(engine)
 
 
 async def db_context(app):
-    engine = await aiopg.sa.create_engine(
-        dsn=app['config']['DATABASE_URL'],
-        echo=False,
-        # echo=app['config']['DEBUG'],
-    )
-
-    app['db'] = engine
-
-    yield
-
-    app['db'].close()
-    await app['db'].wait_closed()
+    engine = create_engine(DATABASE_URI, echo=False)
+    with Session(engine) as session:
+        app["db"] = session
+        yield
+        try:
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()

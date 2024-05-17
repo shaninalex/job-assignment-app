@@ -6,8 +6,7 @@ import jwt
 from sqlalchemy import select
 from aiohttp import web
 
-from app import models
-from app.db import users
+from app.db import User
 from app.settings import JWT_SECRET
 
 
@@ -25,16 +24,14 @@ async def auth_middleware(request, handler):
                 "message": "invalid claims",
             }, status=401)
 
-        async with request.app['db'].acquire() as conn:
-            query = select(users).where(users.c.id == claims["sub"])
-            result = await conn.execute(query)
-            data = await result.fetchone()
-            if not data:
+        with request.app['db'] as session:
+            query = select(User).where(User.id == claims["sub"])
+            user: User = session.scalars(query).one()
+            if not user:
                 return web.json_response({
                     "error": "unauthorized",
                     "message": "invalid token",
                 }, status=401)
-            user = models.User(**data)
             request["user"] = user
 
     except jwt.ExpiredSignatureError:
@@ -47,6 +44,5 @@ async def auth_middleware(request, handler):
             "error": "unauthorized",
             "message": "invalid token",
         }, status=401)
-
 
     return await handler(request)

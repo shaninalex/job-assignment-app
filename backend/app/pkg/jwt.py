@@ -5,7 +5,8 @@
 import jwt
 from datetime import datetime, timedelta
 
-from app.models import User, JWTTokenResponse
+from app.db import User
+from app.models import JWTTokenResponse
 from app.settings import JWT_SECRET
 
 

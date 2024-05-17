@@ -2,53 +2,40 @@ from http import HTTPStatus
 
 from aiohttp import web
 from pydantic import ValidationError
-
-from app.models import Skill, Position
+from app.db import Skill, Position, PositionSkill
+from app.models import Skill as SkillModel, Position as PositionModel
+from app.pkg.dbhelpers import get_or_create_skills
 from app.pkg.helpers import validation_error
-from app.repositories import skills, pos
 
 
 def setup_position_routes(app: web.Application):
-    app.router.add_get('/positions', positions_list)
     app.router.add_post('/positions', positions_create)
     app.router.add_get('/positions/{id}', positions_get)
     app.router.add_delete('/positions/{id}', positions_delete)
     app.router.add_patch('/positions/{id}', positions_patch)
-    app.router.add_get('/skills', skills_list)
     app.router.add_post('/skills', skills_create)
     app.router.add_delete('/skills/{id}', skills_delete)
     app.router.add_patch('/skills/{id}', skills_patch)
 
 
-async def positions_list(request):
-    async with request.app['db'].acquire() as conn:
-        try:
-            result = await pos.all(conn)
-            out = []
-            for p in result:
-                out.append(p.model_dump())
-            return web.json_response({
-                "data": out,
-                "message": "",
-                "success": True,
-            })
-        except Exception as e:
-            return web.json_response({
-                "data": {"errors": str(e)},
-                "message": "There some errors",
-                "success": False,
-            }, status=HTTPStatus.BAD_REQUEST)
-
-
 async def positions_create(request: web.Request) -> web.Response:
     data = await request.json()
     try:
-        payload: Position = Position(**data)
-        async with request.app['db'].acquire() as conn:
+        payload: PositionModel = PositionModel(**data)
+        with request.app['db'] as session:
             try:
-                result = await pos.create(conn, payload)
+                # create skills list
+                skills = get_or_create_skills(session, payload.skills)
+                position: Position = Position(
+                    name=payload.name,
+                    description=payload.description,
+                    skills=[PositionSkill(skill_id=s.id) for s in skills],
+                )
+                session.add(position)
+                session.commit()
+
                 return web.json_response({
-                    "data": result.model_dump(),
+                    "data": position.json(),
                     "message": "",
                     "success": True,
                 })
@@ -77,12 +64,13 @@ async def positions_get(request):
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
 
-    id = int(request.match_info.get('id', "0"))
-    async with request.app['db'].acquire() as conn:
+    with request.app['db'] as session:
         try:
-            result = await pos.get(conn, id)
+            position: Position = session.query(Position).get(
+                int(request.match_info.get('id', "0"))
+            )
             return web.json_response({
-                "data": result.model_dump(),
+                "data": position.json(),
                 "message": "",
                 "success": True,
             })
@@ -96,11 +84,31 @@ async def positions_get(request):
 
 
 async def positions_delete(request):
-    return web.json_response({
-        "data": [],
-        "message": "",
-        "success": True,
-    })
+    if "id" not in request.match_info:
+        return web.json_response({
+            "data": {"errors": "id is missing"},
+            "message": "There some errors",
+            "success": False,
+        }, status=HTTPStatus.BAD_REQUEST)
+
+    with request.app['db'] as session:
+        pos_to_delete = session.query(Position).get(
+            int(request.match_info.get('id', "0"))
+        )
+        if pos_to_delete:
+            session.delete(pos_to_delete)
+            session.commit()
+            return web.json_response({
+                "data": None,
+                "message": "Successfully deleted",
+                "success": True,
+            }, status=HTTPStatus.OK)
+        else:
+            return web.json_response({
+                "data": None,
+                "message": "Position with given id does not exist",
+                "success": False,
+            }, status=HTTPStatus.NOT_FOUND)
 
 
 async def positions_patch(request):
@@ -111,26 +119,18 @@ async def positions_patch(request):
     })
 
 
-async def skills_list(request):
-    async with request.app['db'].acquire() as conn:
-        s = await skills.all(conn)
-        return web.json_response({
-            "data": [item.model_dump() for item in s],
-            "message": "123",
-            "success": True,
-        }, status=HTTPStatus.OK)
-
-
 async def skills_create(request):
     request_data = await request.json()
     try:
         payload = Skill(**request_data)
-        async with request.app['db'].acquire() as conn:
+        with request.app['db'] as session:
             try:
-                out = await skills.create(conn, payload)
+                skill = Skill(name=payload.name)
+                session.add(skill)
+                session.commit()
                 return web.json_response({
-                    "data": out.model_dump(),
-                    "message": "",
+                    "data": skill.json(),
+                    "message": "skill successfully created",
                     "success": True,
                 }, status=HTTPStatus.OK)
             except Exception as e:
@@ -157,14 +157,24 @@ async def skills_delete(request: web.Request):
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
 
-    id = int(request.match_info.get('id', "0"))
-    async with request.app['db'].acquire() as conn:
-        await skills.delete(conn, id)
-        return web.json_response({
-            "data": None,
-            "message": "Successfully deleted",
-            "success": True,
-        }, status=HTTPStatus.OK)
+    with request.app['db'] as session:
+        skill_to_delete = session.query(Skill).get(
+            int(request.match_info.get('id', "0"))
+        )
+        if skill_to_delete:
+            session.delete(skill_to_delete)
+            session.commit()
+            return web.json_response({
+                "data": None,
+                "message": "Successfully deleted",
+                "success": True,
+            }, status=HTTPStatus.OK)
+        else:
+            return web.json_response({
+                "data": None,
+                "message": "Skill with given id does not exist",
+                "success": False,
+            }, status=HTTPStatus.NOT_FOUND)
 
 
 async def skills_patch(request):
@@ -175,20 +185,29 @@ async def skills_patch(request):
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
 
-    id = int(request.match_info.get('id', "0"))
-
     request_data = await request.json()
     try:
-        payload = Skill(**request_data)
-        payload.id = id
-        async with request.app['db'].acquire() as conn:
+        SkillModel(**request_data)  # validate payload
+        with request.app['db'] as session:
             try:
-                out = await skills.patch(conn, payload)
-                return web.json_response({
-                    "data": out.model_dump(),
-                    "message": "",
-                    "success": True,
-                }, status=HTTPStatus.OK)
+                skill_to_update = session.query(Skill).get(
+                    int(request.match_info.get('id', "0"))
+                )
+                if skill_to_update:
+                    skill_to_update.name = request_data['name']
+                    session.commit()
+                    return web.json_response({
+                        "data": skill_to_update.json(),
+                        "message": "",
+                        "success": True,
+                    }, status=HTTPStatus.OK)
+                else:
+                    return web.json_response({
+                        "data": None,
+                        "message": "Skill with given id does not exist",
+                        "success": False,
+                    }, status=HTTPStatus.NOT_FOUND)
+
             except Exception as e:
                 return web.json_response({
                     "data": {"errors": str(e)},
@@ -203,3 +222,4 @@ async def skills_patch(request):
             "message": "There some errors",
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
+

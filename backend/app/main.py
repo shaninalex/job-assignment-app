@@ -37,9 +37,7 @@ async def init_app():
 
 
 def main():
-
     app = init_app()
-
     logging.basicConfig(level=logging.DEBUG)
     conf = config()
     web.run_app(app, host=conf['APP_HOST'], port=conf['APP_PORT'])

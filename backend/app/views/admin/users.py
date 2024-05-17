@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from aiohttp import web
 
 
@@ -7,7 +9,8 @@ def setup_user_routes(app: web.Application):
 
 async def get_current_user(request):
     return web.json_response({
-        "data": request["user"].to_json(),
+        "data": request["user"].json(),
         "message": "",
         "success": True,
     })
+

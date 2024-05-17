@@ -1,12 +1,14 @@
 from http import HTTPStatus
 from typing import List
+
 from aiohttp import web
 from pydantic import ValidationError
 
-from app.db import Role
+from sqlalchemy import select
+from app.db import Role, User
 from app.models import AdminCreateUserPayload
 from app.pkg.helpers import validation_error
-from app.repositories import users
+from app.pkg.password import get_hashed_password
 
 
 def setup_admin_routes(app: web.Application):
@@ -24,10 +26,11 @@ async def users_list(request):
             "success": False,
         }, status=HTTPStatus.FORBIDDEN)
 
-    async with request.app['db'].acquire() as conn:
-        result = await users.list(conn)
+    with request.app['db'] as session:
+        users = session.scalars(select(User))
+        out: List[dict] = [u.json() for u in users]
         return web.json_response({
-            "data": result,
+            "data": out,
             "message": "",
             "success": True,
         }, status=HTTPStatus.OK)
@@ -47,11 +50,14 @@ async def create_user(request):
     try:
         payload: AdminCreateUserPayload = AdminCreateUserPayload(**data)
 
-        async with request.app['db'].acquire() as conn:
+        with request.app['db'] as session:
             try:
-                result = await users.create(conn, payload)
+                hashed_password = get_hashed_password(payload.password)
+                user: User = User(email=payload.email, password=hashed_password)
+                session.add(user)
+                session.commit()
                 return web.json_response({
-                    "data": result.to_json(),
+                    "data": user.json(),
                     "message": "user was added",
                     "success": True,
                 }, status=HTTPStatus.CREATED)

@@ -1,9 +1,11 @@
 from http import HTTPStatus
+
+from sqlalchemy import select
 from aiohttp import web
 from pydantic import ValidationError
-from app.db import RecordNotFound
-from app.repositories import auth
-
+from app.db import RecordNotFound, User
+from app.pkg.password import check_password
+from app.pkg.jwt import create_jwt_token
 from app.models import LoginPayload
 
 
@@ -12,14 +14,17 @@ def setup_auth_routes(app: web.Application):
 
 
 async def login_user(request: web.Request) -> web.Response:
-    data = await request.json()  # form data
+    data = await request.json()
     try:
         payload: LoginPayload = LoginPayload(**data)
-        async with request.app['db'].acquire() as conn:
-            response = await auth.login(conn, payload)
-            if response:
+        with request.app['db'] as session:
+            user = session.scalars(
+                select(User).where(User.email == payload.email)
+            ).one()
+            if check_password(payload.password, user.password):
+                token = create_jwt_token(user)
                 return web.json_response({
-                    "data": response.model_dump(),
+                    "data": token.model_dump(),
                     "message": "successfully authenticated",
                     "success": True,
                 }, status=HTTPStatus.OK)
@@ -48,3 +53,9 @@ async def login_user(request: web.Request) -> web.Response:
             "message": "There are some authentication errors",
             "success": False,
         }, status=HTTPStatus.BAD_REQUEST)
+    # return web.json_response({
+    #     "data": None,
+    #     "message": "Not implemented yet",
+    #     "success": False,
+    # }, status=HTTPStatus.BAD_REQUEST)
+

@@ -2,47 +2,53 @@
 
 # Usage:
 #   python cli.py --create-admin
+#   python cli.py --create-skills
 #   python cli.py --help
 import sys
 import os
 import argparse
-from sqlalchemy import create_engine, text
+from sqlite3 import DatabaseError
+from typing import List
 
-from app.db import Role
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session
+
+from app.db import Role, User, Skill
 from app.settings import DATABASE_URI
 from app.pkg import password
 
 
 def create_admin():
     engine = create_engine(DATABASE_URI)
-    insert = text("""
-        INSERT INTO public.users (email, role,  password) VALUES (:email, :role, :password)
-    """)
-    connection = engine.connect()
     hashed_password = password.get_hashed_password(os.getenv("ADMIN_PASSWORD"))
-    connection.execute(
-        insert,
+    user: User = User(
         email=os.getenv("ADMIN_EMAIL"),
-        role=Role.admin.name,
+        role=Role.admin,
         password=hashed_password
     )
+    with Session(engine) as session:
+        try:
+            session.add(user)
+            session.commit()
+        except DatabaseError as e:
+            print(e)
 
 
 def create_skills():
-    skills = [
-        "go", "python", "javascript", "typescript", "sql",
+    skills: List[Skill] = [
+        Skill(name="go"),
+        Skill(name="python"),
+        Skill(name="javascript"),
+        Skill(name="typescript"),
+        Skill(name="sql"),
     ]
-
     engine = create_engine(DATABASE_URI)
-    insert = text("""
-        INSERT INTO public.skills (name) VALUES (:name)
-    """)
-    connection = engine.connect()
-    skills_data = [{'name': skill} for skill in skills]
-    connection.execute(
-        insert,
-        skills_data
-    )
+    with Session(engine) as session:
+        try:
+            session.add_all(skills)
+            session.commit()
+        except DatabaseError as e:
+            print(e)
 
 
 def init_argparse() -> argparse.ArgumentParser:
