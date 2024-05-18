@@ -1,8 +1,6 @@
-import { Component, inject, TemplateRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { ApiPositionService } from '../services/position.service';
 import { Position } from '../types';
-
-// import { ApplyFormModalComponent } from '../ui/apply-form-modal/apply-form-modal.component';
 
 @Component({
     selector: 'app-assignemnt-page',
@@ -11,8 +9,7 @@ import { Position } from '../types';
 export class AssignemntPageComponent {
     positions: Position[] = [];
     visible: boolean = false;
-
-	// private modalService = inject(NgbModal);
+    positionId: number;
 
     constructor(private positionsApi: ApiPositionService) {
         this.positionsApi.list().subscribe({
@@ -21,10 +18,7 @@ export class AssignemntPageComponent {
     }
 
 	open(positionId: number) {
+        this.positionId = positionId;
         this.visible = true;
-        console.log(positionId);
-		// const modalRef = this.modalService.open(ApplyFormModalComponent, { size: 'xl' });
-        // modalRef.componentInstance.positionId = positionId;
 	}
-
 }

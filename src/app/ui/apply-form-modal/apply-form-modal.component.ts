@@ -5,7 +5,6 @@ import { Component, Input, inject } from '@angular/core';
   templateUrl: './apply-form-modal.component.html'
 })
 export class ApplyFormModalComponent {
-	// activeModal = inject(NgbActiveModal);
 
 	@Input() positionId: number;
 }
