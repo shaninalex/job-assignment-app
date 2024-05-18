@@ -1,3 +1,10 @@
+## 0.2.0 (2024-05-18)
+
+### Feat
+
+- **ui**: position list, applying form, results form
+- **ui**: basic ui and services
+
 ## 0.1.0 (2024-05-18)
 
 ### Feat
