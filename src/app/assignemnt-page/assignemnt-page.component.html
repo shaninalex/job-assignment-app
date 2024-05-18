@@ -1,4 +1,4 @@
-<ng-template #content let-modal>
+<!-- <ng-template #content let-modal>
 	<div class="modal-header">
 		<h4 class="modal-title" id="modal-basic-title">Apply Form</h4>
 		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
@@ -11,11 +11,29 @@
 	<div class="modal-footer">
 		<button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
 	</div>
-</ng-template>
+</ng-template> -->
+
+<!-- <p-button (click)="showDialog()" label="Show" /> -->
+<p-dialog 
+    header="Apply Form" 
+    [(visible)]="visible" 
+    [modal]="true" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [style]="{ width: '50rem' }"
+    [draggable]="false" 
+    [resizable]="false">
+    <p>
+        Lorem ipsum dolor sit amet...
+    </p>
+</p-dialog>
+
+<div class="flex flex-column gap-5">
 
 @if (!positions.length) {
     <div class="spinner-border spinner-border-sm" role="status"></div>
 }
+
 @for (position of positions; track $index) {
     <app-position-item [position]="position" (onApply)="open($event)"/>
 }
+</div>

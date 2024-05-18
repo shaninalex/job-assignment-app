@@ -1,7 +1,8 @@
 <p>Please enter your submission id:</p>
 <form>
-    <div class="input-group mb-3">
-        <input type="text" class="form-control form-control-lg" placeholder="Submission id" required />
-        <button class="btn btn-primary btn-lg" type="button">Button</button>
+
+    <div class="flex gap-2 align-items-center">
+        <input type="text" pInputText [(ngModel)]="value" placeholder="Submission id" />
+        <p-button label="Search" size="small" icon="pi pi-check" />
     </div>
 </form>
