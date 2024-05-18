@@ -1,5 +1,17 @@
 <hr class="mt-5" />
-<div class="container">
-    <p>footer works!</p>
-    {{ version }}
+<div class="container d-flex justify-content-between">
+    <ul style="list-style-type: none;" class="m-0 p-0">
+        <li>
+            <a class="text-secondary" routerLink="/">Home</a>
+        </li>
+        <li>
+            <a class="text-secondary" routerLink="/results">Check Results</a>
+        </li>
+        <li>
+            <a class="text-secondary" routerLink="/admin">Admin</a>
+        </li>
+    </ul>
+    <div>
+        <small class="text-secondary">v{{ version }}</small>
+    </div>
 </div>
