@@ -26,6 +26,5 @@ def config():
     return {
         "DATABASE_URL": DATABASE_URI,
         "DEBUG": DEBUG,
-        "APP_HOST": os.getenv("APP_HOST"),
         "APP_PORT": int(os.getenv("APP_PORT", "8080")),
     }

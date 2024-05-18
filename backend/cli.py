@@ -7,12 +7,12 @@
 import sys
 import os
 import argparse
-from sqlite3 import DatabaseError
 from typing import List
 from getpass import getpass
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import DatabaseError
 
 from app.db import Role, User, Skill
 from app.settings import DATABASE_URI

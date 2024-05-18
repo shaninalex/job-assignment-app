@@ -1,6 +1,6 @@
 import time
 from aiohttp import web
-
+from http import HTTPStatus
 from app.settings import TIMEOUT
 
 
@@ -14,11 +14,25 @@ async def timeout_middleware(request, handler):
 
 
 async def handle_404(request):
-    return web.json_response({"error": 404}, status=404)
+    return web.json_response(
+        {
+            "data": None,
+            "message": "Not found",
+            "success": False,
+        },
+        status=HTTPStatus.NOT_FOUND,
+    )
 
 
 async def handle_500(request):
-    return web.json_response({"error": 500}, status=500)
+    return web.json_response(
+        {
+            "data": None,
+            "message": "Internal server error",
+            "success": False,
+        },
+        status=HTTPStatus.INTERNAL_SERVER_ERROR,
+    )
 
 
 def create_error_middleware(overrides):

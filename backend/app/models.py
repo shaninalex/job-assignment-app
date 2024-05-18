@@ -1,9 +1,5 @@
-from datetime import datetime
-
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-
-from app.db import Role
 
 
 class LoginPayload(BaseModel):
@@ -40,11 +36,6 @@ class Position(BaseModel):
         }
 
 
-class PositionSkill(BaseModel):
-    position_id: int
-    skill: int
-
-
 class ApplyPayload(BaseModel):
     name: str
     email: str
@@ -54,39 +45,6 @@ class ApplyPayload(BaseModel):
     skills: Optional[List[Skill]]
 
 
-class Candidate(BaseModel):
-    id: int
-    name: str
-    email: str
-    phone: str
-    about: str
+class CandidateSubmissionPayload(BaseModel):
     submitted: bool
-    position: Optional[Position] = None
-    created_at: str
-
-    def to_json(self):
-        return {
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "phone": self.phone,
-            "about": self.about,
-            "submitted": self.submitted,
-            "position": self.position.to_json(),
-            "created_at": str(self.created_at),
-        }
-
-
-class User(BaseModel):
-    id: int
-    email: str
-    created_at: datetime
-    role: Role
-
-    def to_json(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            "role": self.role.name,
-            "created_at": str(self.created_at),
-        }
+    reason: str

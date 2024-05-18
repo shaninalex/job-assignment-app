@@ -40,4 +40,4 @@ def main():
     app = init_app()
     logging.basicConfig(level=logging.DEBUG)
     conf = config()
-    web.run_app(app, host=conf["APP_HOST"], port=conf["APP_PORT"])
+    web.run_app(app, port=conf["APP_PORT"])

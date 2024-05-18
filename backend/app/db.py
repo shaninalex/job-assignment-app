@@ -51,12 +51,19 @@ class Position(Base):
     skills: Mapped[List["PositionSkill"]] = relationship(
         back_populates="position", cascade="all, delete-orphan"
     )
+    created_at: Mapped[str] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now(),
+        nullable=False,
+        server_default=functions.now(),
+    )
 
     def json(self):
         return {
             "id": self.id,
             "name": self.name,
             "description": self.description,
+            "created_at": str(self.created_at),
             "skills": [s.skill.json() for s in self.skills],
         }
 
@@ -88,7 +95,7 @@ class Candidate(Base):
     position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"))
     position: Mapped["Position"] = relationship(cascade="all")
     skills: Mapped[List["CandidateSkill"]] = relationship(
-        back_populates="candidate", cascade="all, delete-orphan"
+        "CandidateSkill", back_populates="candidate", cascade="all, delete-orphan"
     )
     secret: Mapped[str] = mapped_column(String, nullable=False)
 
@@ -113,7 +120,7 @@ class CandidateSkill(Base):
     skill_id: Mapped[int] = mapped_column(ForeignKey("skills.id"))
     skill: Mapped["Skill"] = relationship("Skill", back_populates="candidate")
     candidate_id: Mapped[int] = mapped_column(ForeignKey("candidates.id"))
-    candidate: Mapped["Candidate"] = relationship(back_populates="skills")
+    candidate: Mapped["Candidate"] = relationship("Candidate", back_populates="skills")
 
 
 class User(Base):
@@ -152,9 +159,19 @@ class CandidateSubmissions(Base):
         server_default=functions.now(),
     )
     candidate_id: Mapped[int] = mapped_column(
-        ForeignKey("candidates.id"), nullable=False
+        ForeignKey("candidates.id"), nullable=False, unique=True
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "submitted": self.submitted,
+            "reason": self.reason,
+            "candidate_id": self.candidate_id,
+            "user_id": self.user_id,
+            "created_at": str(self.created_at),
+        }
 
 
 Skill.candidate = relationship("CandidateSkill", back_populates="skill")
@@ -167,6 +184,7 @@ class RecordNotFound(Exception):
 
 def create_tables(database_uri, echo):
     engine = create_engine(database_uri, echo=echo)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
 
