@@ -1,17 +1,14 @@
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div>{{ position.name }}</div>
-        <button class="btn btn-primary" (click)="apply()">Apply</button>
-    </div>
-    <div class="card-body">
-        <p>
-            {{ position.description }}
-        </p>
+<p-panel [header]="position.name">
+    <p>
+        {{ position.description }}
+    </p>
 
-        <div class="d-flex gap-2">
+    <div class="flex justify-content-between">
+        <p-button label="Apply" size="small" icon="pi pi-check" (click)="apply()" />
+        <div class="flex gap-1 mb-2 flex-wrap flex-row-reverse">
             @for (skill of position.skills; track $index) {
-                <span class="badge text-bg-info">{{ skill.name }}</span>
+                <p-tag [value]="skill.name" severity="secondary" />
             }
         </div>
     </div>
-</div>
+</p-panel>

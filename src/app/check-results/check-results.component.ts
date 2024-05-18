@@ -5,5 +5,5 @@ import { Component } from '@angular/core';
   templateUrl: './check-results.component.html',
 })
 export class CheckResultsComponent {
-
+    value: string = '';
 }
