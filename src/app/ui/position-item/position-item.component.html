@@ -1,0 +1,14 @@
+<p-panel [header]="position.name">
+    <p>
+        {{ position.description }}
+    </p>
+
+    <div class="flex justify-content-between">
+        <p-button label="Apply" size="small" icon="pi pi-check" (click)="apply()" />
+        <div class="flex gap-1 mb-2 flex-wrap flex-row-reverse">
+            @for (skill of position.skills; track $index) {
+                <p-tag [value]="skill.name" severity="secondary" />
+            }
+        </div>
+    </div>
+</p-panel>

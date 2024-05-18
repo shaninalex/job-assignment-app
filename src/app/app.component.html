@@ -1,76 +1,8 @@
-<main class="container py-5">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div class="mb-3">
-            <input class="form-control" type="text" formControlName="name" autocomplete="off" />
-            @if (form.controls['name'].invalid && form.controls['name'].touched ) {
-                @if (form.controls['name'].errors?.['required']) {
-                    <div class="text-danger">Field is required</div>
-                }
-            }
-        </div>
+<app-header />
 
-        <div class="mb-3">
-            <input class="form-control" type="email" formControlName="email" autocomplete="off" />
-            @if (form.controls['email'].invalid && form.controls['email'].touched ) {
-                @if (form.controls['email'].errors?.['required']) {
-                    <div class="text-danger">Field is required</div>
-                }
-                @if (form.controls['email'].errors?.['email']) {
-                    <div class="text-danger">This is not an email</div>
-                }
-            }
-        </div>
+<div class="container">
+    <router-outlet />
+</div>
 
-        <button class="btn btn-sm btn-info" type="button" (click)="addSkills()">Add</button>
-        <div formArrayName="skills" class="mb-3">
-            @for (skill of skills.controls; track skill; let i=$index) {
-                <div [formGroupName]="i" class="my-3">
-                    <div class="mb-3">
-                        <input class="form-control" type="text" formControlName="skill" placeholder="skill" />
-                        @if (
-                            form.controls['skills'].controls[i].get('skill')?.invalid && 
-                            form.controls['skills'].controls[i].get('skill')?.touched
-                        ) {
-                            @if (form.controls['skills'].controls[i].get('skill')?.errors?.['required']) {
-                                <div class="text-danger">Field is required</div>
-                            }
-                            @if (form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']) {
-                                <div class="text-danger">
-                                    Required length - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['requiredLength']}}
-                                    You entered - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['actualLength']}}
-                                </div>
-                            }
-                        }
-                    </div>
-                    <div class="mb-3">
-                        <input class="form-control" type="text" formControlName="level" placeholder="level" />
-                        @if (
-                            form.controls['skills'].controls[i].get('level')?.invalid &&
-                            form.controls['skills'].controls[i].get('level')?.touched
-                        ) {
-                            @if (form.controls['skills'].controls[i].get('level')?.errors?.['required']) {
-                                <div class="text-danger">Field is required</div>
-                            }
-                            @if (form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']) {
-                                <div class="text-danger">
-                                    Required length - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['requiredLength']}}
-                                    You entered - {{form.controls['skills'].controls[i].get('skill')?.errors?.['minlength']['actualLength']}}
-                                </div>
-                            }
-                        }
-                    </div>
+<app-footer />
 
-                    <button class="btn btn-sm btn-danger" (click)="removeSkill(i)">Remove</button>
-                </div>
-            }
-        </div>
-
-        <!-- @if (form.dirty && form.invalid) {
-            <div class="alert alert-danger p-2"><small>Form contains errors. Please fix them to be able to submit.</small></div>
-        } -->
-        <button [disabled]="form.invalid" class="btn btn-sm btn-info" type="submit">submit</button>
-    </form>
-</main>
-
-
-<router-outlet />
