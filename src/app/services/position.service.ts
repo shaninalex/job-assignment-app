@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, tap, map } from "rxjs";
 import { Position, ApiResponse } from "../types";
 
 const api_endpoints = {

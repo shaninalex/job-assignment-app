@@ -9,6 +9,9 @@ import { CheckResultsComponent } from './check-results/check-results.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HeaderComponent } from './ui/header/header.component';
 import { FooterComponent } from './ui/footer/footer.component';
+import { PositionItemComponent } from './ui/position-item/position-item.component';
+import { ApplyFormModalComponent } from './ui/apply-form-modal/apply-form-modal.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     declarations: [
@@ -16,13 +19,16 @@ import { FooterComponent } from './ui/footer/footer.component';
         AssignemntPageComponent,
         CheckResultsComponent,
         HeaderComponent,
-        FooterComponent
+        FooterComponent,
+        PositionItemComponent,
+        ApplyFormModalComponent
     ],
     imports: [
         BrowserModule,
         HttpClientModule,
         AppRoutingModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        NgbModule
     ],
     providers: [],
     bootstrap: [AppComponent]
