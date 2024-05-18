@@ -1,3 +1,14 @@
+## 0.3.0 (2024-05-18)
+
+### Feat
+
+- **ui**: update ui
+- **ui**: check out primeng ui kit
+
+### Fix
+
+- **ui**: add footer menu
+
 ## 0.2.0 (2024-05-18)
 
 ### Feat
