@@ -1,18 +1,14 @@
-from app.views import (
-    logs,
-    users,
-    auth
-)
+from app.views import admin, public
 
 
 def setup_routes(app):
-    # TODO: delete logs routes
-    app.router.add_get('/api/_health', logs.health)
-    app.router.add_get('/api/log/get', logs.get_logs_list)
-    app.router.add_get('/api/log/get/{log_id}', logs.get_item)
-    app.router.add_post('/api/log/create', logs.create_log)
-    app.router.add_delete('/api/log/delete/{log_id}', logs.delete_item)
-    app.router.add_patch('/api/log/patch/{log_id}', logs.patch_item)
+    public.setup_auth_routes(app)
+    public.setup_apply_routes(app)
+    public.setup_base_routes(app)
 
-    users.setup_user_routes(app)
-    auth.setup_auth_routes(app)
+
+def setup_auth_routes(admin_app):
+    admin.setup_admin_routes(admin_app)
+    admin.setup_user_routes(admin_app)
+    admin.setup_position_routes(admin_app)
+    admin.setup_candidates_routes(admin_app)

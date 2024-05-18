@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo "init database"
-
 echo "Waiting for postgres..."
 
 while ! nc -z $DB_HOST $DB_PORT; do
@@ -14,4 +12,4 @@ echo "\nRun init.py\n"
 python init.py
 
 echo "\nRun Application.\n"
-python app.py
+python server.py

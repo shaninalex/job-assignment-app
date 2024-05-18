@@ -4,7 +4,6 @@ volumes:
 services:
   db:
     image: postgres:15-alpine
-    name: "angular-multi-form"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
@@ -13,3 +12,19 @@ services:
       - POSTGRES_USER=postgres_user
       - POSTGRES_PASSWORD=postgres_password
       - POSTGRES_DB=application
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  api:
+    build: .
+    command: ["./entrypoint.sh"]
+    env_file:
+      - .env.docker
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy

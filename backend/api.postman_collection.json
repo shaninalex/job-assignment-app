@@ -1,0 +1,1152 @@
+{
+	"info": {
+		"_postman_id": "a6ad397e-4188-4e96-aab7-963cc3417f28",
+		"name": "angular multi forms",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11586531",
+		"_collection_link": "https://solar-shadow-458805.postman.co/workspace/tests~116c49e9-a639-4a2e-b2a9-28eb891ccb38/collection/11586531-a6ad397e-4188-4e96-aab7-963cc3417f28?action=share&source=collection_link&creator=11586531"
+	},
+	"item": [
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "me",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/admin/user/me",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "me",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImV4cCI6MTcxNTYxMjAzOCwiaWF0IjoxNzE1NTI1NjM4fQ.eybcTquu1memcxrLYHD1ERmYopWaD0enKLD4MFH2x4Y"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/api/admin/me",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"admin",
+										"me"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "128"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 12 May 2024 15:15:40 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.10 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 5,\n        \"email\": \"alex123@employee.com\",\n        \"created_at\": \"2024-05-12 16:55:16.794214\"\n    },\n    \"message\": \"\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "[admin] add new user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"testtest\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/manage/create-user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"manage",
+								"create-user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[admin] users list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/admin/manage/users-list",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"manage",
+								"users-list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[skills] create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"go\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/skills",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"skills"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[skills] patch",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"mongodb\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/skills/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"skills",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[skills] delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"updated\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/skills/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"skills",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[positions] create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"jonior go developer\",\n    \"description\": \"Beginners only\",\n    \"skills\": [\n        {\n            \"name\": \"go\"\n        },\n        {\n            \"name\": \"react\"\n        },\n        {\n            \"name\": \"tests\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/positions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"positions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Chiff developer\",\n    \"description\": \"test\",\n    \"skills\": [\n        {\n            \"name\": \"go\"\n        },\n        {\n            \"name\": \"python\"\n        },\n        {\n            \"name\": \"CI/CD\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/admin/positions",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"admin",
+										"positions"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "195"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 16 May 2024 06:22:31 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"Chiff developer\",\n        \"description\": \"test\",\n        \"skills\": [\n            {\n                \"id\": 1,\n                \"name\": \"go\"\n            },\n            {\n                \"id\": 2,\n                \"name\": \"python\"\n            },\n            {\n                \"id\": 4,\n                \"name\": \"CI/CD\"\n            }\n        ]\n    },\n    \"message\": \"\",\n    \"success\": true\n}"
+						},
+						{
+							"name": "positions create",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"New position\",\n    \"description\": \"Beginners only\",\n    \"skills\": [\n        {\n            \"name\": \"javascript\"\n        },\n        {\n            \"name\": \"tailwind\"\n        },\n        {\n            \"name\": \"React\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/admin/positions",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"admin",
+										"positions"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "212"
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 17 May 2024 06:05:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"New position\",\n        \"description\": \"Beginners only\",\n        \"skills\": [\n            {\n                \"id\": 3,\n                \"name\": \"javascript\"\n            },\n            {\n                \"id\": 7,\n                \"name\": \"tailwind\"\n            },\n            {\n                \"id\": 8,\n                \"name\": \"React\"\n            }\n        ]\n    },\n    \"message\": \"\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "[position] get by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/admin/positions/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"positions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[position] delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/admin/positions/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"positions",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[candidate] all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/admin/candidates",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"candidates"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Get all candidates",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8080/api/admin/candidates",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"admin",
+										"candidates"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "974"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 16 May 2024 06:23:05 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"Alex Shanin\",\n            \"email\": \"test@test.com\",\n            \"phone\": \"330284732\",\n            \"about\": \"this is test form\",\n            \"submitted\": false,\n            \"position\": {\n                \"id\": 1,\n                \"name\": \"Go developer\",\n                \"description\": \"test\",\n                \"skills\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"go\"\n                    }\n                ]\n            },\n            \"created_at\": \"2024-05-16 08:02:20.905729\"\n        },\n        {\n            \"id\": 6,\n            \"name\": \"Alex Sha123213nin\",\n            \"email\": \"tes123123t@test.com\",\n            \"phone\": \"330284732\",\n            \"about\": \"this is test form\",\n            \"submitted\": false,\n            \"position\": {\n                \"id\": 1,\n                \"name\": \"Go developer\",\n                \"description\": \"test\",\n                \"skills\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"go\"\n                    }\n                ]\n            },\n            \"created_at\": \"2024-05-16 08:03:50.248803\"\n        },\n        {\n            \"id\": 8,\n            \"name\": \"New buddy\",\n            \"email\": \"new@test.com\",\n            \"phone\": \"330284732\",\n            \"about\": \"this is test form\",\n            \"submitted\": false,\n            \"position\": {\n                \"id\": 2,\n                \"name\": \"Chiff developer\",\n                \"description\": \"test\",\n                \"skills\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"go\"\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"python\"\n                    },\n                    {\n                        \"id\": 4,\n                        \"name\": \"CI/CD\"\n                    }\n                ]\n            },\n            \"created_at\": \"2024-05-16 09:21:41.672658\"\n        }\n    ],\n    \"message\": \"user was added\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "[candidate] delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/candidates/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"candidates",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "[candidate] all Copy",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/admin/candidates/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"admin",
+										"candidates",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "76"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 18 May 2024 05:22:10 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": null,\n    \"message\": \"Candidate successfully deleted\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "[candidate] submit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"submitted\": true,\n    \"reason\": \"Come on and join the team\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/admin/candidates/2/submit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"admin",
+								"candidates",
+								"2",
+								"submit"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "public",
+			"item": [
+				{
+					"name": "[form] apply",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Alex\",\n    \"email\": \"alex@test.com\",\n    \"phone\": \"3302sfdasd84732\",\n    \"about\": \"this is test form\",\n    \"position_id\": 1,\n    \"skills\": [\n       {\n            \"name\": \"go\"\n       },\n       {\n            \"name\": \"python\"\n       },\n       {\n            \"name\": \"javascript\"\n       }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/apply/form",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"apply",
+								"form"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/apply/form",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"apply",
+										"form"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "68"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 12 May 2024 17:39:21 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.10 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": \"\",\n    \"message\": \"Payload was not provided\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "[form] update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Alex Shanin\",\n    \"email\": \"updated@email.com\",\n    \"phone\": \"sdfdsf4732\",\n    \"about\": \"this is test formm this is test formthis is test formthis is test formthis is test form\",\n    \"position_id\": 1,\n    \"skills\": [\n       {\n            \"name\": \"go\"\n       },\n       {\n            \"name\": \"python\"\n       },\n       {\n            \"name\": \"javascript\"\n       }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/apply/form?id=d7f5ad03-fcd0-4b7e-9532-502f581f0b3f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"apply",
+								"form"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "d7f5ad03-fcd0-4b7e-9532-502f581f0b3f"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[form] get results",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/apply/result?id=d7f5ad03-fcd0-4b7e-9532-502f581f0b3f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"apply",
+								"result"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "d7f5ad03-fcd0-4b7e-9532-502f581f0b3f"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "get results",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/apply/result?id=d7f5ad03-fcd0-4b7e-9532-502f581f0b3f",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"apply",
+										"result"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "d7f5ad03-fcd0-4b7e-9532-502f581f0b3f"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "669"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 18 May 2024 03:37:16 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"Alex\",\n        \"email\": \"alex@test.com\",\n        \"phone\": \"3302sfdasd84732\",\n        \"about\": \"this is test form\",\n        \"submitted\": false,\n        \"secret\": \"d7f5ad03-fcd0-4b7e-9532-502f581f0b3f\",\n        \"created_at\": \"2024-05-18 06:36:14.069159\",\n        \"position\": {\n            \"id\": 1,\n            \"name\": \"jonior go developer\",\n            \"description\": \"Beginners only\",\n            \"created_at\": \"2024-05-18 06:24:22.222803\",\n            \"skills\": [\n                {\n                    \"id\": 1,\n                    \"name\": \"go\"\n                },\n                {\n                    \"id\": 6,\n                    \"name\": \"react\"\n                },\n                {\n                    \"id\": 7,\n                    \"name\": \"tests\"\n                }\n            ]\n        },\n        \"skills\": [\n            {\n                \"id\": 1,\n                \"name\": \"go\"\n            },\n            {\n                \"id\": 2,\n                \"name\": \"python\"\n            },\n            {\n                \"id\": 3,\n                \"name\": \"javascript\"\n            }\n        ]\n    },\n    \"message\": \"Your request was not submitted yet. Wait a little bit more, or update your skills\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"pm.globals.set(\"access_token\", jsonData[\"data\"][\"token\"]);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"alex123@employee.com\",\n    \"password\": \"123123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "152"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 12 May 2024 14:25:20 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.10 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImV4cCI6MTcxNTYxMDMyMCwiaWF0IjoxNzE1NTIzOTIwfQ.--mlMY_8jsOIffYd2dQqNkYxIWXwi_Q57eGdU00eK3g\"\n}"
+						},
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"admin\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "220"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 16 May 2024 03:53:14 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImV4cCI6MTcxNTkxNzk5NCwiaWF0IjoxNzE1ODMxNTk0fQ.lz3FhzT_mJzPqhA8_hBUkOM7v3otCgCpu0zN0wCqlNQ\"\n    },\n    \"message\": \"successfully authenticated\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "get all positions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/public/positions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"public",
+								"positions"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "get all positions",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/apply/positions",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"apply",
+										"positions"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "400"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 16 May 2024 03:59:55 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 15,\n            \"name\": \"DevOps Engeneer\",\n            \"description\": \"test\",\n            \"skills\": [\n                {\n                    \"id\": 8,\n                    \"name\": \"go\"\n                },\n                {\n                    \"id\": 9,\n                    \"name\": \"Docker\"\n                },\n                {\n                    \"id\": 10,\n                    \"name\": \"CI/CD\"\n                }\n            ]\n        },\n        {\n            \"id\": 16,\n            \"name\": \"Python developer\",\n            \"description\": \"test\",\n            \"skills\": [\n                {\n                    \"id\": 11,\n                    \"name\": \"python\"\n                }\n            ]\n        },\n        {\n            \"id\": 17,\n            \"name\": \"Go developer\",\n            \"description\": \"test\",\n            \"skills\": [\n                {\n                    \"id\": 8,\n                    \"name\": \"go\"\n                }\n            ]\n        }\n    ],\n    \"message\": \"\",\n    \"success\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "get all skills",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/public/skills",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"public",
+								"skills"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "get all skills",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/api/apply/skills",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"api",
+										"apply",
+										"skills"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "155"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 16 May 2024 03:59:57 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "Python/3.12 aiohttp/3.9.5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 8,\n            \"name\": \"go\"\n        },\n        {\n            \"id\": 9,\n            \"name\": \"Docker\"\n        },\n        {\n            \"id\": 10,\n            \"name\": \"CI/CD\"\n        },\n        {\n            \"id\": 11,\n            \"name\": \"python\"\n        }\n    ],\n    \"message\": \"\",\n    \"success\": true\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}
