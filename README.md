@@ -12,7 +12,6 @@ validation components ( to prevent masive and complex html templates)
 Article link: `writting in progress`
 
 TODO: 
-- super simple backend to send handle errors after submittion
-- validators with backend
-- dropdown with dynamic content
-- async validators
+- [ ] - validators with backend
+- [ ] - dropdown with dynamic content
+- [ ] - async validators
