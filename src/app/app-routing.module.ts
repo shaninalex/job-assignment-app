@@ -5,6 +5,8 @@ import { CheckResultsComponent } from './check-results/check-results.component';
 import { CanMatchRoute } from './can-match.guard';
 import { ApplyComponent } from './apply/apply.component';
 import { UiPageComponent } from './ui-page/ui-page.component';
+import { PositionRouteResolver } from './apply/apply-route.resolver';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 const routes: Routes = [
     {
@@ -18,6 +20,7 @@ const routes: Routes = [
     {
         path: 'apply/:id',
         component: ApplyComponent,
+        resolve: {position: PositionRouteResolver}
     },
     {
         path: 'ui',
@@ -27,7 +30,15 @@ const routes: Routes = [
         path: "admin",
         loadChildren: () => import("./admin/admin.module").then(m => m.AdminModule),
         canMatch: [CanMatchRoute],
-    }
+    },
+    {
+        path: 'not-found',
+        component: NotFoundComponent,
+    },
+    {
+        path: '**',
+        redirectTo: "not-found",
+    },
 ];
 
 @NgModule({

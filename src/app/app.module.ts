@@ -16,6 +16,7 @@ import { ApplyComponent } from './apply/apply.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SkillsSelectComponent } from './ui/skills-select/skills-select.component';
 import { UiPageComponent } from './ui-page/ui-page.component';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 @NgModule({
     declarations: [
@@ -27,7 +28,8 @@ import { UiPageComponent } from './ui-page/ui-page.component';
         PositionItemComponent,
         ApplyComponent,
         SkillsSelectComponent,
-        UiPageComponent
+        UiPageComponent,
+        NotFoundComponent
     ],
     imports: [
         BrowserModule,

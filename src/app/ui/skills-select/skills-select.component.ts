@@ -16,6 +16,8 @@ export class SkillsSelectComponent {
     selected: Skill[] = [];
 
     constructor(private skillsService: ApiSkillsService) {
+        // TODO:    Yes it called api request every time you render this component
+        //          I'll refactor this later with ngrx
         this.skillsService.list().subscribe({
             next: results => {
                 this.skills = results.data;

@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { Skill } from '../types';
+import { Position, Skill } from '../types';
 import { ApiSkillsService } from '../services/skills.service';
 import { ActivatedRoute } from '@angular/router';
 
@@ -8,8 +8,8 @@ import { ActivatedRoute } from '@angular/router';
   selector: 'app-apply',
   templateUrl: './apply.component.html'
 })
-export class ApplyComponent {
-    positionId: number;
+export class ApplyComponent implements OnInit {
+    position: Position;
     selectedSkills: Skill[];
 
     form = this.fb.group({
@@ -22,14 +22,14 @@ export class ApplyComponent {
 
     constructor(
         private fb: FormBuilder,
-        private router: ActivatedRoute,
-        private skillsService: ApiSkillsService
-    ) {
-        // TODO: get position id from url
-        // TODO: before rendering component check if position with given id is exists 
-        //        use Resolvers: https://angular.io/api/router/ResolveFn
-        // TODO: Yes it call api request every time you open modal
-    }
+        private activatedRoute: ActivatedRoute
+    ) { }
+
+    ngOnInit() {
+        this.activatedRoute.data.subscribe(({position}) => {
+            this.position = position.data
+        });
+      }
 
     submit() {
         if (this.form.valid) {
@@ -37,7 +37,7 @@ export class ApplyComponent {
             const payload = {
                 ...this.form.value,
                 skills: this.selectedSkills,
-                position_id: this.positionId,
+                position_id: this.position.id,
             }
             console.log(payload);
         } else {
