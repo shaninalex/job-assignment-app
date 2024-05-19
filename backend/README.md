@@ -10,3 +10,5 @@ docker compose -f docker-compose.dev.yml exec -it api sh
 # create admin account
 python3 cli.py --create-admin
 ```
+
+Then create some example positions.

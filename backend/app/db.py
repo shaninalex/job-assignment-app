@@ -1,5 +1,4 @@
 import enum
-from datetime import datetime
 from typing import List
 from sqlalchemy import (
     String,
@@ -9,8 +8,8 @@ from sqlalchemy import (
     Enum,
     create_engine,
     Integer,
+    func
 )
-from sqlalchemy.sql import functions
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -46,16 +45,16 @@ class Skill(Base):
 class Position(Base):
     __tablename__ = "positions"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(30), unique=True)
+    name: Mapped[str] = mapped_column(String(30))
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     skills: Mapped[List["PositionSkill"]] = relationship(
         back_populates="position", cascade="all, delete-orphan"
     )
     created_at: Mapped[str] = mapped_column(
         TIMESTAMP,
-        default=datetime.now(),
+        default=None,
         nullable=False,
-        server_default=functions.now(),
+        server_default=func.now(),
     )
 
     def json(self):
@@ -87,11 +86,10 @@ class Candidate(Base):
     submitted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[str] = mapped_column(
         TIMESTAMP,
-        default=datetime.now(),
+        default=None,
         nullable=False,
-        server_default=functions.now(),
+        server_default=func.now(),
     )
-
     position_id: Mapped[int] = mapped_column(ForeignKey("positions.id"))
     position: Mapped["Position"] = relationship(cascade="all")
     skills: Mapped[List["CandidateSkill"]] = relationship(
@@ -133,9 +131,9 @@ class User(Base):
     )
     created_at: Mapped[str] = mapped_column(
         TIMESTAMP,
-        default=datetime.now(),
+        default=None,
         nullable=False,
-        server_default=functions.now(),
+        server_default=func.now(),
     )
 
     def json(self):
@@ -154,9 +152,9 @@ class CandidateSubmissions(Base):
     reason: Mapped[str] = mapped_column(String)
     created_at: Mapped[str] = mapped_column(
         TIMESTAMP,
-        default=datetime.now(),
+        default=None,
         nullable=False,
-        server_default=functions.now(),
+        server_default=func.now(),
     )
     candidate_id: Mapped[int] = mapped_column(
         ForeignKey("candidates.id"), nullable=False, unique=True
