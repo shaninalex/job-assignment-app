@@ -14,6 +14,8 @@ import { PositionItemComponent } from './ui/position-item/position-item.componen
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ApplyComponent } from './apply/apply.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SkillsSelectComponent } from './ui/skills-select/skills-select.component';
+import { UiPageComponent } from './ui-page/ui-page.component';
 
 @NgModule({
     declarations: [
@@ -23,7 +25,9 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
         HeaderComponent,
         FooterComponent,
         PositionItemComponent,
-        ApplyComponent
+        ApplyComponent,
+        SkillsSelectComponent,
+        UiPageComponent
     ],
     imports: [
         BrowserModule,

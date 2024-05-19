@@ -10,7 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ApplyComponent {
     positionId: number;
-    skills: Skill[];
+    selectedSkills: Skill[];
 
     form = this.fb.group({
         name: new FormControl("", Validators.required),
@@ -18,7 +18,6 @@ export class ApplyComponent {
         phone: new FormControl("", Validators.required),  // TODO: phone pattern
         about: new FormControl("", [
             Validators.required, Validators.maxLength(250)]),
-        skills: new FormControl<Skill[] | null>([])
     });
 
     constructor(
@@ -30,11 +29,6 @@ export class ApplyComponent {
         // TODO: before rendering component check if position with given id is exists 
         //        use Resolvers: https://angular.io/api/router/ResolveFn
         // TODO: Yes it call api request every time you open modal
-        
-        // I'll refactor this with ngrx later
-        this.skillsService.list().subscribe({
-            next: results => this.skills = results.data
-        })
     }
 
     submit() {
@@ -42,12 +36,20 @@ export class ApplyComponent {
             // TODO: this should be in ApplyPayload type
             const payload = {
                 ...this.form.value,
+                skills: this.selectedSkills,
                 position_id: this.positionId,
-                skills: [],
             }
             console.log(payload);
         } else {
             console.log(this.form.errors);
         }
+    }
+
+    setSelectedSkills(selected: Skill[]) {
+        this.selectedSkills = selected
+    }
+
+    setInputValue() {
+        this.form.controls.name.setValue('New Name');
     }
 }

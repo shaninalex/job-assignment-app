@@ -4,6 +4,7 @@ import { AssignemntPageComponent } from './assignemnt-page/assignemnt-page.compo
 import { CheckResultsComponent } from './check-results/check-results.component';
 import { CanMatchRoute } from './can-match.guard';
 import { ApplyComponent } from './apply/apply.component';
+import { UiPageComponent } from './ui-page/ui-page.component';
 
 const routes: Routes = [
     {
@@ -17,6 +18,10 @@ const routes: Routes = [
     {
         path: 'apply/:id',
         component: ApplyComponent,
+    },
+    {
+        path: 'ui',
+        component: UiPageComponent,
     },
     {
         path: "admin",

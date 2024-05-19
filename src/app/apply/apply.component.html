@@ -21,5 +21,12 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-sm-6 mb-3">
+            <app-skills-select (onSubmit)="setSelectedSkills($event)" />
+        </div>
+    </div>
+
     <button class="btn btn-primary" type="submit" >Submit</button>
+
 </form>
