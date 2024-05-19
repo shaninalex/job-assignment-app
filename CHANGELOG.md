@@ -1,3 +1,13 @@
+## 0.4.0 (2024-05-19)
+
+### Feat
+
+- **ui**: select skills simple select component
+
+### Fix
+
+- **ui**: back to bootstrap
+
 ## 0.3.0 (2024-05-18)
 
 ### Feat

@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, delay } from "rxjs";
 import { Skill, ApiResponse } from "../types";
 
 const api_endpoints = {
@@ -14,7 +14,9 @@ export class ApiSkillsService {
     constructor(private http: HttpClient) { }
 
     public list(): Observable<ApiResponse<Skill[]>> {
-        return this.http.get<ApiResponse<Skill[]>>(api_endpoints.base)
+        return this.http.get<ApiResponse<Skill[]>>(api_endpoints.base).pipe(
+            // delay(1000) // check preloader
+        )
     }
 
     public get(id: number): Observable<ApiResponse<Skill>> {

@@ -1,14 +1,21 @@
-<div class="container mb-5">
-    <div class="flex justify-content-between align-items-center">
-        <div class="flex justify-content-between align-items-center">
-            <a class="no-underline text-color mr-4" routerLink='/'>
-                <h1 class="text-teal-600">JobPostings</h1>
-            </a>
-            <a class="text-color" routerLink='/results'>Results</a>
-        </div>
+<nav class="navbar navbar-expand-sm bg-body-tertiary mb-5">
+    <div class="container">
+        <a class="navbar-brand" routerLink="/">JobPostings</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" routerLink='/results'>Results</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" routerLink='/ui'>ui</a>
+                </li>
+            </ul>
 
-        <div class="text-right">
-            <a routerLink='/admin' class="flex-grow-1 text-color">Admin</a>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a routerLink='/admin' class="nav-link" placement="bottom" ngbTooltip="Not ready">Admin</a>
+                </li>
+            </ul>
         </div>
     </div>
-</div>
+</nav>

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Position } from '../../types';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-position-item',
@@ -7,9 +8,9 @@ import { Position } from '../../types';
 })
 export class PositionItemComponent {
     @Input() position: Position;
-    @Output() onApply: EventEmitter<number> = new EventEmitter<number>()
 
+    constructor(private router: Router) {}
     apply() {
-        this.onApply.emit(this.position.id)
+        this.router.navigate(['apply', this.position.id]);
     }
 }
