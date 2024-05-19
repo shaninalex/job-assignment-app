@@ -6,16 +6,14 @@ import { AppComponent } from './app.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
-import { PrimeNgModule } from './primeng.module';
-
 import { AssignemntPageComponent } from './assignemnt-page/assignemnt-page.component';
 import { CheckResultsComponent } from './check-results/check-results.component';
 import { HeaderComponent } from './ui/header/header.component';
 import { FooterComponent } from './ui/footer/footer.component';
 import { PositionItemComponent } from './ui/position-item/position-item.component';
-import { ApplyFormModalComponent } from './ui/apply-form-modal/apply-form-modal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { ApplyComponent } from './apply/apply.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     declarations: [
@@ -25,7 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         HeaderComponent,
         FooterComponent,
         PositionItemComponent,
-        ApplyFormModalComponent
+        ApplyComponent
     ],
     imports: [
         BrowserModule,
@@ -33,8 +31,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         AppRoutingModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
-        PrimeNgModule,
         FormsModule,
+        NgbModule,
     ],
     providers: [],
     bootstrap: [AppComponent]

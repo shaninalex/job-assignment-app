@@ -9,16 +9,10 @@ import { Position } from '../types';
 export class AssignemntPageComponent {
     positions: Position[] = [];
     visible: boolean = false;
-    positionId: number;
 
     constructor(private positionsApi: ApiPositionService) {
         this.positionsApi.list().subscribe({
             next: results => { this.positions = results.data }
         })
     }
-
-	open(positionId: number) {
-        this.positionId = positionId;
-        this.visible = true;
-	}
 }

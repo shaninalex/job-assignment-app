@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AssignemntPageComponent } from './assignemnt-page/assignemnt-page.component';
 import { CheckResultsComponent } from './check-results/check-results.component';
 import { CanMatchRoute } from './can-match.guard';
+import { ApplyComponent } from './apply/apply.component';
 
 const routes: Routes = [
     {
@@ -12,6 +13,10 @@ const routes: Routes = [
     {
         path: 'results',
         component: CheckResultsComponent,
+    },
+    {
+        path: 'apply/:id',
+        component: ApplyComponent,
     },
     {
         path: "admin",

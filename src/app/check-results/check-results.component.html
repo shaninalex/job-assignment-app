@@ -1,8 +1,6 @@
 <p>Please enter your submission id:</p>
-<form>
-
-    <div class="flex gap-2 align-items-center">
-        <input type="text" pInputText [(ngModel)]="value" placeholder="Submission id" />
-        <p-button label="Search" size="small" icon="pi pi-check" />
-    </div>
+<form [formGroup]="searchForm" (ngSubmit)="submit()" class="input-group mb-3">
+    <input class="form-control" type="text" pInputText formControlName="submission_id"
+        placeholder="Submission id" />
+    <button class="btn btn-info" type="submit">Search</button>
 </form>
