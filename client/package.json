@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "public": "ng serve --project=public --proxy-config=./projects/public/proxy.conf.json",
+    "admin": "ng serve --project=admin --proxy-config=./projects/admin/proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
