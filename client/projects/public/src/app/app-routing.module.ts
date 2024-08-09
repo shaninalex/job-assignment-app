@@ -12,9 +12,12 @@ const routes: Routes = [
         // TODO: if not authenticated only,
     },
     {
-        path: "dashboard",
-        loadChildren: () => import("./modules/dashboard/dashboard.module").then(m => m.DashboardModule),
-        // canMatch: [CanMatchRoute],
+        path: "company",
+        loadChildren: () => import("./modules/company/company.module").then(m => m.CompanyModule),
+    },
+    {
+        path: "app",
+        loadChildren: () => import("./modules/candidate/candidate.module").then(m => m.CandidateModule),
     }
 ];
 
