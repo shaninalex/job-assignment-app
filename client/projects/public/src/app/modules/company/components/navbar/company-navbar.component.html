@@ -1,0 +1,15 @@
+<div class="flex justify-between gap-3 py-4">
+    <a class="flex items-center gap-2" [routerLink]="['/company']">
+        <div class="rounded-full overflow-hidden w-10 h-10">
+            <img src="assets/img/company-logo-placeholder.jpg" alt="Alpha inc">
+        </div>
+        <span>Alpha inc</span>
+    </a>
+    <nav class='flex gap-3'>
+        <a class="hover:text-blue-800" [routerLink]="['/company/notifications']">
+            <i class="fa fa-bell" aria-hidden="true"></i>
+        </a>
+        <a class="hover:text-blue-800" [routerLink]="['/company/jobs']">Jobs</a>
+        <a class="hover:text-blue-800" [routerLink]="['/company/settings']">Settings</a>
+    </nav>
+</div>

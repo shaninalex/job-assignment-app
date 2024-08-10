@@ -1,0 +1,54 @@
+<div class="md:flex items-start gap-4">
+    <div class="md:w-1/4 mb-4 md:order-2">
+        <div class="rounded-xl bg-slate-200 p-8">
+            <ul class="flex gap-2 flex-col">
+                <li>
+                    <a [routerLink]="['/company/jobs/edit']"
+                        class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm">
+                        edit
+                    </a>
+                </li>
+                <li>
+                    <button class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm">
+                        hide
+                    </button>
+                </li>
+                <li>
+                    <button class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm">
+                        close
+                    </button>
+                </li>
+            </ul>
+            <hr class="my-5 border-b border-t-0 border-slate-600" />
+            <button class="bg-red-400 p-2 rounded-md hover:bg-red-500 text-sm">
+                remove
+            </button>
+        </div>
+    </div>
+    <div class="md:w-3/4 md:order-1">
+        <i class="fa fa-star" aria-hidden="true"></i>
+
+        <div>location: Remote</div>
+        <div>salary: Depends on Experience</div>
+        <div>schedule: Full Time</div>
+        <div>relocate: No Travel Required</div>
+
+        <div>
+            Soft skills:
+            Communication Skills
+            Analytical Skills
+            Troubleshooting
+            Problem Solving Skills
+            Time management
+            Risk management
+            Business analysis
+        </div>
+
+        <div>
+            Hard skills:
+            Microsoft Office
+            Computer Science
+            Technical documentation
+        </div>
+    </div>
+</div>

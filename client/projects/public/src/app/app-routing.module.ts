@@ -5,6 +5,7 @@ const routes: Routes = [
     {
         path: "",
         loadChildren: () => import("./modules/public/public.module").then(m => m.PublicModule),
+        // TODO: if not authenticated only,
     },
     {
         path: "auth",
