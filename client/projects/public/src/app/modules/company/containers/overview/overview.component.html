@@ -1,6 +1,11 @@
 <div class="grid lg:grid-cols-2 gap-4">
     <div class="rounded-xl bg-slate-200 p-8">
-        <a [routerLink]="['/company/jobs']" class="mb-6 text-3xl font-bold block hover:text-blue-800">Jobs</a>
+        <div class="flex justify-between gap-3 items-start">
+            <a [routerLink]="['/company/jobs']" class="mb-6 text-3xl font-bold block hover:text-blue-800">Jobs</a>
+            <a [routerLink]="['/company/jobs/new']" class="bg-green-400 p-2 rounded-md hover:bg-green-500 text-sm">
+                NEW
+            </a>
+        </div>
         <ul class="list-disc pl-5 mb-4">
             <li>
                 <a class="hover:text-blue-800" [routerLink]="['/company/jobs/jobid-23131']">
@@ -43,7 +48,7 @@
     <div class="rounded-xl bg-slate-200 p-8">
         <div class="mb-6 text-3xl font-bold">Last feedback:</div>
         <div class="flex flex-col gap-4 mb-4">
-            <a class="hover:text-blue-800" [routerLink]="['/company/alpha-inc-123123213/jobid-23131']">
+            <a class="hover:text-blue-800" [routerLink]="['/company/jobs/adfjalsfsdfs/feedback/23131']">
                 <div class="flex items-center gap-2">
                     <div class="rounded-full overflow-hidden w-5 h-5">
                         <img src="assets/img/user-1.jpg" alt="Jack Sully">
@@ -53,12 +58,10 @@
                 </div>
                 <div class="text-slate-800">GoLang developer</div>
                 <p class="text-sm text-slate-600">Hello! Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
-                    corrupti
-                    veritatis cumque
-                    necessitatibus nemo accusamus. Iusto rem distinctio explicabo officia.</p>
+                    corrupti veritatis cumque necessitatibus nemo accusamus. Iusto rem distinctio explicabo officia.</p>
             </a>
 
-            <a class="hover:text-blue-800" [routerLink]="['/company/alpha-inc-123123213/jobid-23131']">
+            <a class="hover:text-blue-800" [routerLink]="['/company/jobs/adfjalsfsdfs/feedback/23131']">
                 <div class="flex items-center gap-2">
                     <div class="rounded-full overflow-hidden w-5 h-5">
                         <img src="assets/img/user-2.jpg" alt="Jack Sully">
@@ -68,15 +71,12 @@
                 </div>
                 <div class="text-slate-800">GoLang developer</div>
                 <p class="text-sm text-slate-600">Hello! Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
-                    corrupti
-                    veritatis cumque
-                    necessitatibus nemo accusamus. Iusto rem distinctio explicabo officia.</p>
+                    corrupti veritatis cumque necessitatibus nemo accusamus. Iusto rem distinctio explicabo officia.</p>
             </a>
         </div>
 
         <div class="flex justify-end">
-            <a class="underline hover:text-blue-800 text-sm"
-                [routerLink]="['/company/alpha-inc-123123213/jobid-23131']">
+            <a [routerLink]="['/company/feedbacks']" class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm">
                 see all
             </a>
         </div>

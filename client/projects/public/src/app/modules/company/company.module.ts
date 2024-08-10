@@ -10,6 +10,9 @@ import { CompanySettingsComponent } from "./containers/settings/settings.compone
 import { CompJobItemComponent } from "./containers/jobs/components/job-item/job-item.component";
 import { CompJobDetailComponent } from "./containers/jobs/components/job-detail/job-detail.component";
 import { JobsComponent } from "./containers/jobs/jobs.component";
+import { FeedbacksComponent } from "./containers/feedbacks/feedbacks.component";
+import { FeedbackItemComponent } from "./containers/feedbacks/components/feedback-item/feedback-item.component";
+import { FeedbackDetailComponent } from "./containers/feedbacks/components/feedback-detail/feedback-detail.component";
 
 @NgModule({
     declarations: [
@@ -19,6 +22,9 @@ import { JobsComponent } from "./containers/jobs/jobs.component";
         CompanyNotificationsComponent,
         CompanySettingsComponent,
         JobsComponent,
+        FeedbacksComponent,
+        FeedbackItemComponent,
+        FeedbackDetailComponent,
 
         // -- components --
         CompanyNavbarComponent,

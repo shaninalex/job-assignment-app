@@ -26,29 +26,126 @@
         </div>
     </div>
     <div class="md:w-3/4 md:order-1">
-        <i class="fa fa-star" aria-hidden="true"></i>
 
-        <div>location: Remote</div>
-        <div>salary: Depends on Experience</div>
-        <div>schedule: Full Time</div>
-        <div>relocate: No Travel Required</div>
+        <a [routerLink]="['/company/jobs']" class="block mb-2 text-slate-600 text-xs hover:text-blue-800">
+            <i class="fa fa-arrow-left me-1" aria-hidden="true"></i>
+            Back
+        </a>
 
-        <div>
-            Soft skills:
-            Communication Skills
-            Analytical Skills
-            Troubleshooting
-            Problem Solving Skills
-            Time management
-            Risk management
-            Business analysis
+        <div class="flex items-start justify-between gap-3 mb-4">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="text-3xl font-bold">
+                        <span>DevOps Engineer</span>
+                    </div>
+                    <i class="fa fa-star text-red-600" aria-hidden="true"></i>
+                </div>
+                <div class="flex items-center gap-3 text-slate-600 text-sm">
+                    <div><i class="fa fa-eye me-1" aria-hidden="true"></i>Views 88</div>
+                    <a class="hover:text-blue-800" 
+                        [routerLink]="['/company/feedbacks']" 
+                        [queryParams]="{'jobID': 'sdfsdfsdfll'}">
+                        <i class="fa fa-users me-1" aria-hidden="true"></i>
+                        Feedbacks 22
+                    </a>
+                </div>
+            </div>
+            <div class="text-slate-600 text-sm">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                Published 9 July 2024
+            </div>
         </div>
 
-        <div>
-            Hard skills:
-            Microsoft Office
-            Computer Science
-            Technical documentation
+        <p class="mb-4">Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad
+            nisi Lorem
+            pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud
+            nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia
+            pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem
+            duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt
+            duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris
+            sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.</p>
+
+        <p class="mb-4">Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad
+            nisi Lorem
+            pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud
+            nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia
+            pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem
+            duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt
+            duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris
+            sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.</p>
+
+        <div class="mb-4">
+            <div class="flex">
+                <div class="w-8">
+                    <i class="fa fa-map-marker text-2xl" aria-hidden="true"></i>
+                </div>
+                Remote
+            </div>
+            <div class="flex">
+                <div class="w-8">
+                    <i class="fa fa-usd text-2xl" aria-hidden="true"></i>
+                </div>
+                Depends on Experience
+            </div>
+            <div class="flex">
+                <div class="w-8">
+                    <i class="fa fa-clock-o text-2xl" aria-hidden="true"></i>
+                </div>
+                Full Time
+            </div>
+            <div class="flex">
+                <div class="w-8">
+                    <i class="fa fa-plane text-2xl" aria-hidden="true"></i>
+                </div>
+                No Travel Required
+            </div>
         </div>
+
+        <div class="mb-4">
+            <div class="font-bold">Responsibilities:</div>
+            <ul>
+                <li>Design, develop, and maintain complex software solutions using Python (Django);</li>
+                <li>Write clean, scalable, and maintainable code;</li>
+                <li>Collaborate with cross-functional teams to define, design, and ship new features;</li>
+                <li>Perform code reviews and ensure adherence to coding standards;</li>
+                <li>Stay up-to-date with the latest technology trends and best practices.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold">Requirements:</div>
+            <ul>
+                <li>2+ of experience in Python (Django) development;</li>
+                <li>Strong knowledge of Python, Django, and other related technologies;</li>
+                <li>Experience with database design and management;</li>
+                <li>Excellent problem-solving and analytical skills;</li>
+                <li>Strong communication skills and the ability to work in a team environment;</li>
+                <li>Experience with github/ github Actions, Graphql, Cloudformation, AWS Lambda, AWS Cognito;</li>
+                <li>English: Intermediate.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold">Interview stages:</div>
+            <ul>
+                <li>HR interview (30 minutes);</li>
+                <li>Technical interview (1 hour);</li>
+                <li>Offer.</li>
+            </ul>
+        </div>
+
+        <div class="mb-4">
+            <div class="font-bold">We offer:</div>
+            <ul>
+                <li>Opportunities for professional development and growth;</li>
+                <li>Challenging but exciting tasks and projects;</li>
+                <li>A friendly and supportive atmosphere in the team;</li>
+                <li>Competitive and reasonable salary;</li>
+                <li>Paid vacation, weekends and sick leaves;</li>
+                <li>Flexible work schedule.</li>
+            </ul>
+        </div>
+
+
     </div>
 </div>

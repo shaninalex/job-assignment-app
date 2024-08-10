@@ -1,4 +1,4 @@
-shared module contains
+Shared module contains:
 components
 pipes
 global api services

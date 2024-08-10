@@ -7,6 +7,8 @@ import { JobsComponent } from './containers/jobs/jobs.component';
 import { CompanySettingsComponent } from './containers/settings/settings.component';
 import { CompanyNotificationsComponent } from './containers/notifications/company-notifications.component';
 import { CompJobDetailComponent } from './containers/jobs/components/job-detail/job-detail.component';
+import { FeedbacksComponent } from './containers/feedbacks/feedbacks.component';
+import { FeedbackDetailComponent } from './containers/feedbacks/components/feedback-detail/feedback-detail.component';
 
 const routes: Routes = [
     {
@@ -32,6 +34,14 @@ const routes: Routes = [
             {
                 path: "notifications",
                 component: CompanyNotificationsComponent
+            },
+            {
+                path: "feedbacks",
+                component: FeedbacksComponent
+            },
+            {
+                path: "jobs/:id/feedback/:id",
+                component: FeedbackDetailComponent
             }
         ]
     }
