@@ -1,24 +1,26 @@
-import { forwardRef, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { UiComponent } from './ui.component';
-import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { TextInputComponent } from './components';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InputPasswordComponent, InputTextComponent } from './components';
 import { CommonModule } from '@angular/common';
 
 
 @NgModule({
-	declarations: [
-		UiComponent,
-		TextInputComponent,
-	],
-	imports: [
-		CommonModule,
-		FormsModule,
-		ReactiveFormsModule,
-	],
-	exports: [
-		UiComponent,
-		TextInputComponent,
-	],
+    declarations: [
+        UiComponent,
+        InputTextComponent,
+        InputPasswordComponent,
+    ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
+    exports: [
+        UiComponent,
+        InputTextComponent,
+        InputPasswordComponent,
+    ],
 
 })
 export class UiModule { }

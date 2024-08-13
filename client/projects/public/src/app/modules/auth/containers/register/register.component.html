@@ -1,3 +1,40 @@
-Register
 
-<a [routerLink]="['/auth/login']" class="underline">Login</a>
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
+    <ui-input-text
+        fieldName="email"
+        formControlName="email"
+        [parentForm]="form"
+        [isRequired]="true"
+        type="email"
+        label="Email"
+    />
+
+    <ui-input-password
+        fieldName="password"
+        formControlName="password"
+        [parentForm]="form"
+        [isRequired]="true"
+        label="Password"
+        [checkStrength]="true"
+    />
+
+    <ui-input-password
+        fieldName="password_confirm"
+        formControlName="password_confirm"
+        [parentForm]="form"
+        [isRequired]="true"
+        label="Password"
+        [checkStrength]="true"
+    />
+
+    <div>
+        <button
+            [disabled]="!form.valid"
+            class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm disabled:bg-slate-400 disabled:cursor-pointer-none">Login</button>
+    </div>
+</form>
+
+<div>
+    <a [routerLink]="['/auth/login']" class="underline">Login</a>
+</div>
+

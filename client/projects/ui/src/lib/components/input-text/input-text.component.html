@@ -4,13 +4,13 @@
         @if (isRequired) { <span class="text-red-600">*</span> }
     </label>
 
-    <input 
+    <input
         [attr.type]="type"
         [attr.value]="value"
         [disabled]="isDisabled"
         (input)="onChange($event)"
         (blur)="touched()"
-        class="border border-slate-400 rounded-lg px-4 py-2" 
+        class="border border-slate-400 rounded-lg px-4 py-2 w-full pe-10"
         [ngClass]="{
             'border-red-600 outline-red-600': control.invalid && control.dirty
         }"
