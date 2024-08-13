@@ -1,9 +1,0 @@
-<div class="flex flex-column gap-5">
-    @if (!positions.length) {
-        <div class="spinner-border spinner-border-sm" role="status"></div>
-    }
-
-    @for (position of positions; track $index) {
-        <app-position-item [position]="position" />
-    }
-</div>

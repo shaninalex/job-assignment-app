@@ -1,0 +1,28 @@
+<div class="rounded-xl p-4"
+    [ngClass]="{'bg-slate-100': seen, 'bg-blue-100': !seen}">
+    <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-2">
+            <a [routerLink]="['/company/jobs/kdasfdsfsd/feedback/23131']"
+                class="flex items-center gap-2 hover:text-blue-800">
+                <div class="rounded-full overflow-hidden w-5 h-5">
+                    <img src="assets/img/user-2.jpg" alt="Jack Sully">
+                </div>
+                <div class="font-bold">Owa Hubert</div>
+            </a>
+            <span class="text-sm">15 Jul, 14:35</span>
+        </div>
+
+        <a [routerLink]="['/company/jobs/ldsaflkjdhf']"
+            class="px-2 py-1 text-xs rounded bg-slate-500 text-white mb-4 hover:bg-slate-600 inline-block">
+            GoLang developer
+        </a>
+    </div>
+    <div class="text-sm">
+        <i class="fa fa-file-o" aria-hidden="true"></i> resume-owa-hubert.pdf
+    </div>
+    <p class="text-sm text-slate-600 mb-4">Hello! Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic
+        corrupti veritatis cumque necessitatibus nemo accusamus. Iusto rem distinctio explicabo officia.</p>
+    <a class="hover:text-blue-800" [routerLink]="['/company/jobs/adfjalsfsdfs/feedback/23131']">
+        detail
+    </a>
+</div>
