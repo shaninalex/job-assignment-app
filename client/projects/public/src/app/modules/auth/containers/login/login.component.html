@@ -1,29 +1,29 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
-    <ui-text-input 
+    <ui-input-text
         fieldName="email"
-        formControlName="email" 
+        formControlName="email"
         [parentForm]="form"
         [isRequired]="true"
         type="email"
         label="Email"
     />
 
-    <!-- 
+    <!--
         TODO: make password input with:
         - "eye" feature
-        - switchable password strength feature
+        - switchable password strength feature ( custom validator )
     -->
-    <ui-text-input 
+    <ui-input-password
         fieldName="password"
-        formControlName="password" 
+        formControlName="password"
         [parentForm]="form"
         [isRequired]="true"
-        type="password"
         label="Password"
+        [checkStrength]="false"
     />
 
     <div>
-        <button 
+        <button
             [disabled]="!form.valid"
             class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm disabled:bg-slate-400 disabled:cursor-pointer-none">Login</button>
     </div>
