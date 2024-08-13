@@ -1,0 +1,34 @@
+<div>
+    <label class="block" for="name">
+        {{ label }}
+        @if (isRequired) { <span class="text-red-600">*</span> }
+    </label>
+
+    <input 
+        [attr.type]="type"
+        [attr.value]="value"
+        [disabled]="isDisabled"
+        (input)="onChange($event)"
+        (blur)="touched()"
+        class="border border-slate-400 rounded-lg px-4 py-2" 
+        [ngClass]="{
+            'border-red-600 outline-red-600': control.invalid && control.dirty
+        }"
+    />
+
+    @if (control.hasError( 'email' ) && control.dirty) {
+        <span class="block text-red-600 text-sm">
+            Invalid email
+        </span>
+    }
+    @if (control.hasError( 'required' ) && control.dirty) {
+        <span class="block text-red-600 text-sm">
+            This is a required field.
+        </span>
+    }
+    @if (control.hasError( 'noEmptyString' ) && control.dirty) {
+        <span class="block text-red-600 text-sm">
+            Please enter a valid name.
+        </span>
+    }
+</div>
