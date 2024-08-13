@@ -52,7 +52,6 @@ export class InputPasswordComponent implements ControlValueAccessor {
         const value: string = (<HTMLInputElement>event.target).value;
         if (this.checkStrength) {
             this._passwordStrength = passwordStrength(value);
-            console.log(this._passwordStrength)
         }
         this.changed(value);
     }
