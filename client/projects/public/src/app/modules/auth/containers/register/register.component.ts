@@ -7,7 +7,6 @@ import { confirmPasswordValidator } from '@ui';
     templateUrl: "./register.component.html",
 })
 export class RegisterComponent {
-
     form: FormGroup;
 
     constructor(private fb: FormBuilder) { }
@@ -21,6 +20,8 @@ export class RegisterComponent {
     }
 
     submit(): void {
-        console.log(this.form.value)
+        if (!this.form.valid) return
+
+        // this.form.value
     }
 }

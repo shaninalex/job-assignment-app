@@ -1,10 +1,11 @@
 <div>
-    <label class="block" for="name">
+    <label class="block" [attr.for]="id">
         {{ label }}
         @if (isRequired) { <span class="text-red-600">*</span> }
     </label>
 
     <input
+        [attr.id]="id"
         [attr.type]="type"
         [attr.value]="value"
         [disabled]="isDisabled"
