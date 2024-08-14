@@ -25,7 +25,7 @@ export class InputTextComponent implements ControlValueAccessor {
     value: string;
     changed: (value: string) => void;
     touched: () => void;
-    isDisabled: boolean;
+    isDisabled: boolean = false;
 
     get control(): FormControl {
         return this.parentForm.get(this.fieldName) as FormControl;
