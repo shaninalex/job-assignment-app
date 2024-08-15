@@ -3,7 +3,8 @@ from database.models import Base
 
 # models
 import database.models.admin
-import database.models.account
+import database.models.auth
+import database.models.candidate
 import database.models.company
 
 
