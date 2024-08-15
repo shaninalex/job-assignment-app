@@ -23,11 +23,10 @@ def create_admin():
     engine = create_engine(DATABASE_URI)
 
     hashed_password = password.get_hashed_password(
-        getpass(prompt='Input your password: '))
+        getpass(prompt="Input your password: ")
+    )
     user: User = User(
-        email=os.getenv("ADMIN_EMAIL"),
-        role=Role.admin,
-        password=hashed_password
+        email=os.getenv("ADMIN_EMAIL"), role=Role.admin, password=hashed_password
     )
     with Session(engine) as session:
         try:
@@ -56,18 +55,21 @@ def create_skills():
 
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage="%(prog)s [OPTION]",
-        description="Works with example employers database."
+        usage="%(prog)s [OPTION]", description="Works with example employers database."
     )
 
     parser.add_argument(
-        "-v", "--version", action="version",
-        version=f"{parser.prog} version 1.0.0"
+        "-v", "--version", action="version", version=f"{parser.prog} version 1.0.0"
     )
-    parser.add_argument("-a", "--create-admin", action="store_true",
-                        help="Create administrator user")
-    parser.add_argument("-s", "--create-skills", action="store_true",
-                        help="Create default set of skills")
+    parser.add_argument(
+        "-a", "--create-admin", action="store_true", help="Create administrator user"
+    )
+    parser.add_argument(
+        "-s",
+        "--create-skills",
+        action="store_true",
+        help="Create default set of skills",
+    )
     return parser
 
 
