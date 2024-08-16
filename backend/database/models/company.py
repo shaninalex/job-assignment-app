@@ -1,7 +1,6 @@
 from datetime import datetime
 from sqlalchemy import ForeignKey, func
 from . import Base
-from .auth import Auth
 
 from sqlalchemy import UUID, String, text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -35,10 +34,9 @@ class CompanyManager(Base):
     )
 
     auth_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('auth.id'), unique=True, nullable=True)
-    auth: Mapped["Auth"] = relationship("Auth", back_populates="candidate", uselist=False)
 
     company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('company.id'), unique=True, nullable=False)
-    company: Mapped["Company"] = relationship("Company", back_populates="manager", uselist=False)
+    company: Mapped["Company"] = relationship("Company", back_populates="manager", uselist=False, cascade="all")
 
     def json(self):
         return {
