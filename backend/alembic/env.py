@@ -5,11 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from database.models import Base
-from database.models.auth import Auth
-from database.models.admin import Staff
-from database.models.candidate import Candidate, CandidateExperience 
-from database.models.company import Company, CompanyManager
+from database import Base
 
 
 # this is the Alembic Config object, which provides

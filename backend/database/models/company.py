@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, func
 from . import Base
 
-from sqlalchemy import UUID, String, text
+from sqlalchemy import UUID, String, text, Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 import uuid
 
@@ -11,7 +11,8 @@ class Company(Base):
     __tablename__ = "company"
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("uuid_generate_v4()"))
     name: Mapped[str] = mapped_column(String(30), unique=True)
-
+    image_link: Mapped[str] = mapped_column(Text)
+    
     def json(self):
         return {
             "id": self.id,
