@@ -5,7 +5,7 @@ from aiohttp import web
 from pydantic import ValidationError
 
 from sqlalchemy import select
-from app.db import Role, User
+from database import Auth
 from app.models import AdminCreateUserPayload
 from app.pkg.helpers import validation_error
 from app.pkg.password import get_hashed_password

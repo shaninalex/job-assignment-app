@@ -5,9 +5,9 @@
 import jwt
 from datetime import datetime, timedelta
 
-from app.db import User
-from app.models import JWTTokenResponse
-from app.settings import JWT_SECRET
+from database import User
+from api.models import JWTTokenResponse
+from api.settings import JWT_SECRET
 
 
 def create_jwt_token(user: User) -> JWTTokenResponse:
