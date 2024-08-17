@@ -17,10 +17,10 @@ def setup_routes(app):
 async def init_app():
     app = web.Application()
     app["config"] = config()
-    app["session"] = async_sessionmaker(
+    session = async_sessionmaker(
         create_async_engine(database_url(), echo=False), expire_on_commit=False
     )
-
+    app["session"] = session()
     setup_middlewares(app)
     setup_routes(app)
 

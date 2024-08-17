@@ -16,3 +16,10 @@ class Staff(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100), unique=True)
+
+    def json(self):
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "email": self.email
+        }
