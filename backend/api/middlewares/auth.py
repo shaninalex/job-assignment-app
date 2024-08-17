@@ -6,8 +6,8 @@ import jwt
 from sqlalchemy import select
 from aiohttp import web
 
-from app.db import User
-from app.settings import JWT_SECRET
+from database import Auth
+from api.settings import JWT_SECRET
 
 
 @web.middleware
@@ -28,8 +28,8 @@ async def auth_middleware(request, handler):
             )
 
         with request.app["db"] as session:
-            query = select(User).where(User.id == claims["sub"])
-            user: User = session.scalars(query).one()
+            query = select(Auth).where(Auth.id == claims["sub"])
+            user: Auth = session.scalars(query).one()
             if not user:
                 return web.json_response(
                     {

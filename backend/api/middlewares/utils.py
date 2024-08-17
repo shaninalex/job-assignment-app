@@ -1,7 +1,7 @@
 import time
 from aiohttp import web
 from http import HTTPStatus
-from app.settings import TIMEOUT
+from api.settings import TIMEOUT
 
 
 @web.middleware
@@ -47,7 +47,8 @@ def create_error_middleware(overrides):
                 return await override(request)
 
             raise
-        except Exception:
+        except Exception as e:
+            print(e)
             request.protocol.logger.exception("Error handling request")
             return await overrides[500](request)
 
