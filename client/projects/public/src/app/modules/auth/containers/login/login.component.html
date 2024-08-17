@@ -1,3 +1,5 @@
+<h4 class="text-2xl font-bold mb-4">Login</h4>
+
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
     <ui-input-text
         fieldName="email"
@@ -17,13 +19,10 @@
         [checkStrength]="false"
     />
 
-    <div>
+    <div class="flex gap-3 justify-between items-center">
         <button
             [disabled]="!form.valid"
             class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm disabled:bg-slate-400 disabled:cursor-pointer-none">Login</button>
+        <a [routerLink]="['/auth/register']" class="underline text-sm text-slate-600">Register</a>
     </div>
 </form>
-
-<div>
-    <a [routerLink]="['/auth/register']" class="underline">Register</a>
-</div>

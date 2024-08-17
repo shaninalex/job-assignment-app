@@ -1,5 +1,6 @@
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { v4 as uuid } from "uuid";
 
 
 @Component({
@@ -14,16 +15,17 @@ import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from 
     ]
 })
 export class InputTextComponent implements ControlValueAccessor {
-    @Input() public parentForm: FormGroup;
-    @Input() public fieldName: string;
-    @Input() public type: string;
-    @Input() public label: string;
-    @Input() public isRequired: boolean
+    @Input() parentForm: FormGroup;
+    @Input() fieldName: string;
+    @Input() type: string;
+    @Input() label: string;
+    @Input() isRequired: boolean
 
-    public value: string;
-    public changed: (value: string) => void;
-    public touched: () => void;
-    public isDisabled: boolean;
+    id: string = uuid();
+    value: string;
+    changed: (value: string) => void;
+    touched: () => void;
+    isDisabled: boolean = false;
 
     get control(): FormControl {
         return this.parentForm.get(this.fieldName) as FormControl;

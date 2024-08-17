@@ -6,13 +6,15 @@ import { LoginComponent } from "./containers/login/login.component";
 import { RegisterComponent } from "./containers/register/register.component";
 import { ReactiveFormsModule } from "@angular/forms";
 import { UiModule } from "@ui";
+import { RegisterCompanyComponent } from "./containers/register-company/register-company.component";
 
 @NgModule({
     declarations: [
         // -- pages
         LoginComponent,
         RegisterComponent,
-        AuthComponent
+        RegisterCompanyComponent,
+        AuthComponent,
     ],
     imports: [
         CommonModule,

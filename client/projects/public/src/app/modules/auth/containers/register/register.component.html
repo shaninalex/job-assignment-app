@@ -1,3 +1,10 @@
+<h4 class="text-2xl font-bold text-center">Register</h4>
+
+<div class="text-center">as a </div>
+<div class="mb-4 flex items-center justify-center gap-3">
+    <a [routerLinkActive]="'text-green-400'" [routerLink]="['/auth/register']">Candidate</a>
+    <a [routerLinkActive]="'text-green-400'" [routerLink]="['/auth/register-company']">Company</a>
+</div>
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
     <ui-input-text
@@ -15,7 +22,6 @@
         [parentForm]="form"
         [isRequired]="true"
         label="Password"
-        [checkStrength]="true"
     />
 
     <ui-input-password
@@ -23,18 +29,16 @@
         formControlName="password_confirm"
         [parentForm]="form"
         [isRequired]="true"
-        label="Password"
+        label="Password Confirm"
         [checkStrength]="true"
     />
 
-    <div>
+    <div class="flex gap-3 justify-between items-center">
         <button
             [disabled]="!form.valid"
-            class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm disabled:bg-slate-400 disabled:cursor-pointer-none">Login</button>
+            class="bg-teal-400 p-2 rounded-md hover:bg-teal-500 text-sm disabled:bg-slate-400 disabled:cursor-pointer-none">
+            Login
+        </button>
+        <a [routerLink]="['/auth/login']" class="underline text-sm text-slate-600">Login</a>
     </div>
 </form>
-
-<div>
-    <a [routerLink]="['/auth/login']" class="underline">Login</a>
-</div>
-

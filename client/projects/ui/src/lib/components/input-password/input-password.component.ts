@@ -1,6 +1,7 @@
 import { Component, Input, forwardRef } from "@angular/core";
 import { ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { passwordStrength, Result } from "check-password-strength";
+import { v4 as uuid } from "uuid";
 
 @Component({
     selector: "ui-input-password",
@@ -22,6 +23,7 @@ export class InputPasswordComponent implements ControlValueAccessor {
 
     value: string;
     isDisabled: boolean;
+    id: string = uuid();
     changed: (value: string) => void
     touched: () => void;
 
