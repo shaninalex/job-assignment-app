@@ -5,18 +5,17 @@
 import jwt
 from datetime import datetime, timedelta
 
-from database import User
-from api.models import JWTTokenResponse
+from database import Auth
 from api.settings import JWT_SECRET
 
 
-def create_jwt_token(user: User) -> JWTTokenResponse:
+def create_jwt_token(auth: Auth) -> str:
     """
     Generate user jwt token
     Parameters
     ----------
-    user : User
-        User object for jwt claims
+    user : Auth
+        Auth object for jwt claims
     Returns
     -------
     list
@@ -25,7 +24,6 @@ def create_jwt_token(user: User) -> JWTTokenResponse:
     expiration_time = datetime.now() + timedelta(days=1)
     exp_unix_timestamp = int(expiration_time.timestamp())
     iat_unix_timestamp = int(datetime.now().timestamp())
-    claims = {"sub": user.id, "exp": exp_unix_timestamp, "iat": iat_unix_timestamp}
-
+    claims = {"sub": str(auth.id), "exp": exp_unix_timestamp, "iat": iat_unix_timestamp}
     access_token = jwt.encode(claims, JWT_SECRET, algorithm="HS256")
-    return JWTTokenResponse(token=access_token)
+    return access_token

@@ -13,9 +13,9 @@ class Staff(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    name: Mapped[str] = mapped_column(String(100), unique=True)
+    name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(100), unique=True)
-    password: Mapped[str] = mapped_column(String(100), unique=True)
+    password: Mapped[str] = mapped_column(String(100))
 
     def json(self):
         return {

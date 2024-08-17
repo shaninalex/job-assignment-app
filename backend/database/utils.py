@@ -2,13 +2,8 @@ import os
 from alembic import command, config
 from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine
-from database.models import Base
 
-# models
-# import database.models.admin
-# import database.models.auth
-# import database.models.candidate
-# import database.models.company
+from database.models import Base
 
 
 def create_tables(database_uri, echo):
