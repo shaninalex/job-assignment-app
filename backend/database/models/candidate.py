@@ -41,7 +41,6 @@ class Candidate(Base):
         onupdate=func.now(),
         nullable=True,
     )
-
     auth_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("auth.id"), unique=True, nullable=True
     )
@@ -50,6 +49,19 @@ class Candidate(Base):
         return {
             "id": str(self.id),
             "name": self.name,
+            "email": self.email,
+            "settings": self.settings,
+            "active": self.active,
+            "confirmed": self.confirmed,
+            "photo_link": self.photo_link,
+            "resume_link": self.resume_link,
+            "social_accounts": self.social_accounts,
+            "about": self.about,
+            "about_additional": self.about_additional,
+            "skills": self.skills,
+            "certificates": self.certificates,
+            "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
         }
 
 

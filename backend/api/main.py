@@ -2,7 +2,6 @@ import logging
 
 from aiohttp import web
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.utils import database_url
 from api.middlewares.utils import setup_middlewares
@@ -18,9 +17,11 @@ async def init_app():
     app = web.Application()
     app["config"] = config()
     session = async_sessionmaker(
-        create_async_engine(database_url(), echo=False), expire_on_commit=False
+        create_async_engine(database_url(), echo=False),
+        expire_on_commit=False
     )
     app["session"] = session()
+
     setup_middlewares(app)
     setup_routes(app)
 

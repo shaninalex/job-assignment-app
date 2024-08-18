@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from database.repositories import registration
 from globalTypes import RegistrationType
 from api.types import RegisterForm
-from api.pkg import jwt
+from pkg import jwt
 
 
 def setup_auth_routes(app: web.Application):
@@ -23,8 +23,6 @@ async def handle_registration(request: web.Request) -> web.Response:
     async with request.app["session"] as session:
         try:
             if payload["type"] == RegistrationType.CANDIDATE:
-                # TODO: send rabbitmq message about new candidate
-                # TODO: send confirmation email
                 auth, candidate = await registration.create_candidate(session, payload)
                 return web.json_response({
                     "token": jwt.create_jwt_token(auth),
@@ -33,8 +31,6 @@ async def handle_registration(request: web.Request) -> web.Response:
 
             if payload["type"] == RegistrationType.COMPANY:
                 company, auth, member = await registration.create_company(session, payload)
-                # TODO: send rabbitmq message about new company
-                # TODO: send confirmation email
                 return web.json_response({
                     "token": jwt.create_jwt_token(auth),
                     "account": member.json(),
