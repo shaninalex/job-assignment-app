@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from database.repositories import registration
 from globalTypes import RegistrationType
-from api.types import RegisterPayload
+from api.types import RegisterForm
 from api.pkg import jwt
 
 
@@ -16,7 +16,7 @@ def setup_auth_routes(app: web.Application):
 async def handle_registration(request: web.Request) -> web.Response:
     data = await request.json()
     try:
-        payload = RegisterPayload().load(data)
+        payload = RegisterForm().load(data)
     except ValidationError as err:
         return web.json_response({"errors": err.messages}, status=HTTPStatus.BAD_REQUEST)
 
@@ -24,15 +24,21 @@ async def handle_registration(request: web.Request) -> web.Response:
         try:
             if payload["type"] == RegistrationType.CANDIDATE:
                 # TODO: send rabbitmq message about new candidate
-                return web.json_response({"data": "register candidate"}, status=HTTPStatus.OK)
+                # TODO: send confirmation email
+                auth, candidate = await registration.create_candidate(session, payload)
+                return web.json_response({
+                    "token": jwt.create_jwt_token(auth),
+                    "account": candidate.json(),
+                }, status=HTTPStatus.OK)
+
             if payload["type"] == RegistrationType.COMPANY:
                 company, auth, member = await registration.create_company(session, payload)
                 # TODO: send rabbitmq message about new company
+                # TODO: send confirmation email
                 return web.json_response({
                     "token": jwt.create_jwt_token(auth),
-                    "extra": {
-                        "role": "member role admin"
-                    }
+                    "account": member.json(),
+                    "company": company.json(),
                 }, status=HTTPStatus.OK)
 
         except SQLAlchemyError as e:

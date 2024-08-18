@@ -22,6 +22,7 @@ class Company(Base):
         return {
             "id": str(self.id),
             "name": self.name,
+            "image_link": self.image_link,
         }
 
 
@@ -57,6 +58,7 @@ class CompanyManager(Base):  # TODO: CompanyMember
 
     def json(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "name": self.name,
+            "email": self.email,
         }

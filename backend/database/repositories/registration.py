@@ -1,14 +1,14 @@
 from typing import Tuple
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from api.types import RegisterPayload
+from api.types import RegisterForm
 from api.pkg.password import get_hashed_password
-from database import Company, CompanyManager, Auth, AuthStatus
+from database import Company, CompanyManager, Auth, AuthStatus, Candidate
 
 
 async def create_company(
         session: async_sessionmaker[AsyncSession],
-        payload: RegisterPayload,
+        payload: RegisterForm,
 ) -> Tuple[Company, Auth, CompanyManager]:
     async with session:
         company = Company(name=payload["companyName"])
@@ -29,3 +29,25 @@ async def create_company(
         session.add(member)
         await session.commit()
         return company, auth, member
+
+
+async def create_candidate(
+        session: async_sessionmaker[AsyncSession],
+        payload: RegisterForm,
+) -> Tuple[Auth, Candidate]:
+    async with session:
+        auth = Auth(
+            hash=get_hashed_password(payload["password"]),
+            email=payload["email"],
+            status=AuthStatus.PENDING,
+        )
+        session.add(auth)
+        await session.commit()
+        candidate = Candidate(
+            name=payload["name"],
+            email=payload["email"],
+            auth_id=auth.id,
+        )
+        session.add(candidate)
+        await session.commit()
+        return auth, candidate

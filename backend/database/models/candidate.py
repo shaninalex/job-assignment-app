@@ -48,7 +48,7 @@ class Candidate(Base):
 
     def json(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "name": self.name,
         }
 
