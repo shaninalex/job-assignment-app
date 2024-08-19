@@ -22,7 +22,7 @@ async def init_app():
         expire_on_commit=False
     )
     app["session"] = session()
-
+    
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
             'localhost', 

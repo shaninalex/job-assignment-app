@@ -31,7 +31,7 @@ async def handle_registration(request: web.Request) -> web.Response:
             if payload["type"] == RegistrationType.CANDIDATE:
                 auth, candidate = await registration.create_candidate(session, payload)
                 rabbitmq.create_new_candidate(channel, candidate)
-                rabbitmq.confirm_account(channel, auth, candidate.name)
+                await rabbitmq.confirm_account(session, channel, auth, candidate.name)
                 return web.json_response({
                     "token": jwt.create_jwt_token(auth),
                     "account": candidate.json(),
@@ -40,7 +40,7 @@ async def handle_registration(request: web.Request) -> web.Response:
             if payload["type"] == RegistrationType.COMPANY:
                 company, auth, member = await registration.create_company(session, payload)
                 rabbitmq.create_new_company(channel, company, member)
-                rabbitmq.confirm_account(channel, auth, member.name)
+                await rabbitmq.confirm_account(session, channel, auth, member.name)
                 return web.json_response({
                     "token": jwt.create_jwt_token(auth),
                     "account": member.json(),
