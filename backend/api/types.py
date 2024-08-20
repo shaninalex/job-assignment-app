@@ -14,7 +14,9 @@ class RegisterForm(Schema):
     def password_equal(self, data, **kwargs):
         errors = {}
         if data["password"] != data["password_confirm"]:
-            errors["password_confirm"] = ["password confirm should be equal to password"]
+            errors["password_confirm"] = [
+                "password confirm should be equal to password"
+            ]
             raise ValidationError(errors)
 
         if data["type"] == RegistrationType.CANDIDATE:

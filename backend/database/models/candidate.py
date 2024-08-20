@@ -1,11 +1,11 @@
-from sqlalchemy.types import Boolean, Text
-from datetime import datetime
-from sqlalchemy import ForeignKey, func
-from . import Base
-
-from sqlalchemy import JSON, UUID, String, text
-from sqlalchemy.orm import mapped_column, Mapped, relationship
 import uuid
+from datetime import datetime
+from sqlalchemy import JSON, UUID, String, text, ForeignKey, func
+from sqlalchemy.types import Boolean, Text
+from sqlalchemy.orm import mapped_column, Mapped, relationship
+
+from typing import List
+from . import Base
 
 
 class Candidate(Base):
@@ -32,20 +32,21 @@ class Candidate(Base):
     about_additional: Mapped[str] = mapped_column(Text, nullable=True)
     skills: Mapped[JSON] = mapped_column(JSON, nullable=True)
     certificates: Mapped[JSON] = mapped_column(JSON, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),
         onupdate=func.now(),
         nullable=True,
     )
-    auth_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("auth.id"), unique=True, nullable=True
-    )
+    auth_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("auth.id"), unique=True, nullable=True)
+    experiences: Mapped[List["CandidateExperience"]] = relationship(back_populates="candidate")
 
     def json(self):
+        experiences = []
+        for e in self.experiences:
+            experiences.append(e.json())
+                                                    
         return {
             "id": str(self.id),
             "name": self.name,
@@ -62,6 +63,7 @@ class Candidate(Base):
             "certificates": self.certificates,
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
+            "experiences": experiences
         }
 
 
@@ -83,6 +85,7 @@ class CandidateExperience(Base):
     )
     position: Mapped[str] = mapped_column(Text, nullable=True)
     responsibility: Mapped[str] = mapped_column(Text, nullable=True)
+    candidate: Mapped["Candidate"] = relationship(back_populates="experiences")
     created_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now(), nullable=True
     )
@@ -93,5 +96,16 @@ class CandidateExperience(Base):
         nullable=True,
     )
 
-    # candidate_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey('candidate.id'), unique=True, nullable=True)
-    # candidate: Mapped["Candidate"] = relationship("Candidate", back_populates="candidate", uselist=False, cascade="all")
+    def json(self):
+        return {
+            "id": str(self.id),
+            "company_name": self.company_name,
+            "company_link": self.company_link,
+            "position": self.position,
+            "responsibility": self.responsibility,
+            "candidate": self.candidate.json(),
+            "work_start": str(self.work_start),
+            "work_end": str(self.work_end),
+            "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
+        }

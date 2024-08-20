@@ -18,15 +18,13 @@ async def init_app():
     app = web.Application()
     app["config"] = config()
     session = async_sessionmaker(
-        create_async_engine(database_url(), echo=False),
-        expire_on_commit=False
+        create_async_engine(database_url(), echo=False), expire_on_commit=False
     )
     app["session"] = session()
-    
+
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(
-            'localhost', 
-            credentials=pika.PlainCredentials('guest', 'guest')
+            "localhost", credentials=pika.PlainCredentials("guest", "guest")
         )
     )
 

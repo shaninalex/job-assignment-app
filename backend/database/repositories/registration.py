@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 from api.types import RegisterForm
 from pkg import password
-from database import Company, CompanyManager, Auth, AuthStatus, Candidate
+from database import Company, CompanyManager, Auth, AuthStatus, Candidate, CompanyManagerRole
 
 
 async def create_company(
@@ -24,7 +24,8 @@ async def create_company(
             name=payload["name"],
             email=payload["email"],
             auth_id=auth.id,
-            company_id=company.id
+            company_id=company.id,
+            role=CompanyManagerRole.ADMIN,
         )
         session.add(member)
         await session.commit()

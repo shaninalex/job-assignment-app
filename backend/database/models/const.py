@@ -10,3 +10,8 @@ class AuthStatus(enum.Enum):
 class ConfirmStatusCode(enum.Enum):
     SENDED = "sended"
     USED = "used"
+
+
+class CompanyManagerRole(enum.Enum):
+    ADMIN = "admin"
+    MANAGER = "manager"
