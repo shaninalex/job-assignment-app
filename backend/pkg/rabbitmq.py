@@ -32,6 +32,7 @@ async def confirm_account(
             email=auth.email,
             code=utils.generate_code(6),
             status=ConfirmStatusCode.SENDED,
+            auth_id=auth.id,
         )
         session.add(confirm_code)
         await session.commit()

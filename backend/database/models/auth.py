@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from .const import AuthStatus, ConfirmStatusCode
 from . import Base
-from .candidate import Candidate
+from .candidate import Candidate 
 from .company import CompanyManager
 from datetime import datetime
 
@@ -16,6 +16,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 # Mapping Class Inheritance Hierarchies¶
 # https://docs.sqlalchemy.org/en/20/orm/inheritance.html
 # Auth table can be applied to Candidate and CompanyMember. We need to decide is it worth it or not.
+
 
 class Auth(Base):
     __tablename__ = "auth"
@@ -29,22 +30,21 @@ class Auth(Base):
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     status: Mapped[AuthStatus] = mapped_column(Enum(AuthStatus))
 
-    candidate: Mapped["Candidate"] = relationship("Candidate", back_populates="auth")
-    company_manager: Mapped["CompanyManager"] = relationship("CompanyManager", back_populates="auth")
+    candidate: Mapped["Candidate"] = relationship(
+        "Candidate", back_populates="auth", uselist=False)  # Set uselist=False for one-to-one relationship
+    company_manager: Mapped["CompanyManager"] = relationship(
+        "CompanyManager", back_populates="auth", uselist=False)
     codes: Mapped[List["ConfirmCode"]] = relationship(back_populates="auth")
 
     def json(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "email": self.email,
-            "status": self.status,
-            "candidate": self.candidate.json(),
-            "company_manager": self.company_manager.json(),
-            "codes": self.codes.json(),
+            "status": self.status.name,
+            "candidate": self.candidate.json() if self.candidate else None,
+            "company_manager": self.company_manager.json() if self.company_manager else None,
+            "codes": [code.json() for code in self.codes],
         }
-
-Candidate.auth = relationship(back_populates="candidate")
-CompanyManager.auth = relationship(back_populates="company_manager")
 
 
 class ConfirmCode(Base):
@@ -57,13 +57,15 @@ class ConfirmCode(Base):
     )
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     code: Mapped[str] = mapped_column(VARCHAR(6))
-    status: Mapped[AuthStatus] = mapped_column(Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED)
+    status: Mapped[AuthStatus] = mapped_column(
+        Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED)
     created_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now(), nullable=True
     )
-    auth_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("auth.id"))
+    auth_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("auth.id"))
     auth: Mapped["Auth"] = relationship(back_populates="codes")
-
+    # TODO: expired date now+1 hour
     def json(self):
         return {
             "id": str(self.id),

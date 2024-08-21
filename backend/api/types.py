@@ -1,3 +1,4 @@
+from typing import TypedDict, Optional
 from marshmallow import Schema, fields, validates_schema, ValidationError
 from globalTypes import RegistrationType
 
@@ -30,3 +31,12 @@ class RegisterForm(Schema):
             if "name" not in data:
                 errors["name"] = ["Company admin name is required"]
             raise ValidationError(errors)
+
+
+class RegistrationPayload(TypedDict):
+    name: str
+    companyName: Optional[str]
+    age: str
+    email: str
+    password: str
+    type: RegistrationType
