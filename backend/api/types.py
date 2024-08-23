@@ -1,5 +1,9 @@
+"""
+TODO: move forms into separate file since this is only for types
+"""
+
 from typing import TypedDict, Optional
-from marshmallow import Schema, fields, validates_schema, ValidationError
+from marshmallow import Schema, fields, validates_schema, ValidationError, validate
 from globalTypes import RegistrationType
 
 
@@ -40,3 +44,13 @@ class RegistrationPayload(TypedDict):
     email: str
     password: str
     type: RegistrationType
+
+
+class ConfirmCodePayload(TypedDict):
+    id: str
+    email: str
+
+
+class ConfirmCodeForm(Schema):
+    id = fields.Str(required=True)
+    code = fields.Str(required=True, validate=[validate.Length(max=6, min=6)])

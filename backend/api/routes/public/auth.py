@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from database.repositories import registration
 from globalTypes import RegistrationType
-from api.types import RegisterForm, RegistrationPayload
+from api.types import RegisterForm, RegistrationPayload, ConfirmCodeForm, ConfirmCodePayload
 from pkg import jwt
 from pkg import rabbitmq
 
@@ -91,4 +91,28 @@ async def handle_registration(request: web.Request) -> web.Response:
 
 
 async def handle_registration_confirm(request: web.Request) -> web.Response:
-    return web.json_response({}, status=HTTPStatus.OK)
+    data = await request.json()
+    try:
+        reg_form = ConfirmCodeForm()
+        input_data = reg_form.load(data)
+        payload = ConfirmCodePayload(**input_data)
+        return web.json_response(payload, status=HTTPStatus.OK)
+
+    except ValidationError as err:
+        return web.json_response(
+            {"errors": err.messages}, status=HTTPStatus.BAD_REQUEST
+        )
+
+    # To get user we need to get auth from code and get candidate or company_member
+    # NOTE: I'm still not sure about different tables for candidates and company members.
+    #       Why not to use just an account with different roles???
+    #       This role can be checked in middlewares and in api gateways (oathkeeper for example)
+    #       And based on this role we can decorate http handlers
+    # TODO:
+    #   - find a code by id
+    #   - check if entered code is correct
+    #   - if code is correct:
+    #       - change user that it's confirmed
+    #       - remove code obj from db
+    #       - send email to user about successfully confirmation account
+    #       - send rabbitmq event to admin about confirmation
