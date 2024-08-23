@@ -17,7 +17,8 @@ class Company(Base):
     )
     name: Mapped[str] = mapped_column(String(30), unique=True)
     image_link: Mapped[str] = mapped_column(Text, nullable=True)
-    managers: Mapped[List["CompanyManager"]] = relationship(back_populates="company")
+    managers: Mapped[List["CompanyManager"]
+                     ] = relationship(back_populates="company")
     created_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now(), nullable=True
     )
@@ -51,24 +52,10 @@ class CompanyManager(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    name: Mapped[str] = mapped_column(String(100))
-    email: Mapped[str] = mapped_column(String(100), unique=True)
-    role: Mapped[CompanyManagerRole] = mapped_column(
-        Enum(CompanyManagerRole),
-        default=CompanyManagerRole.MANAGER,
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        default=func.now(),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=True,
-    )
-    auth_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("auth.id"), unique=True, nullable=True
-    )
+
     company_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("company.id"), unique=True, nullable=False
     )
@@ -77,12 +64,6 @@ class CompanyManager(Base):
     def json(self):
         return {
             "id": str(self.id),
-            "name": self.name,
-            "email": self.email,
-            "role": self.role,
-            "auth_id": str(self.auth_id),
-            "company_id": str(self.company_id),
+            "user_id": str(self.user_id),
             "company": self.company.json(),
-            "created_at": str(self.created_at),
-            "updated_at": str(self.updated_at),
         }

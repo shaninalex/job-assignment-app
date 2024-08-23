@@ -5,9 +5,10 @@ from aiohttp import web
 from marshmallow import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
+from api.routes.public.forms import RegisterForm, ConfirmCodeForm
 from database.repositories import registration
 from globalTypes import RegistrationType
-from api.types import RegisterForm, RegistrationPayload, ConfirmCodeForm, ConfirmCodePayload
+from api.types import RegistrationPayload, ConfirmCodePayload
 from pkg import jwt
 from pkg import rabbitmq
 
@@ -102,12 +103,6 @@ async def handle_registration_confirm(request: web.Request) -> web.Response:
         return web.json_response(
             {"errors": err.messages}, status=HTTPStatus.BAD_REQUEST
         )
-
-    # To get user we need to get auth from code and get candidate or company_member
-    # NOTE: I'm still not sure about different tables for candidates and company members.
-    #       Why not to use just an account with different roles???
-    #       This role can be checked in middlewares and in api gateways (oathkeeper for example)
-    #       And based on this role we can decorate http handlers
     # TODO:
     #   - find a code by id
     #   - check if entered code is correct

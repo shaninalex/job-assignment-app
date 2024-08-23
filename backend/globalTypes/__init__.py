@@ -1,1 +1,1 @@
-from .enums import RegistrationType
+from .enums import RegistrationType, Role
