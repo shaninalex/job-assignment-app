@@ -14,7 +14,7 @@ def setup_routes(app):
     public.setup_auth_routes(app)
 
 
-async def init_app():
+def init_app():
     app = web.Application()
     app["config"] = config()
     session = async_sessionmaker(
@@ -45,8 +45,10 @@ async def close_rmq_connection(app):
     print("rmq connection and channel closed...")
 
 
-def main():
-    app = init_app()
-    logging.basicConfig(level=logging.DEBUG)
-    conf = config()
-    web.run_app(app, port=conf["APP_PORT"])
+# DeprecationWarning
+# this method is deprecated since we need to run application in a different ways ( live/dev )
+# def main():
+#     app = init_app()
+#     logging.basicConfig(level=logging.DEBUG)
+#     conf = config()
+#     web.run_app(app, port=conf["APP_PORT"])
