@@ -27,6 +27,9 @@ class Company(Base):
         nullable=True,
     )
 
+    # NOTE:
+    # company_rating ??
+
     def json(self):
         return {
             "id": str(self.id),

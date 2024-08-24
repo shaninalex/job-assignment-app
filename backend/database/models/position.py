@@ -34,6 +34,7 @@ class Position(Base):
     hours: Mapped[WorkingHours] = mapped_column(Enum(WorkingHours))
     travel: Mapped[TravelRequired] = mapped_column(Enum(TravelRequired))
     status: Mapped[PositionStatus] = mapped_column(Enum(PositionStatus))
+    price_range: Mapped[str] = mapped_column(VARCHAR(50))
 
     # NOTE: column ideas
     # - search_tags
