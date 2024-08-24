@@ -1,62 +1,99 @@
-import pika
+"""
+Set of senders for rabbitmq
+
+NOTE: pika will be replaced with aio-pika
+https://aio-pika.readthedocs.io/en/latest/quick-start.html
+Because pika itself does not support ( or support in not convenient way ) async/await
+
+"""
+
+import enum
 import json
-from pika.adapters.blocking_connection import BlockingChannel
-from sqlalchemy.ext.asyncio import AsyncSession
-from database import (
-    CompanyManager,
-    Company,
-    User,
-    ConfirmCode,
-    ConfirmStatusCode,
+
+import pika
+from pika.adapters.blocking_connection import BlockingConnection
+
+
+class Exchanges(enum.Enum):
+    ADMIN = "ex.admin_events"
+    EMAIL = "ex.email"
+
+
+class RoutingKeys(enum.Enum):
+    NEW_USER = "new_user"
+    NEW_COMPANY = "new_company"
+    COMPLETE_REGISTRATION_SUCCESS = "complete_registration_success"
+    CONFIRM_CODE_SEND = "send_confirm_code"
+
+
+properties = pika.BasicProperties(
+    content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
 )
-from pkg import utils
+
+# into admin exchange
 
 
-def create_new_candidate(channel: BlockingChannel, user: User):
-    d = {"user": user.json()}
-    channel.basic_publish(
-        "ex.admin_events",
-        "new_user",
+def admin_create_new_candidate(connection: BlockingConnection, user: dict):
+    d = {"user": user}
+    connection.channel().basic_publish(
+        Exchanges.ADMIN.value,
+        RoutingKeys.NEW_USER.value,
         json.dumps(d),
-        pika.BasicProperties(
-            content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
-        ),
+        properties,
     )
 
 
-async def confirm_account(
-    session: AsyncSession, channel: BlockingChannel, user: User, code: ConfirmCode
-):
-    async with session:
-        d = {
-            "name": user.name,
-            "email": user.email,
-            "code": code.code,
-            "code_id": str(code.id),
-        }
-        channel.basic_publish(
-            "ex.email",
-            "confirm_registration",
-            json.dumps(d),
-            pika.BasicProperties(
-                content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
-            ),
-        )
-
-
-def create_new_company(
-    channel: BlockingChannel, company: Company, member: CompanyManager, user: User
+def admin_create_new_company(
+    connection: BlockingConnection, company: dict, member: dict, user: dict
 ):
     d = {
-        "company": company.json(),
-        "user": user.json(),
-        "member": member.json(),
+        "company": company,
+        "user": user,
+        "member": member,
     }
-    channel.basic_publish(
-        "ex.admin_events",
-        "new_company",
+    connection.channel().basic_publish(
+        Exchanges.ADMIN.value,
+        RoutingKeys.NEW_COMPANY.value,
         json.dumps(d),
-        pika.BasicProperties(
-            content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
-        ),
+        properties,
+    )
+
+
+def admin_confirm_account_success(connection: BlockingConnection, user: dict):
+    d = {"user": user}
+    connection.channel().basic_publish(
+        Exchanges.ADMIN.value,
+        RoutingKeys.COMPLETE_REGISTRATION_SUCCESS.value,
+        json.dumps(d),
+        properties,
+    )
+
+
+#
+# into email exchange
+#
+
+
+def email_confirm_account(connection: BlockingConnection, user: dict, code: dict):
+    d = {
+        "user": user,
+        "code": code,
+    }
+    connection.channel().basic_publish(
+        Exchanges.EMAIL.value,
+        RoutingKeys.CONFIRM_CODE_SEND.value,
+        json.dumps(d),
+        properties,
+    )
+
+
+def email_confirm_account_success(connection: BlockingConnection, user: dict):
+    d = {
+        "user": user,
+    }
+    connection.channel().basic_publish(
+        Exchanges.EMAIL.value,
+        RoutingKeys.COMPLETE_REGISTRATION_SUCCESS.value,
+        json.dumps(d),
+        properties,
     )

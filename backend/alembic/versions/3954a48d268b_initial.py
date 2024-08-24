@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: 8f4f23e2f563
+Revision ID: 3954a48d268b
 Revises: 
-Create Date: 2024-08-23 22:59:04.027356
+Create Date: 2024-08-24 18:35:25.562682
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '8f4f23e2f563'
+revision: str = '3954a48d268b'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -46,6 +46,7 @@ def upgrade() -> None:
     sa.Column('image', sa.Text(), nullable=True),
     sa.Column('social_accounts', sa.JSON(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), server_default=sa.text('false'), nullable=False),
+    sa.Column('status', sa.Enum('ACTIVE', 'BANNED', 'PENDING', name='authstatus'), nullable=False),
     sa.Column('role', sa.Enum('CANDIDATE', 'COMPANY_MANAGER', 'COMPANY_ADMIN', name='role'), nullable=False),
     sa.Column('password_hash', sa.Text(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
@@ -80,7 +81,7 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('email', sa.VARCHAR(length=100), nullable=False),
     sa.Column('code', sa.VARCHAR(length=6), nullable=False),
-    sa.Column('status', sa.Enum('SENDED', 'USED', name='confirmstatuscode'), nullable=False),
+    sa.Column('status', sa.Enum('CREATED', 'SENDED', 'USED', name='confirmstatuscode'), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('expired_at', sa.DateTime(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
