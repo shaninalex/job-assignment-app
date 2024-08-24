@@ -5,7 +5,7 @@ from database import (
     Candidate,
     CompanyManager,
     Company,
-    Auth,
+    User,
     ConfirmCode,
     ConfirmStatusCode,
 )
@@ -25,20 +25,20 @@ def create_new_candidate(channel: BlockingChannel, candidate: Candidate):
 
 
 async def confirm_account(
-    session: AsyncSession, channel: BlockingChannel, auth: Auth, name: str
+    session: AsyncSession, channel: BlockingChannel, user: User, name: str
 ):
     async with session:
         confirm_code = ConfirmCode(
-            email=auth.email,
+            email=user.email,
             code=utils.generate_code(6),
             status=ConfirmStatusCode.SENDED,
-            auth_id=auth.id,
+            user_id=user.id,
         )
         session.add(confirm_code)
         await session.commit()
         d = {
             "name": name,
-            "email": auth.email,
+            "email": user.email,
             "code": confirm_code.code,
             "code_id": confirm_code.id,
         }

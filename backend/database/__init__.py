@@ -7,11 +7,10 @@ from .models import Base
 from .models.admin import Staff
 from .models.candidate import Candidate, CandidateExperience
 from .models.company import Company, CompanyManager
-from .models.auth import Auth, ConfirmCode
-from .models.const import AuthStatus, ConfirmStatusCode, CompanyManagerRole
+from .models.user import User, ConfirmCode
+from globalTypes import AuthStatus, ConfirmStatusCode, CompanyManagerRole
 
+User.candidate = relationship("Candidate", back_populates="user")
 
-Candidate.auth = relationship("Auth", back_populates="candidate")
-CompanyManager.auth = relationship("Auth", back_populates="company_manager")
 
 Base.registry.configure()

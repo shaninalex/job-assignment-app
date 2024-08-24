@@ -9,8 +9,7 @@ from sqlalchemy.types import UUID, VARCHAR, Text, Enum, String, JSON
 from sqlalchemy.orm import relationship
 from typing import List
 
-from .const import AuthStatus, ConfirmStatusCode
-from globalTypes import Role
+from globalTypes import Role, AuthStatus, ConfirmStatusCode
 from . import Base
 from datetime import datetime
 
@@ -48,13 +47,13 @@ class User(Base):
     )
 
     # mapped relationships
-    codes: Mapped[List["ConfirmCode"]] = relationship(back_populates="user")
+    codes: Mapped[List["ConfirmCode"]] = relationship("ConfirmCode", back_populates="user")
 
     def json(self):
         return {
             "id": str(self.id),
+            "name": self.name,
             "email": self.email,
-            "status": self.status.name,
             "codes": [code.json() for code in self.codes],
         }
 
@@ -80,7 +79,7 @@ class ConfirmCode(Base):
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user.id"))
 
-    user: Mapped["User"] = relationship(back_populates="codes")
+    user: Mapped["User"] = relationship("User", back_populates="codes")
 
     def json(self):
         return {
@@ -90,5 +89,8 @@ class ConfirmCode(Base):
             "status": self.status,
             "created_at": str(self.created_at),
             "user_id": str(self.user_id),
-            "auth": self.auth.json(),
         }
+
+
+
+

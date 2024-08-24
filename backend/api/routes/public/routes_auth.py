@@ -2,10 +2,9 @@ from pika.adapters.blocking_connection import BlockingChannel
 
 from http import HTTPStatus
 from aiohttp import web
-from marshmallow import ValidationError
+from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from api.routes.public.forms import RegisterForm, ConfirmCodeForm
 from database.repositories import registration
 from globalTypes import RegistrationType
 from api.types import RegistrationPayload, ConfirmCodePayload
@@ -41,10 +40,8 @@ async def handle_registration(request: web.Request) -> web.Response:
     """
     data = await request.json()
     try:
-        reg_form = RegisterForm()
-        input_data = reg_form.load(data)
-        payload = RegistrationPayload(**input_data)
-
+        reg_form = RegistrationPayload(**data)
+        payload = reg_form.load(data)
     except ValidationError as err:
         return web.json_response(
             {"errors": err.messages}, status=HTTPStatus.BAD_REQUEST
@@ -54,26 +51,26 @@ async def handle_registration(request: web.Request) -> web.Response:
         channel: BlockingChannel = request.app["channel"]
         try:
             if payload["type"] == RegistrationType.CANDIDATE:
-                auth, candidate = await registration.create_candidate(session, payload)
+                user, candidate = await registration.create_candidate(session, payload)
                 rabbitmq.create_new_candidate(channel, candidate)
-                await rabbitmq.confirm_account(session, channel, auth, candidate.name)
+                await rabbitmq.confirm_account(session, channel, user, user.name)
                 return web.json_response(
                     {
-                        "token": jwt.create_jwt_token(auth),
+                        "token": jwt.create_jwt_token(user),
                         "account": candidate.json(),
                     },
                     status=HTTPStatus.OK,
                 )
 
             if payload["type"] == RegistrationType.COMPANY:
-                company, auth, member = await registration.create_company(
+                company, user, member = await registration.create_company(
                     session, payload
                 )
                 rabbitmq.create_new_company(channel, company, member)
-                await rabbitmq.confirm_account(session, channel, auth, member.name)
+                await rabbitmq.confirm_account(session, channel, user, user.name)
                 return web.json_response(
                     {
-                        "token": jwt.create_jwt_token(auth),
+                        "token": jwt.create_jwt_token(user),
                         "account": member.json(),
                         "company": company.json(),
                     },
@@ -94,20 +91,16 @@ async def handle_registration(request: web.Request) -> web.Response:
 async def handle_registration_confirm(request: web.Request) -> web.Response:
     data = await request.json()
     try:
-        reg_form = ConfirmCodeForm()
-        input_data = reg_form.load(data)
-        payload = ConfirmCodePayload(**input_data)
-        return web.json_response(payload, status=HTTPStatus.OK)
-
+        code = ConfirmCodePayload(**data)
+        # TODO:
+        #   - find a code by id
+        #   - check if entered code is correct
+        #   - if code is correct:
+        #       - change user that it's confirmed
+        #       - remove code obj from db
+        #       - send email to user about successfully confirmation account
+        #       - send rabbitmq event to admin about confirmation
     except ValidationError as err:
-        return web.json_response(
-            {"errors": err.messages}, status=HTTPStatus.BAD_REQUEST
-        )
-    # TODO:
-    #   - find a code by id
-    #   - check if entered code is correct
-    #   - if code is correct:
-    #       - change user that it's confirmed
-    #       - remove code obj from db
-    #       - send email to user about successfully confirmation account
-    #       - send rabbitmq event to admin about confirmation
+        return web.json_response(err.json(), status=HTTPStatus.BAD_REQUEST)
+
+    return web.json_response(code, status=HTTPStatus.OK)

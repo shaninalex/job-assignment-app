@@ -4,7 +4,7 @@ from sqlalchemy import JSON, UUID, text, ForeignKey, func
 from sqlalchemy.types import Text
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from typing import List, Optional
+from typing import List
 from . import Base
 
 
@@ -22,13 +22,10 @@ class Candidate(Base):
     about_additional: Mapped[str] = mapped_column(Text, nullable=True)
     skills: Mapped[JSON] = mapped_column(JSON, nullable=True)
     certificates: Mapped[JSON] = mapped_column(JSON, nullable=True)
-    user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
-    )
+    experiences: Mapped[List["CandidateExperience"]] = relationship(back_populates="candidate", uselist=True)
 
-    experiences: Mapped[Optional[List["CandidateExperience"]]] = relationship(
-        back_populates="candidate", uselist=True
-    )
+    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
+    user: Mapped["User"] = relationship("User", back_populates="candidate")
 
     def json(self):
         return {
@@ -51,21 +48,13 @@ class CandidateExperience(Base):
     )
     company_name: Mapped[str] = mapped_column(Text, nullable=True)
     company_link: Mapped[str] = mapped_column(Text, nullable=True)
-    work_start: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
-    work_end: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=False
-    )
+    work_start: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
+    work_end: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=False)
     position: Mapped[str] = mapped_column(Text, nullable=True)
     responsibility: Mapped[str] = mapped_column(Text, nullable=True)
     candidate: Mapped["Candidate"] = relationship(back_populates="experiences")
-    candidate_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+    candidate_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),

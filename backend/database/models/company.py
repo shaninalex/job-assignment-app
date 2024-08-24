@@ -1,9 +1,8 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import UUID, String, text, Text, Enum, ForeignKey, func
+from sqlalchemy import UUID, String, text, Text, ForeignKey, func
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from . import Base
-from .const import CompanyManagerRole
 from typing import List
 
 
