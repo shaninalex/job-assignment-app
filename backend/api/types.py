@@ -44,6 +44,8 @@ class ConfirmCodePayload(BaseModel):
         """This code will raise ValueException and pydantic catch this
         exception and show error about invalid UUID"""
         UUID(v, version=4)
+        # othervice it will return data
+        return v
 
     @model_validator(mode='before')
     @classmethod
