@@ -116,12 +116,6 @@ async def handle_registration_confirm(request: web.Request):
 
             # TODO: is expired - return expired error and delete code.
 
-            if code.code != payload.code:
-                return web.json_response(
-                    [errors.create_form_error("code", "Code mismatch")],
-                    status=HTTPStatus.NOT_FOUND,
-                )
-
             # Call confirm_user function to confirm the user and update the status
             user = await repositories.confirm_user(session, code)
             if user is None:
