@@ -17,7 +17,6 @@ class Candidate(Base):
         server_default=text("uuid_generate_v4()"),
     )
     resume_link: Mapped[str] = mapped_column(Text, nullable=True)
-    social_accounts: Mapped[JSON] = mapped_column(JSON, nullable=True)  # <-- remove
     about: Mapped[str] = mapped_column(Text, nullable=True)
     about_additional: Mapped[str] = mapped_column(Text, nullable=True)
     skills: Mapped[JSON] = mapped_column(JSON, nullable=True)

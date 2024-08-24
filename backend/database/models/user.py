@@ -6,14 +6,13 @@ User and auth related tables
 import uuid
 from sqlalchemy import text, func, ForeignKey, Boolean
 from sqlalchemy.types import UUID, VARCHAR, Text, Enum, String, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 from typing import List
 
 from globalTypes import Role, AuthStatus, ConfirmStatusCode
 from . import Base
 from datetime import datetime
 
-from sqlalchemy.orm import mapped_column, Mapped
 
 
 class User(Base):
@@ -54,6 +53,8 @@ class User(Base):
     codes: Mapped[List["ConfirmCode"]] = relationship(
         "ConfirmCode", back_populates="user"
     )
+
+    feedbacks = relationship("PositionFeedback", back_populates="user", lazy='dynamic')
 
     def json(self):
         return {
