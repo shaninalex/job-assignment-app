@@ -1,8 +1,8 @@
 import logging
 
+import pika
 from aiohttp import web
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.utils import database_url
 from api.middlewares.utils import setup_middlewares
@@ -21,11 +21,28 @@ async def init_app():
         create_async_engine(database_url(), echo=False), expire_on_commit=False
     )
     app["session"] = session()
+
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            "localhost", credentials=pika.PlainCredentials("guest", "guest")
+        )
+    )
+
+    app["connection"] = connection
+    app["channel"] = connection.channel()
+    app.on_shutdown.append(close_rmq_connection)
+
     setup_middlewares(app)
     setup_routes(app)
 
     logging.info("Main app initialized")
     return app
+
+
+async def close_rmq_connection(app):
+    app["connection"].close()
+    app["channel"].close()
+    print("rmq connection and channel closed...")
 
 
 def main():

@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: d65fd6ef980a
+Revision ID: 8f4f23e2f563
 Revises: 
-Create Date: 2024-08-16 10:12:42.325810
+Create Date: 2024-08-23 22:59:04.027356
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd65fd6ef980a'
+revision: str = '8f4f23e2f563'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,59 +26,66 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('password', sa.String(length=100), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('name'),
-    sa.UniqueConstraint('password')
-    )
-    op.create_table('auth',
-    sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('hash', sa.Text(), nullable=False),
-    sa.Column('email', sa.VARCHAR(length=100), nullable=False),
-    sa.Column('status', sa.Enum('ACTIVE', 'BANNED', 'PENDING', name='authstatus'), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('company',
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('name', sa.String(length=30), nullable=False),
+    sa.Column('image_link', sa.Text(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )
-    op.create_table('candidate',
+    op.create_table('user',
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('email', sa.String(length=100), nullable=False),
+    sa.Column('email', sa.VARCHAR(length=100), nullable=False),
     sa.Column('settings', sa.JSON(), nullable=True),
     sa.Column('active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
+    sa.Column('image', sa.Text(), nullable=True),
+    sa.Column('social_accounts', sa.JSON(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), server_default=sa.text('false'), nullable=False),
-    sa.Column('photo_link', sa.Text(), nullable=True),
+    sa.Column('role', sa.Enum('CANDIDATE', 'COMPANY_MANAGER', 'COMPANY_ADMIN', name='role'), nullable=False),
+    sa.Column('password_hash', sa.Text(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
+    )
+    op.create_table('candidate',
+    sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('resume_link', sa.Text(), nullable=True),
     sa.Column('social_accounts', sa.JSON(), nullable=True),
     sa.Column('about', sa.Text(), nullable=True),
     sa.Column('about_additional', sa.Text(), nullable=True),
     sa.Column('skills', sa.JSON(), nullable=True),
     sa.Column('certificates', sa.JSON(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.Column('auth_id', sa.UUID(), nullable=True),
-    sa.ForeignKeyConstraint(['auth_id'], ['auth.id'], ),
+    sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('auth_id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('user_id')
     )
     op.create_table('company_manager',
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('email', sa.String(length=100), nullable=False),
-    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.Column('auth_id', sa.UUID(), nullable=True),
+    sa.Column('user_id', sa.UUID(), nullable=True),
     sa.Column('company_id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['auth_id'], ['auth.id'], ),
     sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('auth_id'),
     sa.UniqueConstraint('company_id'),
+    sa.UniqueConstraint('user_id')
+    )
+    op.create_table('confirm_codes',
+    sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('email', sa.VARCHAR(length=100), nullable=False),
+    sa.Column('code', sa.VARCHAR(length=6), nullable=False),
+    sa.Column('status', sa.Enum('SENDED', 'USED', name='confirmstatuscode'), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('expired_at', sa.DateTime(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
     op.create_table('candidate_experience',
@@ -89,9 +96,9 @@ def upgrade() -> None:
     sa.Column('work_end', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('position', sa.Text(), nullable=True),
     sa.Column('responsibility', sa.Text(), nullable=True),
+    sa.Column('candidate_id', sa.UUID(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.Column('candidate_id', sa.UUID(), nullable=True),
     sa.ForeignKeyConstraint(['candidate_id'], ['candidate.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('candidate_id')
@@ -102,9 +109,10 @@ def upgrade() -> None:
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('candidate_experience')
+    op.drop_table('confirm_codes')
     op.drop_table('company_manager')
     op.drop_table('candidate')
+    op.drop_table('user')
     op.drop_table('company')
-    op.drop_table('auth')
     op.drop_table('admin_staff')
     # ### end Alembic commands ###
