@@ -17,17 +17,18 @@ class Candidate(Base):
         server_default=text("uuid_generate_v4()"),
     )
     resume_link: Mapped[str] = mapped_column(Text, nullable=True)
-    social_accounts: Mapped[JSON] = mapped_column(
-        JSON, nullable=True)  # <-- remove
+    social_accounts: Mapped[JSON] = mapped_column(JSON, nullable=True)  # <-- remove
     about: Mapped[str] = mapped_column(Text, nullable=True)
     about_additional: Mapped[str] = mapped_column(Text, nullable=True)
     skills: Mapped[JSON] = mapped_column(JSON, nullable=True)
     certificates: Mapped[JSON] = mapped_column(JSON, nullable=True)
     experiences: Mapped[List["CandidateExperience"]] = relationship(
-        back_populates="candidate", uselist=True)
+        back_populates="candidate", uselist=True
+    )
 
     user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
+        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
+    )
 
     def json(self):
         return {
@@ -51,16 +52,20 @@ class CandidateExperience(Base):
     company_name: Mapped[str] = mapped_column(Text, nullable=True)
     company_link: Mapped[str] = mapped_column(Text, nullable=True)
     work_start: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True)
+        default=func.now(), server_default=func.now(), nullable=True
+    )
     work_end: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=False)
+        default=func.now(), server_default=func.now(), nullable=False
+    )
     position: Mapped[str] = mapped_column(Text, nullable=True)
     responsibility: Mapped[str] = mapped_column(Text, nullable=True)
     candidate: Mapped["Candidate"] = relationship(back_populates="experiences")
     candidate_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True)
+        UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True
+    )
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True)
+        default=func.now(), server_default=func.now(), nullable=True
+    )
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),

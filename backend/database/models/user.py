@@ -28,7 +28,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     settings: Mapped[JSON] = mapped_column(JSON, nullable=True)
     active: Mapped[bool] = mapped_column(
-        Boolean, default=True, server_default=text("true"))
+        Boolean, default=True, server_default=text("true")
+    )
     image: Mapped[str] = mapped_column(Text, nullable=True)
     social_accounts: Mapped[JSON] = mapped_column(JSON, nullable=True)
     confirmed: Mapped[bool] = mapped_column(
@@ -51,7 +52,8 @@ class User(Base):
 
     # mapped relationships
     codes: Mapped[List["ConfirmCode"]] = relationship(
-        "ConfirmCode", back_populates="user")
+        "ConfirmCode", back_populates="user"
+    )
 
     def json(self):
         return {
@@ -63,6 +65,7 @@ class User(Base):
             "image": self.image,
             "social_accounts": self.social_accounts,
             "confirmed": self.confirmed,
+            "status": str(self.status.value),
             "role": self.role.name,
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
@@ -84,12 +87,12 @@ class ConfirmCode(Base):
         Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED
     )
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now())
+        default=func.now(), server_default=func.now()
+    )
     expired_at: Mapped[datetime] = mapped_column(default=func.now())
 
     # relationships
-    user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
 
     user: Mapped["User"] = relationship("User", back_populates="codes")
 

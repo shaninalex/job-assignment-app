@@ -22,7 +22,7 @@ async def create_company(
     user = User(
         name=payload.name,
         email=payload.email,
-        role=Role.COMPANY_MANAGER,
+        role=Role.COMPANY_ADMIN,
         status=AuthStatus.PENDING,
         password_hash=password.get_hashed_password(payload.password),
         codes=[

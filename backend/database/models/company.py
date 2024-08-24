@@ -16,8 +16,7 @@ class Company(Base):
     )
     name: Mapped[str] = mapped_column(String(30), unique=True)
     image_link: Mapped[str] = mapped_column(Text, nullable=True)
-    managers: Mapped[List["CompanyManager"]
-                     ] = relationship(back_populates="company")
+    managers: Mapped[List["CompanyManager"]] = relationship(back_populates="company")
     created_at: Mapped[datetime] = mapped_column(
         default=func.now(), server_default=func.now(), nullable=True
     )

@@ -5,13 +5,14 @@ from aiohttp import web
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from api.middlewares.utils import setup_middlewares
-from api.routes import public
+from api.routes import public, company
 from api.settings import config
 from database.utils import database_url
 
 
 def setup_routes(app):
     public.setup_auth_routes(app)
+    company.setup_company_routes(app)
 
 
 def init_app():

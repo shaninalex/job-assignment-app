@@ -5,16 +5,18 @@ from aiohttp import web
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from api.types import RegistrationPayload, ConfirmCodePayload
+from api.types import RegistrationPayload, ConfirmCodePayload, LoginPayload
 from database import repositories
 from globalTypes import RegistrationType, ConfirmStatusCode
+from globalTypes.consts import AuthStatus
 from pkg import jwt, errors
-from pkg import rabbitmq
+from pkg import rabbitmq, password
 
 
 def setup_auth_routes(app: web.Application):
     app.router.add_post("/api/auth/register", handle_registration)
     app.router.add_post("/api/auth/confirm", handle_registration_confirm)
+    app.router.add_post("/api/auth/login", handle_login)
 
 
 async def handle_registration(request: web.Request):
@@ -24,7 +26,8 @@ async def handle_registration(request: web.Request):
     except ValidationError as err:
         return web.json_response(
             json.loads(
-                err.json(include_url=False, include_input=False, include_context=False)
+                err.json(include_url=False, include_input=False,
+                         include_context=False)
             ),
             status=HTTPStatus.BAD_REQUEST,
         )
@@ -33,7 +36,8 @@ async def handle_registration(request: web.Request):
         try:
             if payload.type == RegistrationType.CANDIDATE:
                 user, candidate = await repositories.create_candidate(session, payload)
-                rabbitmq.admin_create_new_candidate(request.app["mq"], user.json())
+                rabbitmq.admin_create_new_candidate(
+                    request.app["mq"], user.json())
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
                 )
@@ -62,7 +66,8 @@ async def handle_registration(request: web.Request):
                     session, payload
                 )
                 rabbitmq.admin_create_new_company(
-                    request.app["mq"], company.json(), member.json(), user.json()
+                    request.app["mq"], company.json(
+                    ), member.json(), user.json()
                 )
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
@@ -77,6 +82,8 @@ async def handle_registration(request: web.Request):
                 )
 
         except SQLAlchemyError as e:
+            await session.rollback()
+
             if "duplicate key value violates unique" in e.args[0]:
                 # TODO: find out what field trigger this error.
                 # Because companyName also should be unique, but
@@ -93,6 +100,11 @@ async def handle_registration(request: web.Request):
                 {"errors": [str(e)]}, status=HTTPStatus.BAD_REQUEST
             )
 
+    return web.json_response(
+        {"errors": "something went wrong"}, status=HTTPStatus.BAD_REQUEST
+    )
+
+
 
 async def handle_registration_confirm(request: web.Request):
     data = await request.json()
@@ -101,7 +113,8 @@ async def handle_registration_confirm(request: web.Request):
     except ValidationError as err:
         return web.json_response(
             json.loads(
-                err.json(include_url=False, include_input=False, include_context=False)
+                err.json(include_url=False, include_input=False,
+                         include_context=False)
             ),
             status=HTTPStatus.BAD_REQUEST,
         )
@@ -125,8 +138,10 @@ async def handle_registration_confirm(request: web.Request):
 
             # Prepare payloads and publish success messages to RabbitMQ
             rabbitmq_payloads = user.json()
-            rabbitmq.email_confirm_account_success(request.app["mq"], rabbitmq_payloads)
-            rabbitmq.admin_confirm_account_success(request.app["mq"], rabbitmq_payloads)
+            rabbitmq.email_confirm_account_success(
+                request.app["mq"], rabbitmq_payloads)
+            rabbitmq.admin_confirm_account_success(
+                request.app["mq"], rabbitmq_payloads)
 
             return web.json_response({"status": "confirmed"}, status=HTTPStatus.OK)
 
@@ -135,4 +150,37 @@ async def handle_registration_confirm(request: web.Request):
             return web.json_response(
                 {"errors": [str(e)]}, status=HTTPStatus.BAD_REQUEST
             )
-        
+
+
+async def handle_login(request: web.Request):
+    data = await request.json()
+    try:
+        payload = LoginPayload(**data)
+    except ValidationError as err:
+        return web.json_response(
+            json.loads(
+                err.json(include_url=False, include_input=False,
+                         include_context=False)
+            ),
+            status=HTTPStatus.BAD_REQUEST,
+        )
+
+    async with request.app["session"] as session:
+        user = await repositories.get_user(session, **{
+            "email": payload.email,
+            "active": True,
+            "status": AuthStatus.ACTIVE,
+        })
+
+        if user is None:
+            return web.json_response({"error": "not found"}, status=HTTPStatus.NOT_FOUND)
+
+        if not password.check_password(payload.password, user.password_hash):
+            return web.json_response({"error": "Wrong credentials"}, status=HTTPStatus.NOT_FOUND)
+
+
+    return web.json_response({
+        "token": jwt.create_jwt_token(user),
+        "user": user.json(),
+    }, status=HTTPStatus.OK)
+

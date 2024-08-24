@@ -18,8 +18,4 @@ class Staff(Base):
     password: Mapped[str] = mapped_column(String(100))
 
     def json(self):
-        return {
-            "id": str(self.id),
-            "name": self.name,
-            "email": self.email
-        }
+        return {"id": str(self.id), "name": self.name, "email": self.email}
