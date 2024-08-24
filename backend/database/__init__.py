@@ -8,7 +8,7 @@ from .models.admin import Staff
 from .models.candidate import Candidate, CandidateExperience
 from .models.company import Company, CompanyManager
 from .models.user import User, ConfirmCode
-from globalTypes import AuthStatus, ConfirmStatusCode
+from globalTypes import AuthStatus, ConfirmStatusCode, RegistrationType, Role
 
 User.candidate = relationship("Candidate", back_populates="user")
 Candidate.user: Mapped["User"] = relationship(

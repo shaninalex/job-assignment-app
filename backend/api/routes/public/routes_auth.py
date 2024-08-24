@@ -3,13 +3,11 @@ from http import HTTPStatus
 
 from aiohttp import web
 from pydantic import ValidationError
-from sqlalchemy import select, delete
 from sqlalchemy.exc import SQLAlchemyError
 
 from api.types import RegistrationPayload, ConfirmCodePayload
-from database import ConfirmCode, User
-from database.repositories import registration
-from globalTypes import RegistrationType, AuthStatus, ConfirmStatusCode
+from database import repositories
+from globalTypes import RegistrationType, ConfirmStatusCode
 from pkg import jwt, errors
 from pkg import rabbitmq
 
@@ -34,7 +32,7 @@ async def handle_registration(request: web.Request):
     async with request.app["session"] as session:
         try:
             if payload.type == RegistrationType.CANDIDATE:
-                user, candidate = await registration.create_candidate(session, payload)
+                user, candidate = await repositories.create_candidate(session, payload)
                 rabbitmq.admin_create_new_candidate(request.app["mq"], user.json())
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
@@ -60,7 +58,7 @@ async def handle_registration(request: web.Request):
                         status=HTTPStatus.BAD_REQUEST,
                     )
 
-                company, user, member = await registration.create_company(
+                company, user, member = await repositories.create_company(
                     session, payload
                 )
                 rabbitmq.admin_create_new_company(
@@ -109,38 +107,38 @@ async def handle_registration_confirm(request: web.Request):
         )
 
     async with request.app["session"] as session:
-        query = select(ConfirmCode).where(ConfirmCode.id == payload.id)
-        result = await session.execute(query)
-        fetched = result.fetchone()
-        if fetched is None:
+        try:
+            code = await repositories.get_confirm_code(session, payload.id, payload.code, ConfirmStatusCode.CREATED)
+            if code is None:
+                return web.json_response(
+                    {"error": "No record found"}, status=HTTPStatus.NOT_FOUND
+                )
+
+            # TODO: is expired - return expired error and delete code.
+
+            if code.code != payload.code:
+                return web.json_response(
+                    [errors.create_form_error("code", "Code mismatch")],
+                    status=HTTPStatus.NOT_FOUND,
+                )
+
+            # Call confirm_user function to confirm the user and update the status
+            user = await repositories.confirm_user(session, code)
+            if user is None:
+                return web.json_response(
+                    {"error": "User not found"}, status=HTTPStatus.NOT_FOUND
+                )
+
+            # Prepare payloads and publish success messages to RabbitMQ
+            rabbitmq_payloads = user.json()
+            rabbitmq.email_confirm_account_success(request.app["mq"], rabbitmq_payloads)
+            rabbitmq.admin_confirm_account_success(request.app["mq"], rabbitmq_payloads)
+
+            return web.json_response({"status": "confirmed"}, status=HTTPStatus.OK)
+
+        except SQLAlchemyError as e:
+            await session.rollback()
             return web.json_response(
-                {"error": "No record found"}, status=HTTPStatus.NOT_FOUND
+                {"errors": [str(e)]}, status=HTTPStatus.BAD_REQUEST
             )
-
-        code = fetched[0]
-        # TODO: is expired - return expired error and delete code.
-
-        if code.code != payload.code:
-            return web.json_response(
-                [errors.create_form_error("code", "Code mismatch")],
-                status=HTTPStatus.NOT_FOUND,
-            )
-
-        result = await session.execute(select(User).where(User.id == code.user_id))
-        users = result.fetchone()
-        if users is None:
-            return web.json_response(
-                {"error": "No record found"}, status=HTTPStatus.NOT_FOUND
-            )
-
-        user = users[0]
-        user.confirmed = True
-        user.status = AuthStatus.ACTIVE
-        code.status = ConfirmStatusCode.USED
-        rabbitmq_payloads = user.json()
-
-        await session.commit()
-
-    rabbitmq.email_confirm_account_success(request.app["mq"], rabbitmq_payloads)
-    rabbitmq.admin_confirm_account_success(request.app["mq"], rabbitmq_payloads)
-    return web.json_response({"status": "confirmed"}, status=HTTPStatus.OK)
+        
