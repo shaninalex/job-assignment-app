@@ -1,1 +1,1 @@
-from .consts import RegistrationType, Role, AuthStatus, ConfirmStatusCode, CompanyManagerRole
+from .consts import RegistrationType, Role, AuthStatus, ConfirmStatusCode

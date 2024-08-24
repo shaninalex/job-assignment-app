@@ -1,4 +1,5 @@
 from pika.adapters.blocking_connection import BlockingChannel
+import json
 
 from http import HTTPStatus
 from aiohttp import web
@@ -8,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from database.repositories import registration
 from globalTypes import RegistrationType
 from api.types import RegistrationPayload, ConfirmCodePayload
-from pkg import jwt
+from pkg import jwt, errors
 from pkg import rabbitmq
 
 
@@ -25,7 +26,7 @@ async def handle_registration(request: web.Request) -> web.Response:
         "email": "info17@person.com",
         "password": "123",
         "password_confirm": "123",
-        "type": "CANDIDATE"
+        "type": "candidate"
     }
 
     For company:
@@ -35,43 +36,49 @@ async def handle_registration(request: web.Request) -> web.Response:
         "email": "info17@person.com",
         "password": "123",
         "password_confirm": "123",
-        "type": "COMPANY"
+        "type": "company"
     }
     """
     data = await request.json()
     try:
-        reg_form = RegistrationPayload(**data)
-        payload = reg_form.load(data)
+        payload = RegistrationPayload(**data)
     except ValidationError as err:
         return web.json_response(
-            {"errors": err.messages}, status=HTTPStatus.BAD_REQUEST
+            json.loads(err.json(include_url=False, include_input=False, include_context=False)), status=HTTPStatus.BAD_REQUEST
         )
 
     async with request.app["session"] as session:
         channel: BlockingChannel = request.app["channel"]
         try:
-            if payload["type"] == RegistrationType.CANDIDATE:
+            if payload.type == RegistrationType.CANDIDATE:
                 user, candidate = await registration.create_candidate(session, payload)
-                rabbitmq.create_new_candidate(channel, candidate)
-                await rabbitmq.confirm_account(session, channel, user, user.name)
+                rabbitmq.create_new_candidate(channel, user)
+                await rabbitmq.confirm_account(session, channel, user, user.codes[0])
                 return web.json_response(
                     {
                         "token": jwt.create_jwt_token(user),
-                        "account": candidate.json(),
+                        "user": user.json(),
                     },
                     status=HTTPStatus.OK,
                 )
 
-            if payload["type"] == RegistrationType.COMPANY:
+            if payload.type == RegistrationType.COMPANY:
+                if not payload.companyName:
+                    return web.json_response(
+                        [errors.create_form_error(
+                            "companyName", "Company name is required on company registration")],
+                        status=HTTPStatus.BAD_REQUEST,
+                    )
+
                 company, user, member = await registration.create_company(
                     session, payload
                 )
-                rabbitmq.create_new_company(channel, company, member)
-                await rabbitmq.confirm_account(session, channel, user, user.name)
+                rabbitmq.create_new_company(channel, company, member, user)
+                await rabbitmq.confirm_account(session, channel, user, user.codes[0])
                 return web.json_response(
                     {
                         "token": jwt.create_jwt_token(user),
-                        "account": member.json(),
+                        "user": user.json(),
                         "company": company.json(),
                     },
                     status=HTTPStatus.OK,
@@ -79,8 +86,11 @@ async def handle_registration(request: web.Request) -> web.Response:
 
         except SQLAlchemyError as e:
             if "duplicate key value violates unique" in e.args[0]:
+                """TODO: find out what field trigger this error. Because companyName also should be unique, but
+                this error displays as an email field error"""
                 return web.json_response(
-                    {"errors": ["Account with this email already exists"]},
+                    [errors.create_form_error(
+                        "email", "Account with this email already exists")],
                     status=HTTPStatus.BAD_REQUEST,
                 )
             return web.json_response(
@@ -101,6 +111,8 @@ async def handle_registration_confirm(request: web.Request) -> web.Response:
         #       - send email to user about successfully confirmation account
         #       - send rabbitmq event to admin about confirmation
     except ValidationError as err:
-        return web.json_response(err.json(), status=HTTPStatus.BAD_REQUEST)
+        web.json_response(
+            json.loads(err.json(include_url=False, include_input=False, include_context=False)), status=HTTPStatus.BAD_REQUEST
+        )
 
     return web.json_response(code, status=HTTPStatus.OK)

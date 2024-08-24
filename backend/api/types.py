@@ -1,16 +1,30 @@
 from uuid import UUID
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    field_validator,
+    model_validator,
+    EmailStr
+)
 from typing import Optional
+from typing_extensions import Self
 from globalTypes import RegistrationType
 
 
-class RegistrationPayload(BaseModel):
-    name: str
-    companyName: Optional[str]
-    age: str
-    email: str
-    password: str
+class RegistrationPayload(BaseModel, extra="forbid"):
     type: RegistrationType
+    name: str
+    email: EmailStr
+    password: str
+    password_confirm: str
+    companyName: Optional[str] = None
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> Self:
+        pw1 = self.password
+        pw2 = self.password_confirm
+        if pw1 is not None and pw2 is not None and pw1 != pw2:
+            raise ValueError('passwords do not match')
+        return self
 
 
 class ConfirmCodePayload(BaseModel):
@@ -27,6 +41,8 @@ class ConfirmCodePayload(BaseModel):
     @field_validator('id')
     @classmethod
     def validate_id_uuid(cls, v):
+        """This code will raise ValueException and pydantic catch this
+        exception and show error about invalid UUID"""
         UUID(v, version=4)
 
     @model_validator(mode='before')

@@ -9,7 +9,7 @@ from database import (
     CompanyManager,
     User,
     Candidate,
-    CompanyManagerRole, ConfirmCode,
+    ConfirmCode,
 )
 
 
@@ -18,24 +18,29 @@ async def create_company(
     payload: RegistrationPayload,
 ) -> Tuple[Company, User, CompanyManager]:
     async with session:
-        company = Company(name=payload["companyName"])
-        session.add(company)
         user = User(
-            name=payload["name"],
-            password_hash=password.get_hashed_password(payload["password"]),
-            email=payload["email"],
-            role=Role.COMPANY_ADMIN
+            name=payload.name,
+            email=payload.email,
+            role=Role.COMPANY_MANAGER,
+            password_hash=password.get_hashed_password(payload.password),
+            codes=[ConfirmCode(
+                email=payload.email,
+                code=utils.generate_code(6),
+                status=ConfirmStatusCode.SENDED,
+            )]
         )
         session.add(user)
-        await session.commit()
+
+        # TODO: for some reason this function return company without name. But it has name in db...
+        company = Company(name=payload.companyName)
+        session.add(company)
+
         member = CompanyManager(
-            name=payload["name"],
-            email=payload["email"],
-            user_id=user.id,
-            company_id=company.id,
-            role=CompanyManagerRole.ADMIN,
+            company=company,
+            user=user,
         )
         session.add(member)
+
         await session.commit()
         return company, user, member
 
@@ -46,20 +51,21 @@ async def create_candidate(
 ) -> Tuple[User, Candidate]:
     async with session:
         user = User(
-            name=payload["name"],
-            email=payload["email"],
+            name=payload.name,
+            email=payload.email,
             role=Role.CANDIDATE,
-            password_hash=password.get_hashed_password(payload["password"]),
+            password_hash=password.get_hashed_password(payload.password),
             codes=[ConfirmCode(
-                email=payload["email"],
+                email=payload.email,
                 code=utils.generate_code(6),
                 status=ConfirmStatusCode.SENDED,
             )]
         )
         session.add(user)
-        candidate = Candidate(user_id=user.id)
+        candidate = Candidate(
+            user=user
+        )
         candidate.experiences = []
         session.add(candidate)
         await session.commit()
         return user, candidate
-

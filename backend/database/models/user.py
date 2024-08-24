@@ -47,14 +47,22 @@ class User(Base):
     )
 
     # mapped relationships
-    codes: Mapped[List["ConfirmCode"]] = relationship("ConfirmCode", back_populates="user")
+    codes: Mapped[List["ConfirmCode"]] = relationship(
+        "ConfirmCode", back_populates="user")
 
     def json(self):
         return {
             "id": str(self.id),
             "name": self.name,
             "email": self.email,
-            "codes": [code.json() for code in self.codes],
+            "settings": self.settings,
+            "active": self.active,
+            "image": self.image,
+            "social_accounts": self.social_accounts,
+            "confirmed": self.confirmed,
+            "role": self.role.name,
+            "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
         }
 
 
@@ -66,6 +74,7 @@ class ConfirmCode(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
+    # email can be removed?
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     code: Mapped[str] = mapped_column(VARCHAR(6))
     status: Mapped[AuthStatus] = mapped_column(
@@ -86,11 +95,7 @@ class ConfirmCode(Base):
             "id": str(self.id),
             "email": self.email,
             "code": self.code,
-            "status": self.status,
+            "status": self.status.name,
             "created_at": str(self.created_at),
             "user_id": str(self.user_id),
         }
-
-
-
-

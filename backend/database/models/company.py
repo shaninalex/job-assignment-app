@@ -29,15 +29,10 @@ class Company(Base):
     )
 
     def json(self):
-        managers = []
-        for m in self.managers:
-            managers.append(m.json())
-
         return {
             "id": str(self.id),
-            "name": self.name,
+            "name": "" if self.name else self.name,
             "image_link": self.image_link,
-            "managers": managers,
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
         }
@@ -51,6 +46,7 @@ class CompanyManager(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
+
     user_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
     )
@@ -64,5 +60,5 @@ class CompanyManager(Base):
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "company": self.company.json(),
+            "company_id": str(self.company_id),
         }
