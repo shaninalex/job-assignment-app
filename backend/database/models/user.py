@@ -34,6 +34,9 @@ class User(Base):
     confirmed: Mapped[bool] = mapped_column(
         Boolean, default=False, server_default=text("false")
     )
+    status: Mapped[AuthStatus] = mapped_column(
+        Enum(AuthStatus), default=AuthStatus.PENDING
+    )
     role: Mapped[Role] = mapped_column(Enum(Role))
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
@@ -77,7 +80,7 @@ class ConfirmCode(Base):
     # email can be removed?
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     code: Mapped[str] = mapped_column(VARCHAR(6))
-    status: Mapped[AuthStatus] = mapped_column(
+    status: Mapped[ConfirmStatusCode] = mapped_column(
         Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED
     )
     created_at: Mapped[datetime] = mapped_column(

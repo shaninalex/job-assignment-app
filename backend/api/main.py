@@ -4,10 +4,10 @@ import pika
 from aiohttp import web
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from database.utils import database_url
 from api.middlewares.utils import setup_middlewares
-from api.settings import config
 from api.routes import public
+from api.settings import config
+from database.utils import database_url
 
 
 def setup_routes(app):
@@ -28,8 +28,7 @@ def init_app():
         )
     )
 
-    app["connection"] = connection
-    app["channel"] = connection.channel()
+    app["mq"] = connection
     app.on_shutdown.append(close_rmq_connection)
 
     setup_middlewares(app)
@@ -40,8 +39,7 @@ def init_app():
 
 
 async def close_rmq_connection(app):
-    app["connection"].close()
-    app["channel"].close()
+    app["mq"].close()
     print("rmq connection and channel closed...")
 
 
