@@ -1,56 +1,74 @@
-"""
-TODO: move forms into separate file since this is only for types
-"""
-
-from typing import TypedDict, Optional
-from marshmallow import Schema, fields, validates_schema, ValidationError, validate
+from uuid import UUID
+from pydantic import (
+    BaseModel,
+    field_validator,
+    model_validator,
+    EmailStr
+)
+from typing import Optional
+from typing_extensions import Self
 from globalTypes import RegistrationType
 
 
-class RegisterForm(Schema):
-    name = fields.Str()
-    companyName = fields.Str()
-    email = fields.Email(required=True)
-    password = fields.Str(required=True)
-    password_confirm = fields.Str(required=True)
-    type = fields.Enum(RegistrationType, required=True)
-
-    @validates_schema
-    def password_equal(self, data, **kwargs):
-        errors = {}
-        if data["password"] != data["password_confirm"]:
-            errors["password_confirm"] = [
-                "password confirm should be equal to password"
-            ]
-            raise ValidationError(errors)
-
-        if data["type"] == RegistrationType.CANDIDATE:
-            if "name" not in data:
-                errors["name"] = ["User name is required"]
-            raise ValidationError(errors)
-
-        if data["type"] == RegistrationType.COMPANY:
-            if "companyName" not in data:
-                errors["companyName"] = ["Company name is required"]
-            if "name" not in data:
-                errors["name"] = ["Company admin name is required"]
-            raise ValidationError(errors)
-
-
-class RegistrationPayload(TypedDict):
-    name: str
-    companyName: Optional[str]
-    age: str
-    email: str
-    password: str
+class RegistrationPayload(BaseModel, extra="forbid"):
     type: RegistrationType
+    name: str
+    email: EmailStr
+    password: str
+    password_confirm: str
+    companyName: Optional[str] = None
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> Self:
+        pw1 = self.password
+        pw2 = self.password_confirm
+        if pw1 is not None and pw2 is not None and pw1 != pw2:
+            raise ValueError('passwords do not match')
+        return self
 
 
-class ConfirmCodePayload(TypedDict):
+class ConfirmCodePayload(BaseModel):
     id: str
-    email: str
+    code: str
+
+    @field_validator('code')
+    @classmethod
+    def validate_code_length(cls, v):
+        if len(str(v)) != 6:
+            raise ValueError("Code should have exactly 6 characters")
+        return v
+
+    @field_validator('id')
+    @classmethod
+    def validate_id_uuid(cls, v):
+        """This code will raise ValueException and pydantic catch this
+        exception and show error about invalid UUID"""
+        UUID(v, version=4)
+
+    @model_validator(mode='before')
+    @classmethod
+    def no_additional_fields(cls, data):
+        if len(data) > 2:
+            raise ValueError("Too many arguments")
+        return data
 
 
-class ConfirmCodeForm(Schema):
-    id = fields.Str(required=True)
-    code = fields.Str(required=True, validate=[validate.Length(max=6, min=6)])
+# Example usage:
+#
+# def main():
+#     data = {
+#         "id": "d1bd174c-)3d34-453b-b2e7-9bcbbeb67d40",
+#         "code": "123123123",
+#     }
+#
+#     try:
+#         confirm_code = ConfirmCodePayload(**data)
+#         print(confirm_code)
+#
+#     except ValidationError as err:
+#         error_json = err.json()
+#         print(error_json)
+#
+#
+# if __name__ == "__main__":
+#     main()

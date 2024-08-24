@@ -1,23 +1,23 @@
 import pika
+import json
 from pika.adapters.blocking_connection import BlockingChannel
 from sqlalchemy.ext.asyncio import AsyncSession
 from database import (
-    Candidate,
     CompanyManager,
     Company,
-    Auth,
+    User,
     ConfirmCode,
     ConfirmStatusCode,
 )
 from pkg import utils
 
 
-def create_new_candidate(channel: BlockingChannel, candidate: Candidate):
-    d = {"candidate": candidate.json()}
+def create_new_candidate(channel: BlockingChannel, user: User):
+    d = {"user": user.json()}
     channel.basic_publish(
         "ex.admin_events",
-        "candidate",
-        str(d),
+        "new_user",
+        json.dumps(d),
         pika.BasicProperties(
             content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
         ),
@@ -25,27 +25,19 @@ def create_new_candidate(channel: BlockingChannel, candidate: Candidate):
 
 
 async def confirm_account(
-    session: AsyncSession, channel: BlockingChannel, auth: Auth, name: str
+    session: AsyncSession, channel: BlockingChannel, user: User, code: ConfirmCode
 ):
     async with session:
-        confirm_code = ConfirmCode(
-            email=auth.email,
-            code=utils.generate_code(6),
-            status=ConfirmStatusCode.SENDED,
-            auth_id=auth.id,
-        )
-        session.add(confirm_code)
-        await session.commit()
         d = {
-            "name": name,
-            "email": auth.email,
-            "code": confirm_code.code,
-            "code_id": confirm_code.id,
+            "name": user.name,
+            "email": user.email,
+            "code": code.code,
+            "code_id": str(code.id),
         }
         channel.basic_publish(
             "ex.email",
-            "candidate",
-            str(d),
+            "confirm_registration",
+            json.dumps(d),
             pika.BasicProperties(
                 content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
             ),
@@ -53,16 +45,17 @@ async def confirm_account(
 
 
 def create_new_company(
-    channel: BlockingChannel, company: Company, member: CompanyManager
+    channel: BlockingChannel, company: Company, member: CompanyManager, user: User
 ):
     d = {
         "company": company.json(),
+        "user": user.json(),
         "member": member.json(),
     }
     channel.basic_publish(
         "ex.admin_events",
-        "candidate",
-        str(d),
+        "new_company",
+        json.dumps(d),
         pika.BasicProperties(
             content_type="text/json", delivery_mode=pika.DeliveryMode.Transient
         ),
