@@ -8,7 +8,6 @@ App required next dependencies:
 - sqlalchemy
 - psycopg2-binary
 - asyncpg
-- aio[pg]
 - pydantic
 - pydantic[Email]
 - pika
