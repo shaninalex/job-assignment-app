@@ -45,6 +45,11 @@ async def auth_middleware(request, handler):
                     status=401,
                 )
 
+            if user.manager:
+                company = await repositories.get_company(session, **{"id": user.manager.company_id})
+                print(company.managers)
+                request["company"] = company
+
             request["user"] = user
 
     except jwt.ExpiredSignatureError:

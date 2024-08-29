@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.types import RegistrationPayload
+from api.routes.public.types import RegistrationPayload
 from database import (
     Company,
     CompanyManager,

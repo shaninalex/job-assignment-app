@@ -5,12 +5,10 @@ from aiohttp import web
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from api.types import RegistrationPayload, ConfirmCodePayload, LoginPayload
+from .types import RegistrationPayload, ConfirmCodePayload, LoginPayload
 from database import repositories
-from globalTypes import RegistrationType, ConfirmStatusCode
-from globalTypes.consts import AuthStatus
-from pkg import jwt, errors
-from pkg import rabbitmq, password
+from globalTypes import RegistrationType, ConfirmStatusCode, AuthStatus
+from pkg import jwt, errors, rabbitmq, password
 
 
 def setup_auth_routes(app: web.Application):

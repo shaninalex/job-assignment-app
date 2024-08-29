@@ -1,13 +1,15 @@
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
 from database import User
 
 
-async def get_user(
-    session: AsyncSession, **kwargs 
-) -> Optional[User]: 
-    stmt = select(User)
+async def get_user(session: AsyncSession, **kwargs) -> Optional[User]: 
+    stmt = select(User).options(
+        selectinload(User.manager),
+    )
 
     if len(kwargs) == 0:
         return None
@@ -24,9 +26,6 @@ async def get_user(
     if "status" in kwargs:
         stmt = stmt.where(User.status == kwargs["status"])
 
-    result = await session.execute(stmt)
-    fetched = result.fetchone()
-    if fetched is None:
-        return None
-
-    return fetched[0]
+    result = await session.scalars(stmt)
+    user = result.one_or_none()
+    return user
