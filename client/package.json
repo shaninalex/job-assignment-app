@@ -4,9 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "client": "ng serve --project=public --proxy-config=./projects/public/proxy.conf.json",
+    "client": "ng serve --project=client --proxy-config=./projects/client/proxy.conf.json",
     "admin": "ng serve --project=admin --proxy-config=./projects/admin/proxy.conf.json",
-    "build": "ng build",
+    "build_client": "ng build client",
+    "build_admin": "ng build admin",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
