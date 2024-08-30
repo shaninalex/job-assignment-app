@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 from globalTypes import (
     Remote,
     SalaryType,
@@ -20,3 +21,4 @@ class PositionForm(BaseModel, extra="forbid"):
     hours: WorkingHours
     travel: TravelRequired
     status: PositionStatus
+    company_id: Optional[str] = None

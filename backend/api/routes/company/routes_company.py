@@ -28,7 +28,6 @@ def setup_company_routes(app: web.Application):
 
 
 async def handle_create_position(request: web.Request):
-    print(request["user"].company_member.company)
     data = await request.json()
     try:
         payload = PositionForm(**data)
@@ -43,6 +42,7 @@ async def handle_create_position(request: web.Request):
 
     async with request.app["session"] as session:
         try:
+            payload.company_id = request["user"].manager.company_id
             position = await repositories.create_position(session, payload)
             if position:
                 return web.json_response(position.json(), status=HTTPStatus.OK)
@@ -57,11 +57,10 @@ async def handle_create_position(request: web.Request):
 
 
 async def handle_list_position(request: web.Request):
+    async with request.app["session"] as session:
+        positions = await repositories.get_positions(session, company_id=request["user"].manager.company_id) 
     return web.json_response({
-        "user": request["user"].json(),
-        "manager": request["user"].manager.json(),
-        "company": request["company"].json(),
-        "company_managers": [m.json() for m in request["company"].managers],
+        "positions": [p.json() for p in positions],
     }, status=HTTPStatus.OK)
 
 async def handle_patch_position(request: web.Request):

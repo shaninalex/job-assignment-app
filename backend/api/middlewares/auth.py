@@ -47,7 +47,6 @@ async def auth_middleware(request, handler):
 
             if user.manager:
                 company = await repositories.get_company(session, **{"id": user.manager.company_id})
-                print(company.managers)
                 request["company"] = company
 
             request["user"] = user

@@ -192,7 +192,7 @@ class Position(Base):
     price_range: Mapped[str] = mapped_column(VARCHAR(50))
 
     company_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("company.id"), unique=True, nullable=False
+        UUID(as_uuid=True), ForeignKey("company.id"), nullable=False
     )
 
     # NOTE: column ideas
@@ -224,6 +224,7 @@ class Position(Base):
             "travel": str(self.travel.value),
             "status": str(self.status.value),
             "price_range": str(self.price_range),
+            "company_id": str(self.company_id),
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
         }

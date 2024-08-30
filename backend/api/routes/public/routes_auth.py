@@ -5,6 +5,8 @@ from aiohttp import web
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
+from globalTypes.consts import Role
+
 from .types import RegistrationPayload, ConfirmCodePayload, LoginPayload
 from database import repositories
 from globalTypes import RegistrationType, ConfirmStatusCode, AuthStatus
@@ -39,14 +41,7 @@ async def handle_registration(request: web.Request):
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
                 )
-                return web.json_response(
-                    {
-                        "token": jwt.create_jwt_token(user),
-                        "user": user.json(),
-                        "candidate": candidate.json(),
-                    },
-                    status=HTTPStatus.OK,
-                )
+                return web.json_response({"status": True}, status=HTTPStatus.OK)
 
             if payload.type == RegistrationType.COMPANY:
                 if not payload.companyName:
@@ -70,14 +65,7 @@ async def handle_registration(request: web.Request):
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
                 )
-                return web.json_response(
-                    {
-                        "token": jwt.create_jwt_token(user),
-                        "user": user.json(),
-                        "company": company.json(),
-                    },
-                    status=HTTPStatus.OK,
-                )
+                return web.json_response({"status": True}, status=HTTPStatus.OK)
 
         except SQLAlchemyError as e:
             await session.rollback()
@@ -175,10 +163,17 @@ async def handle_login(request: web.Request):
 
         if not password.check_password(payload.password, user.password_hash):
             return web.json_response({"error": "Wrong credentials"}, status=HTTPStatus.NOT_FOUND)
+        
+        company = None
+        if user.role in [Role.COMPANY_ADMIN, Role.COMPANY_MANAGER]:
+            company = await repositories.get_company(session, id=user.manager.company_id)
 
-
-    return web.json_response({
+    resp = {
         "token": jwt.create_jwt_token(user),
         "user": user.json(),
-    }, status=HTTPStatus.OK)
+    }
+    if company:
+        resp["company"] = company.json()
+
+    return web.json_response(resp, status=HTTPStatus.OK)
 
