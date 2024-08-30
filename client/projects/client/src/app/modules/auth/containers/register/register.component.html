@@ -8,6 +8,15 @@
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
     <ui-input-text
+        fieldName="name"
+        formControlName="name"
+        [parentForm]="form"
+        [isRequired]="true"
+        type="text"
+        label="Name"
+    />
+
+    <ui-input-text
         fieldName="email"
         formControlName="email"
         [parentForm]="form"

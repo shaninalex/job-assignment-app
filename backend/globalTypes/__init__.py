@@ -1,1 +1,11 @@
-from .consts import RegistrationType, Role, AuthStatus, ConfirmStatusCode
+from .consts import (
+    RegistrationType,
+    Role,
+    AuthStatus,
+    ConfirmStatusCode,
+    Remote,
+    SalaryType,
+    WorkingHours,
+    TravelRequired,
+    PositionStatus,
+)

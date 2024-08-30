@@ -1,3 +1,47 @@
+## 0.5.0 (2024-08-30)
+
+### Feat
+
+- **frontend**: update forms
+- **backend**: create positions
+- **backend**: refactor database
+- **backend**: position price range
+- **backend**: add position models
+- **backend**: auth and role required middlewares
+- **backend**: run application with live reload
+- **backend**: )confirm account
+- **backend**: confirm code table
+- **backend**: create rabbitmq connection and events
+- **backend**: register candidate
+- **db**: remove models import from alembic env.py and add company logo field
+- **db**: fix alembic change detection
+- **db**: models and migrations
+- **backend**: setup alembic
+- **backend**: update application structure and db
+- **ui**: setup ngrx store
+- **ui**: add password confirm custom validator fn
+- **ui**: text-input
+- **public**: working with templates
+- **public**: mocking ui
+- **public**: better modules tree
+- **public**: base structure public application
+- **ui**: add route resolver for apply position page
+
+### Fix
+
+- **frontend**: rename public to client project
+- **ui**: register as a company component
+- **db**: incorrect "default" usage on created_at fields
+
+### Refactor
+
+- **backend**: remove nested async with, move code selection in reporsitory method, etc
+- **backend**: designing registration backend
+- **backend**: saving progress
+- **backend**: refactoring backend to use new database models
+- **backend**: structure
+- general refactoring
+
 ## 0.4.0 (2024-05-19)
 
 ### Feat

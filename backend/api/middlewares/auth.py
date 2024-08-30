@@ -2,11 +2,13 @@
 # Docs:
 #       https://pyjwt.readthedocs.io/en/latest/usage.html?highlight=expired#expiration-time-claim-exp
 
+from typing import List
 import jwt
 from sqlalchemy import select
 from aiohttp import web
 
-from database import Auth
+from database import User, repositories
+from globalTypes import AuthStatus, Role
 from api.settings import JWT_SECRET
 
 
@@ -27,9 +29,13 @@ async def auth_middleware(request, handler):
                 status=401,
             )
 
-        with request.app["db"] as session:
-            query = select(Auth).where(Auth.id == claims["sub"])
-            user: Auth = session.scalars(query).one()
+        async with request.app["session"] as session:
+            user = await repositories.get_user(session, **{
+                "id": claims["sub"],
+                "active": True,
+                "status": AuthStatus.ACTIVE,
+            })
+
             if not user:
                 return web.json_response(
                     {
@@ -38,6 +44,11 @@ async def auth_middleware(request, handler):
                     },
                     status=401,
                 )
+
+            if user.manager:
+                company = await repositories.get_company(session, **{"id": user.manager.company_id})
+                request["company"] = company
+
             request["user"] = user
 
     except jwt.ExpiredSignatureError:
@@ -58,3 +69,20 @@ async def auth_middleware(request, handler):
         )
 
     return await handler(request)
+
+
+def roles_required(roles: List[Role]):
+    @web.middleware
+    async def role_required_inner(request, handler):
+        if request["user"].role not in roles:
+            return web.json_response(
+                {
+                    "error": "Permission",
+                    "message": "Permission denied",
+                },
+                status=403,
+            )
+
+        return await handler(request)
+    return role_required_inner
+

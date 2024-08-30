@@ -8,14 +8,48 @@
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex gap-4 flex-col">
     <ui-input-text
+        fieldName="company_name"
+        formControlName="company_name"
+        [parentForm]="form"
+        [isRequired]="true"
+        type="text"
+        label="Company name"
+    />
+
+    <ui-input-text
         fieldName="name"
         formControlName="name"
         [parentForm]="form"
         [isRequired]="true"
-        type="email"
-        label="Company Name"
+        type="text"
+        label="Name"
     />
 
+    <ui-input-text
+        fieldName="email"
+        formControlName="email"
+        [parentForm]="form"
+        [isRequired]="true"
+        type="email"
+        label="Email"
+    />
+
+    <ui-input-password
+        fieldName="password"
+        formControlName="password"
+        [parentForm]="form"
+        [isRequired]="true"
+        label="Password"
+    />
+
+    <ui-input-password
+        fieldName="password_confirm"
+        formControlName="password_confirm"
+        [parentForm]="form"
+        [isRequired]="true"
+        label="Password Confirm"
+        [checkStrength]="true"
+    />
     <div class="flex gap-3 justify-between items-center">
         <button
             [disabled]="!form.valid"

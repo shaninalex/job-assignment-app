@@ -101,7 +101,7 @@
         }
       }
     },
-    "public": {
+    "client": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -114,26 +114,26 @@
           "standalone": false
         }
       },
-      "root": "projects/public",
-      "sourceRoot": "projects/public/src",
+      "root": "projects/client",
+      "sourceRoot": "projects/client/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/public",
-            "index": "projects/public/src/index.html",
-            "browser": "projects/public/src/main.ts",
+            "outputPath": "dist/client",
+            "index": "projects/client/src/index.html",
+            "browser": "projects/client/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "projects/public/tsconfig.app.json",
+            "tsConfig": "projects/client/tsconfig.app.json",
             "assets": [
-              "projects/public/src/favicon.ico",
-              "projects/public/src/assets"
+              "projects/client/src/favicon.ico",
+              "projects/client/src/assets"
             ],
             "styles": [
-              "projects/public/src/styles.css"
+              "projects/client/src/styles.css"
             ],
             "scripts": []
           },
@@ -165,10 +165,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "public:build:production"
+              "buildTarget": "client:build:production"
             },
             "development": {
-              "buildTarget": "public:build:development"
+              "buildTarget": "client:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -176,7 +176,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "public:build"
+            "buildTarget": "client:build"
           }
         },
         "test": {
@@ -186,13 +186,13 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "projects/public/tsconfig.spec.json",
+            "tsConfig": "projects/client/tsconfig.spec.json",
             "assets": [
-              "projects/public/src/favicon.ico",
-              "projects/public/src/assets"
+              "projects/client/src/favicon.ico",
+              "projects/client/src/assets"
             ],
             "styles": [
-              "projects/public/src/styles.css"
+              "projects/client/src/styles.css"
             ],
             "scripts": []
           }
