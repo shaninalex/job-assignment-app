@@ -12,41 +12,27 @@ import { ActionRegisterAccountStart, ActionRegisterCompanyStart } from '../../..
 export class RegisterComponent {
     form: FormGroup;
     companyForm: FormGroup;
-    formTab: "candidate" | "company" = "candidate";
     constructor(private fb: FormBuilder, private store: Store<AppState>) { }
 
     ngOnInit() {
         this.form = this.fb.group({
+            name: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', Validators.required],
             password_confirm: ['', Validators.required, confirmPasswordValidator('password')],
-        });
-
-        this.companyForm = this.fb.group({
-            name: ['', [Validators.required]],
         });
     }
 
     submit(): void {
         if (!this.form.valid) return
-        if (this.formTab === 'candidate') {
-            this.store.dispatch(ActionRegisterAccountStart({
-                payload: {
-                    email: this.form.controls['email'].value,
-                    password: this.form.controls['password'].value,
-                    password_confirm: this.form.controls['password_confirm'].value,
-                }
-            }))
-        } else if (this.formTab === 'company') {
-            this.store.dispatch(ActionRegisterCompanyStart({
-                payload: {
-                    name: this.companyForm.controls['name'].value,
-                }
-            }))
-        }
-    }
-
-    changeFormTab(tab: "candidate" | "company") {
-        this.formTab = tab;
+        this.store.dispatch(ActionRegisterAccountStart({
+            payload: {
+                name: this.form.controls['name'].value,
+                email: this.form.controls['email'].value,
+                password: this.form.controls['password'].value,
+                password_confirm: this.form.controls['password_confirm'].value,
+                type: "candidate"
+            }
+        }))
     }
 }
