@@ -37,7 +37,6 @@ async def create_company(
         password_hash=password.get_hashed_password(payload.password),
         codes=[
             ConfirmCode(
-                email=payload.email,
                 code=utils.generate_code(6),
                 status=ConfirmStatusCode.CREATED,
             )
