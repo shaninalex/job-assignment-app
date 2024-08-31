@@ -9,8 +9,8 @@ from globalTypes.consts import Role
 
 from .types import RegistrationPayload, ConfirmCodePayload, LoginPayload
 from database import repositories
-from globalTypes import RegistrationType, ConfirmStatusCode, AuthStatus
-from pkg import jwt, errors, rabbitmq, password
+from globalTypes import RegistrationType, ConfirmStatusCode, AuthStatus 
+from pkg import jwt, errors, rabbitmq, password, response, utils
 
 
 def setup_auth_routes(app: web.Application):
@@ -20,17 +20,10 @@ def setup_auth_routes(app: web.Application):
 
 
 async def handle_registration(request: web.Request):
-    data = await request.json()
-    try:
-        payload = RegistrationPayload(**data)
-    except ValidationError as err:
-        return web.json_response(
-            json.loads(
-                err.json(include_url=False, include_input=False,
-                         include_context=False)
-            ),
-            status=HTTPStatus.BAD_REQUEST,
-        )
+    payload = await utils.request_payload(request, RegistrationPayload)
+    if isinstance(payload, web.Response):
+        return payload
+
 
     async with request.app["session"] as session:
         try:
@@ -41,18 +34,14 @@ async def handle_registration(request: web.Request):
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
                 )
-                return web.json_response({"status": True}, status=HTTPStatus.OK)
-
-            if payload.type == RegistrationType.COMPANY:
+                return response.success_response(None, ["Successfully registrated."])
+            else:
                 if not payload.companyName:
-                    return web.json_response(
-                        [
-                            errors.create_form_error(
-                                "companyName",
-                                "Company name is required on company registration",
-                            )
-                        ],
-                        status=HTTPStatus.BAD_REQUEST,
+                    return response.error_response(
+                        [errors.create_form_error(
+                            "companyName",
+                            "Company name is required on company registration",
+                        )],
                     )
 
                 company, user, member = await repositories.create_company(
@@ -65,62 +54,31 @@ async def handle_registration(request: web.Request):
                 rabbitmq.email_confirm_account(
                     request.app["mq"], user.json(), user.codes[0].json()
                 )
-                return web.json_response({"status": True}, status=HTTPStatus.OK)
+                return response.success_response(None, ["Successfully registrated company."])
 
         except SQLAlchemyError as e:
             await session.rollback()
-
-            if "duplicate key value violates unique" in e.args[0]:
-                # TODO: find out what field trigger this error.
-                # Because companyName also should be unique, but
-                # this error displays as an email field error"""
-                return web.json_response(
-                    [
-                        errors.create_form_error(
-                            "email", "Account with this email already exists"
-                        )
-                    ],
-                    status=HTTPStatus.BAD_REQUEST,
-                )
-            return web.json_response(
-                {"errors": [str(e)]}, status=HTTPStatus.BAD_REQUEST
-            )
-
-    return web.json_response(
-        {"errors": "something went wrong"}, status=HTTPStatus.BAD_REQUEST
-    )
-
+            errs = errors.parse_sqlalchemy_error(e)
+            return response.error_response(errs)
 
 
 async def handle_registration_confirm(request: web.Request):
-    data = await request.json()
-    try:
-        payload = ConfirmCodePayload(**data)
-    except ValidationError as err:
-        return web.json_response(
-            json.loads(
-                err.json(include_url=False, include_input=False,
-                         include_context=False)
-            ),
-            status=HTTPStatus.BAD_REQUEST,
-        )
+    payload = await utils.request_payload(request, ConfirmCodePayload)
+    if isinstance(payload, web.Response):
+        return payload
 
     async with request.app["session"] as session:
         try:
             code = await repositories.get_confirm_code(session, payload.id, payload.code, ConfirmStatusCode.CREATED)
             if code is None:
-                return web.json_response(
-                    {"error": "No record found"}, status=HTTPStatus.NOT_FOUND
-                )
+                return response.error_response(None, messages=["Wrong crendentials"])
 
             # TODO: is expired - return expired error and delete code.
 
             # Call confirm_user function to confirm the user and update the status
             user = await repositories.confirm_user(session, code)
             if user is None:
-                return web.json_response(
-                    {"error": "User not found"}, status=HTTPStatus.NOT_FOUND
-                )
+                return response.error_response(None, messages=["Wrong crendentials"])
 
             # Prepare payloads and publish success messages to RabbitMQ
             rabbitmq_payloads = user.json()
@@ -129,27 +87,19 @@ async def handle_registration_confirm(request: web.Request):
             rabbitmq.admin_confirm_account_success(
                 request.app["mq"], rabbitmq_payloads)
 
-            return web.json_response({"status": "confirmed"}, status=HTTPStatus.OK)
+            return response.success_response(None, ["Successfully confirmed."])
 
         except SQLAlchemyError as e:
             await session.rollback()
-            return web.json_response(
-                {"errors": [str(e)]}, status=HTTPStatus.BAD_REQUEST
-            )
+
+            errs = errors.parse_sqlalchemy_error(e)
+            return response.error_response(errs)
 
 
 async def handle_login(request: web.Request):
-    data = await request.json()
-    try:
-        payload = LoginPayload(**data)
-    except ValidationError as err:
-        return web.json_response(
-            json.loads(
-                err.json(include_url=False, include_input=False,
-                         include_context=False)
-            ),
-            status=HTTPStatus.BAD_REQUEST,
-        )
+    payload = await utils.request_payload(request, LoginPayload)
+    if isinstance(payload, web.Response):
+        return payload
 
     async with request.app["session"] as session:
         user = await repositories.get_user(session, **{
@@ -159,10 +109,10 @@ async def handle_login(request: web.Request):
         })
 
         if user is None:
-            return web.json_response({"error": "not found"}, status=HTTPStatus.NOT_FOUND)
+            return response.error_response(None, messages=["Wrong crendentials"])
 
         if not password.check_password(payload.password, user.password_hash):
-            return web.json_response({"error": "Wrong credentials"}, status=HTTPStatus.NOT_FOUND)
+            return response.error_response(None, messages=["Wrong crendentials"])
         
         company = None
         if user.role in [Role.COMPANY_ADMIN, Role.COMPANY_MANAGER]:
@@ -175,5 +125,5 @@ async def handle_login(request: web.Request):
     if company:
         resp["company"] = company.json()
 
-    return web.json_response(resp, status=HTTPStatus.OK)
+    return response.success_response(resp)
 
