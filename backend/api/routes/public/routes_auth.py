@@ -1,8 +1,6 @@
-import json
-from http import HTTPStatus
+from datetime import datetime
 
 from aiohttp import web
-from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from globalTypes.consts import Role
@@ -23,7 +21,6 @@ async def handle_registration(request: web.Request):
     payload = await utils.request_payload(request, RegistrationPayload)
     if isinstance(payload, web.Response):
         return payload
-
 
     async with request.app["session"] as session:
         try:
@@ -73,7 +70,8 @@ async def handle_registration_confirm(request: web.Request):
             if code is None:
                 return response.error_response(None, messages=["Wrong crendentials"])
 
-            # TODO: is expired - return expired error and delete code.
+            if datetime.now() > code.expired_at:
+                return response.error_response(None, messages=["Code is expired"])
 
             # Call confirm_user function to confirm the user and update the status
             user = await repositories.confirm_user(session, code)
