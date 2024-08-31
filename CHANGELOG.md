@@ -1,3 +1,12 @@
+## 0.6.0 (2024-08-31)
+
+### Feat
+
+- **backend**: rabbitmq reconnection
+- **backend**: confirm code expired at check
+- **api**: standard response and validation
+- **backend**: get single position and update single position
+
 ## 0.5.0 (2024-08-30)
 
 ### Feat
