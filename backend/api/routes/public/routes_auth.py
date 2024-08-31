@@ -33,14 +33,6 @@ async def handle_registration(request: web.Request):
                 )
                 return response.success_response(None, ["Successfully registrated."])
             else:
-                if not payload.companyName:
-                    return response.error_response(
-                        [errors.create_form_error(
-                            "companyName",
-                            "Company name is required on company registration",
-                        )],
-                    )
-
                 company, user, member = await repositories.create_company(
                     session, payload
                 )

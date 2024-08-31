@@ -48,7 +48,6 @@ def create_error_middleware(overrides):
 
             raise
         except Exception as e:
-            print(e)
             request.protocol.logger.exception("Error handling request")
             return await overrides[500](request)
 

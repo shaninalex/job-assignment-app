@@ -43,7 +43,7 @@ async def create_company(
         ],
     )
     session.add(user)
-    company = Company(name=payload.companyName)
+    company = Company(name=payload.company_name)
     session.add(company)
 
     member = CompanyManager(
