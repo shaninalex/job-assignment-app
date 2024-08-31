@@ -1,8 +1,11 @@
-from typing import List, Optional
+from typing import Any, List, Optional
+from uuid import UUID
 
-from sqlalchemy import Sequence, select
+from sqlalchemy import select, update
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.routes.company import PositionForm
+from api.routes.company.types import PositionFormPatch
 from database import (
     Position
 )
@@ -62,3 +65,21 @@ async def get_positions(session: AsyncSession, **kwargs) -> List[Position]:
 
     return list(position)
 
+async def update_position(session: AsyncSession, id: UUID, payload: PositionFormPatch) -> Optional[Position]:
+    values: dict[str, Any] = {}
+    data = payload.model_dump()
+    for key in data.keys():
+        if data[key] is not None:
+            values[key] = data[key]
+        
+    if not len(values):
+        return None
+
+    stmt = update(Position).where(Position.id == id).values(**values).returning(Position.id)
+    result = await session.execute(stmt)
+
+    if not result:
+        return None
+
+    await session.commit()
+    return await get_position(session, id=id)
