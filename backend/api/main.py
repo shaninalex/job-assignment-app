@@ -8,6 +8,7 @@ from api.middlewares.utils import setup_middlewares
 from api.routes import public, company
 from api.settings import config
 from database.utils import database_url
+from pkg import rabbitmq
 
 
 def setup_routes(app):
@@ -23,31 +24,26 @@ def init_app():
     )
     app["session"] = session()
 
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            "localhost", credentials=pika.PlainCredentials("guest", "guest")
+    try:
+        # TODO: use os.getenv credential and host variables
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                "localhost", credentials=pika.PlainCredentials("guest", "guest")
+            )
         )
-    )
+        app["mq"] = connection
+    except Exception as e:
+        logging.error(f"Failed to connect to RabbitMQ: {e}")
+        app["mq"] = None
 
-    app["mq"] = connection
-    app.on_shutdown.append(close_rmq_connection)
 
     setup_middlewares(app)
     setup_routes(app)
 
+    app.on_startup.append(rabbitmq.start_background_tasks)
+    app.on_shutdown.append(rabbitmq.cancel_background_tasks)
+    app.on_shutdown.append(rabbitmq.close_rmq_connection)
+
     logging.info("Main app initialized")
     return app
 
-
-async def close_rmq_connection(app):
-    app["mq"].close()
-    print("rmq connection and channel closed...")
-
-
-# DeprecationWarning
-# this method is deprecated since we need to run application in a different ways ( live/dev )
-# def main():
-#     app = init_app()
-#     logging.basicConfig(level=logging.DEBUG)
-#     conf = config()
-#     web.run_app(app, port=conf["APP_PORT"])

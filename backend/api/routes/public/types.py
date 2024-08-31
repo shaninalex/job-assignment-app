@@ -11,7 +11,7 @@ class RegistrationPayload(BaseModel, extra="forbid"):
     email: EmailStr
     password: str
     password_confirm: str
-    companyName: Optional[str] = None
+    company_name: Optional[str] = None
 
     @model_validator(mode="after")
     def check_passwords_match(self) -> Self:
@@ -21,6 +21,19 @@ class RegistrationPayload(BaseModel, extra="forbid"):
             raise ValueError("passwords do not match")
         return self
 
+    @model_validator(mode="after")
+    def validate_company_fields(self) -> Self:
+        if self.type == RegistrationType.COMPANY:
+            if not self.company_name or len(self.company_name.strip()) == 0:
+                raise ValueError("Company name is required for Company registration")
+        return self
+
+    @field_validator("company_name")
+    @classmethod
+    def validate_company_name(cls, v):
+        if v is not None and len(v.strip()) == 0:
+            raise ValueError("Company name should not be empty")
+        return v
 
 class ConfirmCodePayload(BaseModel, extra="forbid"):
     id: str
