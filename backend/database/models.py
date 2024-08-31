@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 
 from sqlalchemy import JSON, String,UUID, text, Text, ForeignKey, func, Enum, Boolean, VARCHAR
@@ -332,6 +332,10 @@ class User(Base):
         }
 
 
+def default_expired_at():
+    # Compute the default expiration time as `datetime.now() + 5 minutes`
+    return datetime.now() + timedelta(minutes=5)
+
 class ConfirmCode(Base):
     __tablename__ = "confirm_codes"
     id: Mapped[UUID] = mapped_column(
@@ -340,28 +344,27 @@ class ConfirmCode(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    # email can be removed?
-    email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
-    code: Mapped[str] = mapped_column(VARCHAR(6))
-    status: Mapped[ConfirmStatusCode] = mapped_column(
-        Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now()
-    )
-    expired_at: Mapped[datetime] = mapped_column(default=func.now())
-
-    # relationships
     user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
+    code: Mapped[str] = mapped_column(VARCHAR(6))
+    status: Mapped[ConfirmStatusCode] = mapped_column(Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENDED)
+    created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())
+    expired_at: Mapped[datetime] = mapped_column(default=default_expired_at)
+    updated_at: Mapped[datetime] = mapped_column(
+        default=func.now(),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
+    )
 
     user: Mapped["User"] = relationship("User", back_populates="codes")
 
     def json(self):
         return {
             "id": str(self.id),
-            "email": self.email,
             "code": self.code,
             "status": self.status.name,
             "created_at": str(self.created_at),
+            "updated_at": str(self.updated_at),
+            "expired_at": str(self.expired_at),
             "user_id": str(self.user_id),
         }
