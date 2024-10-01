@@ -13,6 +13,7 @@ from pkg import rabbitmq
 
 def setup_routes(app):
     public.setup_auth_routes(app)
+    public.setup_jobs_routes(app)
     company.setup_company_routes(app)
 
 
