@@ -9,23 +9,30 @@ from api.routes import public, company
 from api.settings import config
 from database.utils import database_url
 from pkg import rabbitmq
-
+from aiohttp_cache import setup_cache, RedisConfig
 
 def setup_routes(app):
     public.setup_auth_routes(app)
+    public.setup_jobs_routes(app)
     company.setup_company_routes(app)
 
 
 def init_app():
     app = web.Application()
-    app["config"] = config()
+    conf = config()
+    app["config"] = conf
     session = async_sessionmaker(
         create_async_engine(database_url(), echo=False), expire_on_commit=False
     )
     app["session"] = session()
 
+    setup_cache(app, cache_type="redis", backend_config=RedisConfig(
+        host=conf.REDIS.REDIS_HOST,
+        port=conf.REDIS.REDIS_PORT,
+        db=conf.REDIS.REDIS_DB,
+    ))
+
     try:
-        # TODO: use os.getenv credential and host variables
         connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 "localhost", credentials=pika.PlainCredentials("guest", "guest")

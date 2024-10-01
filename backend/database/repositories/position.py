@@ -50,20 +50,17 @@ async def get_position(session: AsyncSession, **kwargs) -> Optional[Position]:
 
 
 async def get_positions(session: AsyncSession, **kwargs) -> List[Position]: 
-    stmt = select(Position).options(
-        # selectinload(<relations>),
-    )
+    stmt = select(Position).options()
 
-    if len(kwargs) == 0:
-        return []
-
+    # Add filter conditions only if provided in kwargs
     if "company_id" in kwargs:
         stmt = stmt.where(Position.company_id == kwargs["company_id"])
 
+    # Execute the query
     result = await session.scalars(stmt)
-    position = result.all()
+    positions = result.all()
 
-    return list(position)
+    return list(positions)
 
 async def update_position(session: AsyncSession, id: UUID, payload: PositionFormPatch) -> Optional[Position]:
     values: dict[str, Any] = {}

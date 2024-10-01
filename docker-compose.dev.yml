@@ -3,6 +3,7 @@ name: jobs
 volumes:
   postgres_data:
   rabbitmq_data:
+  redis_data:
 
 services:
   db:
@@ -14,10 +15,10 @@ services:
       - 5432:5432
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=application
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres_user -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 10s
       retries: 5
       timeout: 5s
@@ -36,3 +37,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+
+  redis:
+    image: "redis:7.4.0-alpine"
+    command: redis-server
+    ports:
+     - "6379:6379"
+    volumes:
+     - redis_data:/var/lib/redis

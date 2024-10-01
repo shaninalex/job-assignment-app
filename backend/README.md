@@ -25,6 +25,10 @@ pip install -r requirements.txt
 
 Run server:
 ```bash
+# if clear db run alembic:
+alembic upgrade head
+
+# run server
 python main.py
 ```
 

@@ -11,7 +11,7 @@ class ResponseData(BaseModel):
     status: bool
 
 
-def success_response(payload: Any, messages: List[str] = []) -> web.Response:
+def success_response(payload: Any, messages: List[str]) -> web.Response:
     response = ResponseData(
         data=payload,
         messages=messages,
@@ -21,7 +21,7 @@ def success_response(payload: Any, messages: List[str] = []) -> web.Response:
     return web.json_response(response.model_dump(), status=HTTPStatus.OK)
 
 
-def error_response(errors: Any, messages: List[str] = [], status: HTTPStatus = HTTPStatus.BAD_REQUEST) -> web.Response:
+def error_response(errors: Any, messages: List[str], status: HTTPStatus = HTTPStatus.BAD_REQUEST) -> web.Response:
     response = ResponseData(
         data=None,
         messages=messages,
