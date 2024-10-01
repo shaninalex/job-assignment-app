@@ -1,3 +1,10 @@
+## 0.6.1 (2024-10-01)
+
+### Fix
+
+- **backend**: public positions list, configurations, config dataclass
+- **api**: public positions list
+
 ## 0.6.0 (2024-08-31)
 
 ### Feat
