@@ -1,25 +1,26 @@
-import json
 from http import HTTPStatus
 from uuid import UUID
+
 from aiohttp import web
-from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
-from database import repositories
 from api import middlewares
-from globalTypes import Role
 from pkg import errors, response, utils
-from .types import PositionForm, PositionFormPatch
+from pkg.consts import Role
+from pkg.database import repositories
+from ._types import PositionForm, PositionFormPatch
 
 
 def setup_company_routes(app: web.Application):
     company = web.Application()
 
     company["session"] = app["session"]
-    company["mq"] = app["mq"]
+    # company["mq"] = app["mq"]
 
     company.middlewares.append(middlewares.auth_middleware)
-    company.middlewares.append(middlewares.roles_required([Role.COMPANY_MANAGER, Role.COMPANY_ADMIN]))
+    company.middlewares.append(
+        middlewares.roles_required([Role.COMPANY_MANAGER, Role.COMPANY_ADMIN])
+    )
 
     company.router.add_post("/position", handle_create_position)
     company.router.add_get("/positions", handle_list_position)
@@ -27,7 +28,7 @@ def setup_company_routes(app: web.Application):
     company.router.add_patch("/position/{id}", handle_patch_position)
     company.router.add_delete("/position/{id}", handle_delete_position)
 
-    app.add_subapp('/api/company/', company)
+    app.add_subapp("/api/company/", company)
 
 
 async def handle_create_position(request: web.Request):
@@ -52,11 +53,15 @@ async def handle_create_position(request: web.Request):
 
 async def handle_list_position(request: web.Request):
     async with request.app["session"] as session:
-        positions = await repositories.get_positions(session, company_id=request["user"].manager.company_id) 
+        positions = await repositories.get_positions(
+            session, company_id=request["user"].manager.company_id
+        )
 
-    return response.success_response({
-        "positions": [p.json() for p in positions],
-    })
+    return response.success_response(
+        {
+            "positions": [p.json() for p in positions],
+        }
+    )
 
 
 async def handle_patch_position(request: web.Request):
@@ -80,10 +85,14 @@ async def handle_position(request: web.Request):
     async with request.app["session"] as session:
         position = await repositories.get_position(session, id=id)
         if not position:
-            return response.error_response(None, ["Position with given id not found"], status=HTTPStatus.NOT_FOUND)
+            return response.error_response(
+                None, ["Position with given id not found"], status=HTTPStatus.NOT_FOUND
+            )
 
     return response.success_response(position.json())
 
-async def handle_delete_position(request: web.Request):
-    return response.error_response(None, ["Method not implemented"], status=HTTPStatus.NOT_IMPLEMENTED)
 
+async def handle_delete_position(request: web.Request):
+    return response.error_response(
+        None, ["Method not implemented"], status=HTTPStatus.NOT_IMPLEMENTED
+    )

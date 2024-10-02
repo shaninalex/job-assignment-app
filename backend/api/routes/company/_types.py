@@ -1,12 +1,15 @@
-from pydantic import BaseModel
 from typing import Optional
-from globalTypes import (
+
+from pydantic import BaseModel
+
+from pkg.consts import (
     Remote,
     SalaryType,
     WorkingHours,
     TravelRequired,
     PositionStatus,
 )
+
 
 class PositionForm(BaseModel, extra="forbid"):
     title: str

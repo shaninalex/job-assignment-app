@@ -1,21 +1,19 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Sequence
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from api.routes.public.types import RegistrationPayload
-from database.models import Company, CompanyManager, ConfirmCode, User
-from globalTypes.consts import AuthStatus, ConfirmStatusCode, Role
+from api.routes.public._types import RegistrationPayload
 from pkg import password, utils
+from pkg.consts import AuthStatus, ConfirmStatusCode, Role
+from pkg.database.models import Company, CompanyManager, ConfirmCode, User
 
 
-async def get_company(session: AsyncSession, **kwargs) -> Optional[Company]: 
+async def get_company(session: AsyncSession, **kwargs) -> Optional[Company]:
     stmt = select(Company).options(
         selectinload(Company.managers),
     )
-
-    if len(kwargs) == 0:
-        return None
 
     if "id" in kwargs:
         stmt = stmt.where(Company.id == kwargs["id"])
@@ -23,6 +21,14 @@ async def get_company(session: AsyncSession, **kwargs) -> Optional[Company]:
     result = await session.scalars(stmt)
     company = result.one_or_none()
     return company
+
+
+async def get_companies(session: AsyncSession, **kwargs) -> Sequence[Company]:
+    stmt = select(Company)
+    # TODO: handle kwargs
+    result = await session.scalars(stmt)
+    companies = result.all()
+    return companies
 
 
 async def create_company(
@@ -54,4 +60,3 @@ async def create_company(
 
     await session.commit()
     return company, user, member
-

@@ -1,15 +1,7 @@
 import os
+
 from alembic import command, config
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine
-
-from database.models import Base
-
-
-def create_tables(database_uri, echo):
-    engine = create_engine(database_uri, echo=echo)
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
 
 
 def database_url():

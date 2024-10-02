@@ -32,6 +32,7 @@ properties = pika.BasicProperties(
 
 # into admin exchange
 
+
 def admin_create_new_candidate(connection: BlockingConnection, user: dict):
     d = {"user": user}
     connection.channel().basic_publish(

@@ -1,16 +1,17 @@
 from typing import Optional, Tuple
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from api.routes.public.types import RegistrationPayload
-from database import User
-from database.models import Candidate, ConfirmCode
-from globalTypes.consts import AuthStatus, ConfirmStatusCode, Role
+from api.routes.public._types import RegistrationPayload
 from pkg import password, utils
+from pkg.consts import AuthStatus, ConfirmStatusCode, Role
+from pkg.database import User
+from pkg.database.models import Candidate, ConfirmCode
 
 
-async def get_user(session: AsyncSession, **kwargs) -> Optional[User]: 
+async def get_user(session: AsyncSession, **kwargs) -> Optional[User]:
     stmt = select(User).options(
         selectinload(User.manager),
     )
@@ -79,4 +80,3 @@ async def confirm_user(session: AsyncSession, code: ConfirmCode) -> Optional[Use
     await session.refresh(code)
 
     return user
-

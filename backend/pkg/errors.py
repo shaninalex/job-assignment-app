@@ -1,4 +1,5 @@
 import re
+
 from pydantic import ValidationError
 from sqlalchemy.exc import (
     DataError,
@@ -7,13 +8,13 @@ from sqlalchemy.exc import (
 )
 
 
-
 def create_form_error(field: str, msg: str, err_type: str = "value_error"):
     return {
         "type": err_type,
         "loc": [field],
         "msg": msg,
     }
+
 
 def validation_errors(err: ValidationError):
     return err.errors(include_url=False, include_input=False, include_context=False)
@@ -49,13 +50,14 @@ def parse_sqlalchemy_error(error: SQLAlchemyError):
     if match:
         field = match.group(1)
 
-    match = re.search(r'unique constraint \"(\w+)\"', message)
+    match = re.search(r"unique constraint \"(\w+)\"", message)
     if match:
         field = match.group(1).replace("_key", "")
 
-    match = re.search(r'Key \((\w+)\)=\((.+?)\)', message)
+    match = re.search(r"Key \((\w+)\)=\((.+?)\)", message)
     if match:
         field = match.group(1)
 
-    return create_form_error(str(field), f"{error_type} on {field} field", str(error_type))
-
+    return create_form_error(
+        str(field), f"{error_type} on {field} field", str(error_type)
+    )

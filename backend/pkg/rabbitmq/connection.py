@@ -1,5 +1,6 @@
 import asyncio
 import logging
+
 import pika
 
 
@@ -21,7 +22,7 @@ async def cancel_background_tasks(app):
     try:
         await task
     except asyncio.CancelledError:
-        logging.info("Background task cancelled.")   
+        logging.info("Background task cancelled.")
 
 
 async def check_rabbitmq_connection(app):
@@ -66,4 +67,3 @@ async def close_rmq_connection(app):
             logging.info("RabbitMQ connection closed.")
     except Exception as e:
         logging.error(f"Error closing RabbitMQ connection: {e}")
-

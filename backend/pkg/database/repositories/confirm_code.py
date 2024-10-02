@@ -1,10 +1,10 @@
 from typing import Optional
 
-from database import ConfirmCode
-from globalTypes import ConfirmStatusCode
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from pkg.consts import ConfirmStatusCode
+from pkg.database import ConfirmCode
 
 
 async def get_confirm_code(

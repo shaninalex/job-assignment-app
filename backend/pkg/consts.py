@@ -13,18 +13,18 @@ class Role(enum.Enum):
 
 
 class AuthStatus(enum.Enum):
-    ACTIVE = "active" # healthy user
-    BANNED = "banned" # banned, not active
-    PENDING = "pending" # just created, waiting for registration confirm
+    ACTIVE = "active"  # healthy user
+    BANNED = "banned"  # banned, not active
+    PENDING = "pending"  # just created, waiting for registration confirm
 
 
 # ConfirmationStatusCode have 3 states:
-# created - when code was created but not sended via transport ( email/phone )
-# sended - sended via transport
+# created - when code was created but not sent via transport ( email/phone )
+# sent - sent via transport
 # used - code was used and ready to remove
 class ConfirmStatusCode(enum.Enum):
     CREATED = "created"
-    SENDED = "sended"
+    SENT = "sent"
     USED = "used"
 
 
@@ -34,20 +34,22 @@ class Remote(enum.Enum):
     OFFICE = "office"
     PARTIAL = "partial"
 
-    
+
 class SalaryType(enum.Enum):
-    EXPIRIENCE = "expirience"
+    EXPERIENCE = "experience"
     STATIC = "static"
     HOURLY = "hourly"
     AGREEMENT = "agreement"
 
+
 class WorkingHours(enum.Enum):
     FULL_TIME = "full_time"
     PARTIAL = "partial"
-    
+
+
 class TravelRequired(enum.Enum):
     REQUIRED = "required"
-    NO_METTER = "no_metter"
+    NO_MATTER = "no_matter"
     HELP = "help"
 
 
@@ -55,4 +57,4 @@ class PositionStatus(enum.Enum):
     ACTIVE = "active"
     HIDDEN = "hidden"
     CLOSED = "closed"
-    REMOVED = "removed" # position moved to "trash can"
+    REMOVED = "removed"  # position moved to "trash can"

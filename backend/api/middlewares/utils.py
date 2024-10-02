@@ -1,12 +1,14 @@
 import time
-from aiohttp import web
 from http import HTTPStatus
+
+from aiohttp import web
+
 from api.settings import TIMEOUT
 
 
 @web.middleware
 async def timeout_middleware(request, handler):
-    # sinse this is just example backend, current middleware simulate
+    # since this is just example backend, current middleware simulate
     # slow request process. You can enable/disable this with settings
     if TIMEOUT:
         time.sleep(2)
