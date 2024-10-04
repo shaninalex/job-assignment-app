@@ -4,11 +4,11 @@ from uuid import UUID
 from pydantic import BaseModel, field_validator, model_validator, EmailStr
 from typing_extensions import Self
 
-from pkg.consts import RegistrationType
+from pkg.consts import Role
 
 
 class RegistrationPayload(BaseModel, extra="forbid"):
-    type: RegistrationType
+    type: Role
     name: str
     email: EmailStr
     password: str
@@ -25,7 +25,7 @@ class RegistrationPayload(BaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_company_fields(self) -> Self:
-        if self.type == RegistrationType.COMPANY:
+        if self.type == Role.COMPANY_ADMIN or self.type == Role.COMPANY_MEMBER:
             if not self.company_name or len(self.company_name.strip()) == 0:
                 raise ValueError("Company name is required for Company registration")
         return self

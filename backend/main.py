@@ -1,13 +1,6 @@
 from aiohttp import web
 
 from api import init_app
-from api.settings import config
-from pkg.database import utils
+from pkg.settings import CONFIG
 
-app = init_app()
-conf = config()
-
-
-if __name__ == "__main__":
-    utils.check_migrations()
-    web.run_app(app, port=conf["APP_PORT"])
+web.run_app(init_app(), port=CONFIG.APP_PORT)

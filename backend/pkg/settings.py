@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -6,15 +8,16 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 load_dotenv(BASE_DIR / ".env")
 
 DEBUG = bool(int(os.getenv("DEBUG", "0")))
 TIMEOUT = int(os.getenv("TIMEOUT", "0"))
-
-DSN = "postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
+DSN = "postgresql+asyncpg://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 JWT_SECRET = os.getenv("JWT_SECRET")
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_DB = int(os.getenv("REDIS_DB", "0"))
+
 
 DATABASE_URI = DSN.format(
     DB_USERNAME=os.getenv("DB_USERNAME", "postgres_user"),
@@ -23,10 +26,6 @@ DATABASE_URI = DSN.format(
     DB_PORT=int(os.getenv("DB_PORT", "5432")),
     DB_NAME=os.getenv("DB_NAME"),
 )
-
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-REDIS_DB = int(os.getenv("REDIS_DB", "0"))
 
 
 @dataclass
@@ -45,7 +44,7 @@ class Config:
 
 
 def config() -> Config:
-    config = Config(
+    return Config(
         DATABASE_URI=DATABASE_URI,
         DEBUG=DEBUG,
         APP_PORT=int(os.getenv("APP_PORT", "8080")),
@@ -55,4 +54,14 @@ def config() -> Config:
             REDIS_DB=REDIS_DB,
         ),
     )
-    return config
+
+
+CONFIG = config()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+
+logger = logging.getLogger(__name__)

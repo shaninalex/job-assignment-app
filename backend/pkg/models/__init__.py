@@ -1,4 +1,4 @@
-from pkg.database.models import Base
+from pkg.database import Base
 
 # models
 from .models import (
@@ -13,9 +13,5 @@ from .models import (
     PositionViews,
     PositionFeedback,
 )
-
-
-# User.feedbacks = relationship("PositionFeedback", uselist=True, back_populates="user")
-# PositionFeedback.user = relationship("User", back_populates="feedbacks")
 
 Base.registry.configure()

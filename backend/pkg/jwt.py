@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 
 import jwt
 
-from api.settings import JWT_SECRET
-from pkg.database import User
+from pkg.models import User
+from pkg.settings import JWT_SECRET
 
 
 def create_jwt_token(user: User) -> str:

@@ -14,7 +14,7 @@ from sqlalchemy import (
     Boolean,
     VARCHAR,
 )
-from sqlalchemy.orm import mapped_column, Mapped, relationship, DeclarativeBase
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from pkg.consts import (
     Remote,
@@ -26,10 +26,7 @@ from pkg.consts import (
     Role,
     ConfirmStatusCode,
 )
-
-
-class Base(DeclarativeBase):
-    pass
+from pkg.database import Base
 
 
 class Staff(Base):
@@ -62,12 +59,10 @@ class Candidate(Base):
     skills: Mapped[JSON] = mapped_column(JSON, nullable=True)
     certificates: Mapped[JSON] = mapped_column(JSON, nullable=True)
     experiences: Mapped[List["CandidateExperience"]] = relationship(
-        back_populates="candidate", uselist=True
-    )
+        back_populates="candidate", uselist=True)
 
     user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
-    )
+        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
 
     user: Mapped["User"] = relationship("User", back_populates="candidate")
 
@@ -93,20 +88,16 @@ class CandidateExperience(Base):
     company_name: Mapped[str] = mapped_column(Text, nullable=True)
     company_link: Mapped[str] = mapped_column(Text, nullable=True)
     work_start: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     work_end: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=False
-    )
+        default=func.now(), server_default=func.now(), nullable=False)
     position: Mapped[str] = mapped_column(Text, nullable=True)
     responsibility: Mapped[str] = mapped_column(Text, nullable=True)
     candidate: Mapped["Candidate"] = relationship(back_populates="experiences")
     candidate_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True
-    )
+        UUID(as_uuid=True), ForeignKey("candidate.id"), unique=True)
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),
@@ -139,11 +130,9 @@ class Company(Base):
     name: Mapped[str] = mapped_column(String(30), unique=True)
     image_link: Mapped[str] = mapped_column(Text, nullable=True)
     managers: Mapped[List["CompanyManager"]] = relationship(
-        "CompanyManager", back_populates="company"
-    )
+        "CompanyManager", back_populates="company")
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),
@@ -173,13 +162,12 @@ class CompanyManager(Base):
         server_default=text("uuid_generate_v4()"),
     )
     user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True
-    )
+        UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
     user: Mapped["User"] = relationship("User", back_populates="manager")
     company_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("company.id"), unique=True, nullable=False
-    )
-    company: Mapped["Company"] = relationship("Company", back_populates="managers")
+        UUID(as_uuid=True), ForeignKey("company.id"), unique=True, nullable=False)
+    company: Mapped["Company"] = relationship(
+        "Company", back_populates="managers")
 
     def json(self):
         return {
@@ -211,16 +199,14 @@ class Position(Base):
     price_range: Mapped[str] = mapped_column(VARCHAR(50))
 
     company_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("company.id"), nullable=False
-    )
+        UUID(as_uuid=True), ForeignKey("company.id"), nullable=False)
 
     # NOTE: column ideas
     # - search_tags
     # - featured/important
 
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),
@@ -263,14 +249,11 @@ class PositionViews(Base):
     )
 
     position_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("positions.id")
-    )
+        UUID(as_uuid=True), ForeignKey("positions.id"))
     user_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("user.id"), nullable=True
-    )
+        UUID(as_uuid=True), ForeignKey("user.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
 
     def json(self):
         return {
@@ -289,14 +272,13 @@ class PositionFeedback(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.id"))
     position_id: Mapped[UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("positions.id")
-    )
+        UUID(as_uuid=True), ForeignKey("positions.id"))
     message: Mapped[Text] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     user: Mapped["User"] = relationship("User", back_populates="feedbacks")
 
     def json(self):
@@ -321,21 +303,17 @@ class User(Base):
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     settings: Mapped[JSON] = mapped_column(JSON, nullable=True)
     active: Mapped[bool] = mapped_column(
-        Boolean, default=True, server_default=text("true")
-    )
+        Boolean, default=True, server_default=text("true"))
     image: Mapped[str] = mapped_column(Text, nullable=True)
     social_accounts: Mapped[JSON] = mapped_column(JSON, nullable=True)
     confirmed: Mapped[bool] = mapped_column(
-        Boolean, default=False, server_default=text("false")
-    )
+        Boolean, default=False, server_default=text("false"))
     status: Mapped[AuthStatus] = mapped_column(
-        Enum(AuthStatus), default=AuthStatus.PENDING
-    )
+        Enum(AuthStatus), default=AuthStatus.PENDING)
     role: Mapped[Role] = mapped_column(Enum(Role))
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now(), nullable=True
-    )
+        default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
         server_default=func.now(),
@@ -344,15 +322,13 @@ class User(Base):
     )
 
     codes: Mapped[List["ConfirmCode"]] = relationship(
-        "ConfirmCode", back_populates="user"
-    )
+        "ConfirmCode", back_populates="user")
     feedbacks: Mapped[List["PositionFeedback"]] = relationship(
-        "PositionFeedback", back_populates="user"
-    )
+        "PositionFeedback", back_populates="user")
     manager: Mapped["CompanyManager"] = relationship(
-        "CompanyManager", back_populates="user"
-    )
-    candidate: Mapped["User"] = relationship("Candidate", back_populates="user")
+        "CompanyManager", back_populates="user")
+    candidate: Mapped["User"] = relationship(
+        "Candidate", back_populates="user")
 
     def json(self):
         return {
@@ -384,14 +360,13 @@ class ConfirmCode(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.id"))
     code: Mapped[str] = mapped_column(VARCHAR(6))
     status: Mapped[ConfirmStatusCode] = mapped_column(
-        Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENT
-    )
+        Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENT)
     created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=func.now()
-    )
+        default=func.now(), server_default=func.now())
     expired_at: Mapped[datetime] = mapped_column(default=default_expired_at)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),

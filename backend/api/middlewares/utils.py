@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from aiohttp import web
 
-from api.settings import TIMEOUT
+from pkg.settings import TIMEOUT
 
 
 @web.middleware
@@ -56,7 +56,4 @@ def create_error_middleware(overrides):
     return error_middleware
 
 
-def setup_middlewares(app):
-    error_middleware = create_error_middleware({404: handle_404, 500: handle_500})
-    # app.middlewares.append(timeout_middleware)
-    app.middlewares.append(error_middleware)
+error_middleware = create_error_middleware({404: handle_404, 500: handle_500})

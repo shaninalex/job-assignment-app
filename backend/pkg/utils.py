@@ -18,9 +18,7 @@ def generate_code(length: int):
 T = TypeVar("T", bound=BaseModel)
 
 
-async def request_payload(
-    request: web.Request, model_class: Type[T]
-) -> Union[web.Response, T]:
+async def request_payload(request: web.Request, model_class: Type[T]) -> Union[web.Response, T]:
     try:
         data = await request.json()
     except ValueError:
@@ -32,6 +30,6 @@ async def request_payload(
     try:
         payload = model_class(**data)
     except ValidationError as err:
-        return response.error_response(errors.validation_errors(err))
+        return response.error_response(errors.validation_errors(err), messages=[])
 
     return payload
