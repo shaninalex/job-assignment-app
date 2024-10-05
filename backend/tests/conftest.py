@@ -6,7 +6,7 @@ from pkg.settings import Config, Redis
 
 
 config: Config = Config(
-    DATABASE_URI="sqlite+aiosqlite:///test.db",
+    DATABASE_URI="postgresql+asyncpg://postgres:postgres@localhost:5432/application_test",
     DEBUG=True,
     APP_PORT=8000,
     RABBIT_URL="amqp://guest:guest@localhost/",
