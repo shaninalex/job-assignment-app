@@ -1,10 +1,8 @@
 import random
-from typing import Type, TypeVar, Union
+from typing import Type, TypeVar
 
 from aiohttp import web
-from pydantic import BaseModel, ValidationError
-
-from pkg import errors, response
+from pydantic import BaseModel
 
 
 def generate_code(length: int):
@@ -18,18 +16,9 @@ def generate_code(length: int):
 T = TypeVar("T", bound=BaseModel)
 
 
-async def request_payload(request: web.Request, model_class: Type[T]) -> Union[web.Response, T]:
-    try:
-        data = await request.json()
-    except ValueError:
-        return response.error_response(None, messages=["Invalid payload"])
-
+async def request_payload(request: web.Request, model_class: Type[T]) -> T:
+    data = await request.json()
     if not data.keys():
-        return response.error_response(None, messages=["Payload is empty"])
-
-    try:
-        payload = model_class(**data)
-    except ValidationError as err:
-        return response.error_response(errors.validation_errors(err), messages=[])
-
+        raise ValueError("Payload is empty")
+    payload = model_class(**data)
     return payload

@@ -11,7 +11,11 @@ class UserService:
         self.repository = repository
         self.event_service = event_service
 
-    def create_user(self, payload: RegistrationPayload, role: Role):
+    async def create_user(self, payload: RegistrationPayload, role: Role):
+        user = await self.repository.get_user(email=payload.email)
+        if user:
+            raise Exception("User already exists")
+
         user = User(
             name=payload.name,
             email=payload.email,
@@ -25,4 +29,5 @@ class UserService:
                 )
             ],
         )
-        return self.repository.create(user)
+        user = await self.repository.create(user)
+        return user

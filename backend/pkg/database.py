@@ -13,8 +13,8 @@ Base = declarative_base()
 
 @web.middleware
 async def db_session_middleware(request, handler):
-    async with async_session() as session:
-        request["db"] = session
+    _session: AsyncSession = request.app.container.session
+    async with _session() as session:
         try:
             response = await handler(request)
             await session.commit()

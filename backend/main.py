@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from api import init_app
+from api import api_factory
 from pkg.settings import CONFIG
 
-web.run_app(init_app(), port=CONFIG.APP_PORT)
+web.run_app(api_factory(CONFIG), port=CONFIG.APP_PORT)

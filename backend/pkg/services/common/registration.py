@@ -24,7 +24,8 @@ class CandidateRegistrationStrategy(RegistrationStrategy):
     async def register(self, payload: RegistrationPayload) -> User:
         user = await self.user_service.create_user(payload, Role.CANDIDATE)
         event_payload = {"user": user.json()}
-        await self.event_service.publish_event(Exchanges.ADMIN, RoutingKeys.NEW_COMPANY, event_payload)
+        await self.event_service.publish_event(Exchanges.ADMIN, RoutingKeys.NEW_USER, event_payload)
+        await self.event_service.publish_event(Exchanges.EMAIL, RoutingKeys.NEW_USER, event_payload)
         return user
 
 

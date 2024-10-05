@@ -41,6 +41,7 @@ class Config:
     DEBUG: bool
     REDIS: Redis
     APP_PORT: int
+    RABBIT_URL: str
 
 
 def config() -> Config:
@@ -48,6 +49,7 @@ def config() -> Config:
         DATABASE_URI=DATABASE_URI,
         DEBUG=DEBUG,
         APP_PORT=int(os.getenv("APP_PORT", "8080")),
+        RABBIT_URL=os.getenv("RABBIT_URL", "amqp://guest:guest@localhost/"),
         REDIS=Redis(
             REDIS_HOST=REDIS_HOST,
             REDIS_PORT=REDIS_PORT,

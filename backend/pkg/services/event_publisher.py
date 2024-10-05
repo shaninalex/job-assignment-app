@@ -8,19 +8,57 @@ from pkg.settings import logger
 
 
 class Exchanges(enum.StrEnum):
+    """
+    Class defining exchange constants for different communication channels.
+    """
+
     ADMIN = "ex.admin_events"
     EMAIL = "ex.email"
+    LOG = "ex.log"
 
 
 class RoutingKeys(enum.StrEnum):
+    """
+    class RoutingKeys(enum.StrEnum):
+    """
+
     NEW_USER = "new_user"
     NEW_COMPANY = "new_company"
     NEW_COMPANY_MEMBER = "new_company_member"
     COMPLETE_REGISTRATION_SUCCESS = "complete_registration_success"
     CONFIRM_CODE_SEND = "send_confirm_code"
+    USER_LOGIN = "user_login"
+    USER_LOGIN_FAILED = "user_login_failed"
 
 
 class EventPublisher:
+    """
+     class EventPublisher:
+    Manages connection to RabbitMQ, declaration of exchanges, and publishing events.
+
+    Attributes
+    ----------
+    rabbitmq_url: str
+        URL for connecting to RabbitMQ.
+    connection: aio_pika.RobustConnection
+        Robust connection to RabbitMQ.
+    channel: aio_pika.RobustChannel
+        Channel for communication with RabbitMQ.
+    exchanges: dict
+        Dictionary storing declared exchanges.
+
+    Methods
+    -------
+    connect():
+        Establishes connection to RabbitMQ and creates a channel.
+    declare_exchange(exchange_name, exchange_type, durable):
+        Declares an exchange if not already declared.
+    publish_event(exchange_name, routing_key, event):
+        Publishes an event to a specified exchange.
+    close():
+        Closes the RabbitMQ connection.
+    """
+
     def __init__(self, rabbitmq_url: str):
         self.rabbitmq_url = rabbitmq_url
         self.connection: aio_pika.RobustConnection = None
@@ -35,8 +73,6 @@ class EventPublisher:
         except Exception as e:
             logger.error(f"Failed to connect to RabbitMQ: {e}")
             raise
-
-    # TODO: declare initial exchanges
 
     async def declare_exchange(
         self,

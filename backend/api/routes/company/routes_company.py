@@ -5,7 +5,7 @@ from aiohttp import web
 from sqlalchemy.exc import SQLAlchemyError
 
 from api import middlewares
-from pkg import errors, response, utils, repositories
+from pkg import response, utils, repositories
 from pkg.consts import Role
 from .typing import PositionForm, PositionFormPatch
 
@@ -14,9 +14,8 @@ def setup_company_routes(app: web.Application):
     company = web.Application()
 
     company.middlewares.append(middlewares.auth_middleware)
-    company.middlewares.append(
-        middlewares.roles_required([Role.COMPANY_MEMBER, Role.COMPANY_ADMIN])
-    )
+    company.middlewares.append(middlewares.roles_required(
+        [Role.COMPANY_MEMBER, Role.COMPANY_ADMIN]))
 
     company.router.add_post("/position", handle_create_position)
     company.router.add_get("/positions", handle_list_position)
@@ -49,9 +48,7 @@ async def handle_create_position(request: web.Request):
 
 async def handle_list_position(request: web.Request):
     async with request.app["session"] as session:
-        positions = await repositories.get_positions(
-            session, company_id=request["user"].manager.company_id
-        )
+        positions = await repositories.get_positions(session, company_id=request["user"].manager.company_id)
 
     return response.success_response(
         {
@@ -94,6 +91,4 @@ async def handle_position(request: web.Request):
 
 
 async def handle_delete_position(request: web.Request):
-    return response.error_response(
-        None, messages=["Method not implemented"], status=HTTPStatus.NOT_IMPLEMENTED
-    )
+    return response.error_response(None, messages=["Method not implemented"], status=HTTPStatus.NOT_IMPLEMENTED)
