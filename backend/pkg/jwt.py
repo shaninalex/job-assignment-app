@@ -7,10 +7,9 @@ from datetime import datetime, timedelta
 import jwt
 
 from pkg.models import User
-from pkg.settings import JWT_SECRET
 
 
-def create_jwt_token(user: User) -> str:
+def create_jwt_token(jwt_token, user: User) -> str:
     """
     Generate user jwt token
     Parameters
@@ -31,5 +30,5 @@ def create_jwt_token(user: User) -> str:
         "iat": iat_unix_timestamp,
         "roles": [str(user.role.value)],
     }
-    access_token = jwt.encode(claims, JWT_SECRET, algorithm="HS256")
+    access_token = jwt.encode(claims, jwt_token, algorithm="HS256")
     return access_token

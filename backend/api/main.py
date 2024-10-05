@@ -1,12 +1,13 @@
 import logging
 
+import aiohttp_sqlalchemy
 from aiohttp import web
 from aiohttp_cache import setup_cache, RedisConfig
 
 from api.middlewares.error import error_middleware
 from api.routes import public, company, utils
-from pkg.container import Container
 from pkg.database import db_session_middleware
+from pkg.initialize import initialize_dependencies
 from pkg.settings import Config
 
 
@@ -18,12 +19,14 @@ def setup_routes(app):
 
 async def api_factory(config: Config):
     app = web.Application()
-    container = Container()
-    app.container = container
-    await container.event_service().connect()
 
-    # TODO: https://docs.aiohttp.org/en/stable/web_advanced.html#application-s-config
+    aiohttp_sqlalchemy.setup(app, [aiohttp_sqlalchemy.bind(config.DATABASE_URI)])
+
     app["config"] = config
+
+    initialize_dependencies(app, config)
+
+    await app["service_events"].connect()
 
     setup_cache(
         app,

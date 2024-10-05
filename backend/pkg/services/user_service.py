@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from api.routes.public.typing import RegistrationPayload
 from pkg import password, utils
 from pkg.consts import Role, AuthStatus, ConfirmStatusCode
@@ -11,8 +13,8 @@ class UserService:
         self.repository = repository
         self.event_service = event_service
 
-    async def create_user(self, payload: RegistrationPayload, role: Role):
-        user = await self.repository.get_user(email=payload.email)
+    async def create_user(self, session: AsyncSession, payload: RegistrationPayload, role: Role):
+        user = await self.repository.get_user(session, email=payload.email)
         if user:
             raise Exception("User already exists")
 
@@ -29,5 +31,5 @@ class UserService:
                 )
             ],
         )
-        user = await self.repository.create(user)
+        user = await self.repository.create(session, user)
         return user

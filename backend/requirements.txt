@@ -1,8 +1,10 @@
 aio-pika==9.4.3
 aiohappyeyeballs==2.4.0
-aiohttp==3.10.5
+aiohttp==3.10.9
 aiohttp-cache==4.0.1
 aiohttp-devtools==1.1.2
+aiohttp-sqlalchemy==1.0.post0
+aiohttp-things==1.0.1
 aiormq==6.8.1
 aiosignal==1.3.1
 aiosqlite==0.20.0
@@ -15,7 +17,6 @@ asyncpg==0.29.0
 attrs==24.2.0
 black==24.8.0
 click==8.1.7
-dependency-injector==4.42.0
 devtools==0.12.2
 dnspython==2.6.1
 email_validator==2.2.0
@@ -28,6 +29,7 @@ idna==3.8
 iniconfig==2.0.0
 Mako==1.3.5
 MarkupSafe==2.1.5
+mocker==1.1.1
 multidict==6.0.5
 mypy-extensions==1.0.0
 packaging==24.1
@@ -43,11 +45,14 @@ pydantic_core==2.20.1
 Pygments==2.18.0
 PyJWT==2.9.0
 pytest==8.3.3
+pytest-aiohttp==1.0.5
+pytest-asyncio==0.24.0
 python-dotenv==1.0.1
 redis==4.6.0
 six==1.16.0
 sniffio==1.3.1
-SQLAlchemy==2.0.32
+SQLAlchemy==2.0.35
+sqlalchemy-things==1.0.1
 typing_extensions==4.12.2
 watchfiles==0.23.0
-yarl==1.9.4
+yarl==1.13.1

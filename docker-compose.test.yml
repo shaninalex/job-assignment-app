@@ -1,0 +1,48 @@
+
+name: jobs_test
+
+volumes:
+  postgres_test_data:
+  rabbitmq_test_data:
+  redis_test_data:
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data/
+      - ./config/database/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=application_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  rabbitmq:
+    build:
+      context: ./config/rabbitmq
+      dockerfile: Dockerfile
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq_test_data:/var/lib/rabbitmq/mnesia/
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: "redis:7.4.0-alpine"
+    command: redis-server
+    ports:
+     - "6379:6379"
+    volumes:
+     - redis_test_data:/var/lib/redis
