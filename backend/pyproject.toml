@@ -1,6 +1,7 @@
 [project]
-name = "job-assignment-app"
-version = "0.6.1"
+name = "backend"
+version = "0.6.3"
+package-mode = true
 
 [tool.black]
 line-length = 120
