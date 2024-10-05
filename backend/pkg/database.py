@@ -1,20 +1,20 @@
+import aiohttp_sqlalchemy
 from aiohttp import web
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
-from sqlalchemy.orm import sessionmaker, declarative_base
-
-from pkg.settings import CONFIG
-
-engine: AsyncEngine = create_async_engine(CONFIG.DATABASE_URI, echo=True)
-
-async_session: AsyncSession = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
 
+def create_session(db_url: str):
+    eng = create_async_engine(db_url, echo=True)
+    session = AsyncSession(bind=eng, expire_on_commit=False)
+    return eng, session
+
+
 @web.middleware
 async def db_session_middleware(request, handler):
-    _session: AsyncSession = request.app.container.session
-    async with _session() as session:
+    async with aiohttp_sqlalchemy.get_session(request) as session:
         try:
             response = await handler(request)
             await session.commit()

@@ -20,14 +20,16 @@ class ConfirmCodeRepository(BaseRepository[ConfirmCode]):
         The SQLAlchemy asynchronous session to be used for database operations.
     """
 
-    def __init__(self, session: AsyncSession):
-        super().__init__(ConfirmCode, session)
+    def __init__(self):
+        super().__init__(ConfirmCode)
 
-    async def get_code(self, code_id: str, code: str, status: ConfirmStatusCode) -> Optional[ConfirmCode]:
+    async def get_code(
+        self, session: AsyncSession, code_id: str, code: str, status: ConfirmStatusCode
+    ) -> Optional[ConfirmCode]:
         query = select(ConfirmCode).where(
             (ConfirmCode.id == code_id) & (ConfirmCode.status == status) & (ConfirmCode.code == code)
         )
-        result = await self.session.execute(query)
+        result = await session.execute(query)
         fetched = result.fetchone()
 
         if fetched is None:

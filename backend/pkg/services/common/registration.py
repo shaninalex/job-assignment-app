@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from api.routes.public.typing import RegistrationPayload
 from pkg.consts import Role
 from pkg.models import Company, CompanyManager
@@ -12,7 +14,7 @@ from pkg.services.user_service import UserService
 
 class RegistrationStrategy(ABC):
     @abstractmethod
-    async def register(self, payload: RegistrationPayload) -> User:
+    async def register(self, session: AsyncSession, payload: RegistrationPayload) -> User:
         pass
 
 
@@ -21,8 +23,8 @@ class CandidateRegistrationStrategy(RegistrationStrategy):
         self.user_service = user_service
         self.event_service = event_service
 
-    async def register(self, payload: RegistrationPayload) -> User:
-        user = await self.user_service.create_user(payload, Role.CANDIDATE)
+    async def register(self, session: AsyncSession, payload: RegistrationPayload) -> User:
+        user = await self.user_service.create_user(session, payload, Role.CANDIDATE)
         event_payload = {"user": user.json()}
         await self.event_service.publish_event(Exchanges.ADMIN, RoutingKeys.NEW_USER, event_payload)
         await self.event_service.publish_event(Exchanges.EMAIL, RoutingKeys.NEW_USER, event_payload)
@@ -42,10 +44,10 @@ class CompanyMemberRegistrationStrategy(RegistrationStrategy):
         self.user_service = user_service
         self.event_service = event_service
 
-    async def register(self, payload: RegistrationPayload) -> User:
-        user = await self.user_service.create_user(payload, Role.COMPANY_MEMBER)
-        company = await self.company_member_repository.get_by_id(1)
-        await self.company_member_repository.create(CompanyManager(company=company, user=user))
+    async def register(self, session: AsyncSession, payload: RegistrationPayload) -> User:
+        user = await self.user_service.create_user(session, payload, Role.COMPANY_MEMBER)
+        company = await self.company_member_repository.get_by_id(session, user.id)
+        await self.company_member_repository.create(session, CompanyManager(company=company, user=user))
         await self.event_service.publish_event(
             Exchanges.ADMIN,
             RoutingKeys.NEW_COMPANY_MEMBER,
@@ -70,10 +72,10 @@ class CompanyRegistrationStrategy(RegistrationStrategy):
         self.company_member_repository = company_member_repository
         self.event_service = event_service
 
-    async def register(self, payload: RegistrationPayload) -> User:
-        user = await self.user_service.create_user(payload, Role.COMPANY_ADMIN)
-        company = await self.company_repository.create(Company(name=payload.company_name))
-        await self.company_member_repository.create(CompanyManager(company=company, user=user))
+    async def register(self, session: AsyncSession, payload: RegistrationPayload) -> User:
+        user = await self.user_service.create_user(session, payload, Role.COMPANY_ADMIN)
+        company = await self.company_repository.create(session, Company(name=payload.company_name))
+        await self.company_member_repository.create(session, CompanyManager(company=company, user=user))
         await self.event_service.publish_event(
             Exchanges.ADMIN,
             RoutingKeys.NEW_COMPANY,

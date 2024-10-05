@@ -7,10 +7,10 @@ from pkg.repositories.base import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
-    def __init__(self, session: AsyncSession):
-        super().__init__(User, session)
+    def __init__(self):
+        super().__init__(User)
 
-    async def get_user(self, **kwargs):
+    async def get_user(self, session: AsyncSession, **kwargs):
         stmt = select(User).options(selectinload(User.manager))
 
         if "id" in kwargs:
@@ -25,6 +25,6 @@ class UserRepository(BaseRepository[User]):
         if "status" in kwargs:
             stmt = stmt.where(User.status == kwargs["status"])
 
-        result = await self.session.scalars(stmt)
+        result = await session.scalars(stmt)
         user = result.one_or_none()
         return user
