@@ -1,3 +1,14 @@
+## 0.6.2 (2024-10-05)
+
+### Fix
+
+- **backend**: di, tests, structure
+- **backend**: user services and repositories
+
+### Refactor
+
+- **backend**: reformat code, black on save, moved database to pkg
+
 ## 0.6.1 (2024-10-01)
 
 ### Fix
