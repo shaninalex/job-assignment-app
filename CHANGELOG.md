@@ -1,3 +1,10 @@
+## 0.6.3 (2024-10-05)
+
+### Fix
+
+- **backend**: test, db session
+- config
+
 ## 0.6.2 (2024-10-05)
 
 ### Fix
