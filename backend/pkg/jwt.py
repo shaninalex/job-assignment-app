@@ -2,11 +2,12 @@
 # Docs:
 #   https://pyjwt.readthedocs.io/en/latest/usage.html
 
-import jwt
 from datetime import datetime, timedelta
 
-from database import User
-from api.settings import JWT_SECRET
+import jwt
+
+from pkg.models import User
+from pkg.settings import JWT_SECRET
 
 
 def create_jwt_token(user: User) -> str:

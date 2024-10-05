@@ -1,12 +1,14 @@
-from uuid import UUID
-from pydantic import BaseModel, field_validator, model_validator, EmailStr
 from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel, field_validator, model_validator, EmailStr
 from typing_extensions import Self
-from globalTypes import RegistrationType
+
+from pkg.consts import Role
 
 
 class RegistrationPayload(BaseModel, extra="forbid"):
-    type: RegistrationType
+    type: Role
     name: str
     email: EmailStr
     password: str
@@ -23,7 +25,7 @@ class RegistrationPayload(BaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_company_fields(self) -> Self:
-        if self.type == RegistrationType.COMPANY:
+        if self.type == Role.COMPANY_ADMIN or self.type == Role.COMPANY_MEMBER:
             if not self.company_name or len(self.company_name.strip()) == 0:
                 raise ValueError("Company name is required for Company registration")
         return self
@@ -34,6 +36,7 @@ class RegistrationPayload(BaseModel, extra="forbid"):
         if v is not None and len(v.strip()) == 0:
             raise ValueError("Company name should not be empty")
         return v
+
 
 class ConfirmCodePayload(BaseModel, extra="forbid"):
     id: str
@@ -49,7 +52,7 @@ class ConfirmCodePayload(BaseModel, extra="forbid"):
     @field_validator("id")
     @classmethod
     def validate_id_uuid(cls, v):
-        # This code will raise ValueException if string is not UUID 
+        # This code will raise ValueException if string is not UUID
         # and pydantic catch this
         # exception and show error about invalid UUID
         UUID(v, version=4)

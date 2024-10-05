@@ -1,119 +1,35 @@
-from datetime import datetime
-
 from aiohttp import web
-from sqlalchemy.exc import SQLAlchemyError
+from dependency_injector.wiring import Provide, inject
 
-from globalTypes.consts import Role
-
-from .types import RegistrationPayload, ConfirmCodePayload, LoginPayload
-from database import repositories
-from globalTypes import RegistrationType, ConfirmStatusCode, AuthStatus 
-from pkg import jwt, errors, rabbitmq, password, response, utils
+from api.routes.public.typing import RegistrationPayload, ConfirmCodePayload, LoginPayload
+from pkg import response, utils
+from pkg.container import Container
+from pkg.services.auth_service import AuthService
 
 
-def setup_auth_routes(app: web.Application):
-    app.router.add_post("/api/auth/register", handle_registration)
-    app.router.add_post("/api/auth/confirm", handle_registration_confirm)
-    app.router.add_post("/api/auth/login", handle_login)
+@inject
+def setup_auth_routes(app: web.Application, auth_service: AuthService = Provide[Container.auth_service]):
+    handler = AuthHandler(auth_service=auth_service)
+    app.router.add_post("/api/auth/register", handler.registration)
+    app.router.add_post("/api/auth/confirm", handler.registration_confirm)
+    app.router.add_post("/api/auth/login", handler.login)
 
 
-async def handle_registration(request: web.Request):
-    payload = await utils.request_payload(request, RegistrationPayload)
-    if isinstance(payload, web.Response):
-        return payload
+class AuthHandler:
+    def __init__(self, auth_service: AuthService):
+        self.auth_service = auth_service
 
-    async with request.app["session"] as session:
-        try:
-            if payload.type == RegistrationType.CANDIDATE:
-                user, candidate = await repositories.create_candidate(session, payload)
-                rabbitmq.admin_create_new_candidate(
-                    request.app["mq"], user.json())
-                rabbitmq.email_confirm_account(
-                    request.app["mq"], user.json(), user.codes[0].json()
-                )
-                return response.success_response(None, ["Successfully registrated."])
-            else:
-                company, user, member = await repositories.create_company(
-                    session, payload
-                )
-                rabbitmq.admin_create_new_company(
-                    request.app["mq"], company.json(
-                    ), member.json(), user.json()
-                )
-                rabbitmq.email_confirm_account(
-                    request.app["mq"], user.json(), user.codes[0].json()
-                )
-                return response.success_response(None, ["Successfully registrated company."])
+    async def registration(self, request: web.Request):
+        payload = await utils.request_payload(request, RegistrationPayload)
+        user = await self.auth_service.registration(payload)
+        return response.success_response({"user": user.json()}, [])
 
-        except SQLAlchemyError as e:
-            await session.rollback()
-            errs = errors.parse_sqlalchemy_error(e)
-            return response.error_response(errs)
+    async def registration_confirm(self, request: web.Request):
+        payload = await utils.request_payload(request, ConfirmCodePayload)
+        result = await self.auth_service.confirm(payload)
+        return response.success_response(result, [])
 
-
-async def handle_registration_confirm(request: web.Request):
-    payload = await utils.request_payload(request, ConfirmCodePayload)
-    if isinstance(payload, web.Response):
-        return payload
-
-    async with request.app["session"] as session:
-        try:
-            code = await repositories.get_confirm_code(session, payload.id, payload.code, ConfirmStatusCode.CREATED)
-            if code is None:
-                return response.error_response(None, messages=["Wrong crendentials"])
-
-            if datetime.now() > code.expired_at:
-                return response.error_response(None, messages=["Code is expired"])
-
-            # Call confirm_user function to confirm the user and update the status
-            user = await repositories.confirm_user(session, code)
-            if user is None:
-                return response.error_response(None, messages=["Wrong crendentials"])
-
-            # Prepare payloads and publish success messages to RabbitMQ
-            rabbitmq_payloads = user.json()
-            rabbitmq.email_confirm_account_success(
-                request.app["mq"], rabbitmq_payloads)
-            rabbitmq.admin_confirm_account_success(
-                request.app["mq"], rabbitmq_payloads)
-
-            return response.success_response(None, ["Successfully confirmed."])
-
-        except SQLAlchemyError as e:
-            await session.rollback()
-
-            errs = errors.parse_sqlalchemy_error(e)
-            return response.error_response(errs)
-
-
-async def handle_login(request: web.Request):
-    payload = await utils.request_payload(request, LoginPayload)
-    if isinstance(payload, web.Response):
-        return payload
-
-    async with request.app["session"] as session:
-        user = await repositories.get_user(session, **{
-            "email": payload.email,
-            "active": True,
-            "status": AuthStatus.ACTIVE,
-        })
-
-        if user is None:
-            return response.error_response(None, messages=["Wrong crendentials"])
-
-        if not password.check_password(payload.password, user.password_hash):
-            return response.error_response(None, messages=["Wrong crendentials"])
-        
-        company = None
-        if user.role in [Role.COMPANY_ADMIN, Role.COMPANY_MANAGER]:
-            company = await repositories.get_company(session, id=user.manager.company_id)
-
-    resp = {
-        "token": jwt.create_jwt_token(user),
-        "user": user.json(),
-    }
-    if company:
-        resp["company"] = company.json()
-
-    return response.success_response(resp)
-
+    async def login(self, request: web.Request):
+        payload = await utils.request_payload(request, LoginPayload)
+        jwt_token = await self.auth_service.login(payload)
+        return response.success_response(jwt_token, [])

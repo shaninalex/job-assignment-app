@@ -1,56 +1,44 @@
 import logging
 
-import pika
 from aiohttp import web
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
-from api.middlewares.utils import setup_middlewares
-from api.routes import public, company
-from api.settings import config
-from database.utils import database_url
-from pkg import rabbitmq
 from aiohttp_cache import setup_cache, RedisConfig
 
+from api.middlewares.error import error_middleware
+from api.routes import public, company, utils
+from pkg.container import Container
+from pkg.database import db_session_middleware
+from pkg.settings import Config
+
+
 def setup_routes(app):
-    public.setup_auth_routes(app)
-    public.setup_jobs_routes(app)
+    utils.setup_utils_routes(app)
+    public.setup_public_routes(app)
     company.setup_company_routes(app)
 
 
-def init_app():
+async def api_factory(config: Config):
     app = web.Application()
-    conf = config()
-    app["config"] = conf
-    session = async_sessionmaker(
-        create_async_engine(database_url(), echo=False), expire_on_commit=False
+    container = Container()
+    app.container = container
+    await container.event_service().connect()
+
+    # TODO: https://docs.aiohttp.org/en/stable/web_advanced.html#application-s-config
+    app["config"] = config
+
+    setup_cache(
+        app,
+        cache_type="redis",
+        backend_config=RedisConfig(
+            host=config.REDIS.REDIS_HOST,
+            port=config.REDIS.REDIS_PORT,
+            db=config.REDIS.REDIS_DB,
+        ),
     )
-    app["session"] = session()
 
-    setup_cache(app, cache_type="redis", backend_config=RedisConfig(
-        host=conf.REDIS.REDIS_HOST,
-        port=conf.REDIS.REDIS_PORT,
-        db=conf.REDIS.REDIS_DB,
-    ))
+    app.middlewares.append(error_middleware)
+    app.middlewares.append(db_session_middleware)
 
-    try:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                "localhost", credentials=pika.PlainCredentials("guest", "guest")
-            )
-        )
-        app["mq"] = connection
-    except Exception as e:
-        logging.error(f"Failed to connect to RabbitMQ: {e}")
-        app["mq"] = None
-
-
-    setup_middlewares(app)
     setup_routes(app)
 
-    app.on_startup.append(rabbitmq.start_background_tasks)
-    app.on_shutdown.append(rabbitmq.cancel_background_tasks)
-    app.on_shutdown.append(rabbitmq.close_rmq_connection)
-
-    logging.info("Main app initialized")
+    logging.info("App initialized")
     return app
-

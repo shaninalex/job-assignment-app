@@ -1,1 +1,1 @@
-from .main import init_app
+from .main import api_factory
