@@ -26,9 +26,10 @@ class RoutingKeys(enum.StrEnum):
     NEW_COMPANY = "new_company"
     NEW_COMPANY_MEMBER = "new_company_member"
     COMPLETE_REGISTRATION_SUCCESS = "complete_registration_success"
-    CONFIRM_CODE_SEND = "send_confirm_code"
+    CONFIRM_CODE_SENT = "confirm_code_sent"
     USER_LOGIN = "user_login"
     USER_LOGIN_FAILED = "user_login_failed"
+    NEW_POSITION = "new_position"
 
 
 class EventPublisher:

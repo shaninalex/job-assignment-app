@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.routes.public.typing import RegistrationPayload, ConfirmCodePayload, LoginPayload
 from pkg import password, jwt
 from pkg.consts import ConfirmStatusCode, AuthStatus, Role
-from pkg.repositories.company_manager_repository import CompanyManagerRepository
+from pkg.repositories.company_member_repository import CompanyMemberRepository
 from pkg.repositories.company_repository import CompanyRepository
 from pkg.repositories.confirm_codes_repository import ConfirmCodeRepository
 from pkg.services.common import registration
-from pkg.services.event_publisher import EventPublisher, Exchanges, RoutingKeys
+from pkg.services.event_service import EventPublisher, Exchanges, RoutingKeys
 from pkg.services.user_service import UserService
 from pkg.settings import Config
 
@@ -39,7 +39,7 @@ class AuthService:
     def __init__(
         self,
         user_service: UserService,
-        company_manager_repository: CompanyManagerRepository,
+        company_member_repository: CompanyMemberRepository,
         company_repository: CompanyRepository,
         confirm_codes_repository: ConfirmCodeRepository,
         event_service: EventPublisher,
@@ -48,11 +48,11 @@ class AuthService:
         self.config = config
         self.confirm_codes_repository = confirm_codes_repository
         self.event_service = event_service
-        self.company_manager_repository = company_manager_repository
+        self.company_member_repository = company_member_repository
         self.user_service = user_service
         self.company_repository = company_repository
         self._registration = registration.Registrator(
-            user_service, company_manager_repository, company_repository, event_service
+            user_service, company_member_repository, company_repository, event_service
         )
 
     async def registration(self, session: AsyncSession, payload: RegistrationPayload):
@@ -61,7 +61,7 @@ class AuthService:
 
     async def confirm(self, session: AsyncSession, payload: ConfirmCodePayload) -> bool:
         code = await self.confirm_codes_repository.get_code(
-            session, payload.id, payload.code, ConfirmStatusCode.CREATED
+            session, payload.id, payload.code, ConfirmStatusCode.SENT
         )
         if code is None:
             raise Exception("confirm code is used or not found")

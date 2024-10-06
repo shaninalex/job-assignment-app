@@ -12,7 +12,6 @@ class UserRepository(BaseRepository[User]):
 
     async def get_user(self, session: AsyncSession, **kwargs):
         stmt = select(User).options(selectinload(User.manager))
-
         if "id" in kwargs:
             stmt = stmt.where(User.id == kwargs["id"])
 

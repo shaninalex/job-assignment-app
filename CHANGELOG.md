@@ -1,3 +1,9 @@
+## 0.6.4 (2024-10-06)
+
+### Fix
+
+- **backend**: refactor, register, company auth middleware and create position
+
 ## 0.6.3 (2024-10-05)
 
 ### Fix

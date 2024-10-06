@@ -6,9 +6,9 @@ from api.routes.public.typing import RegistrationPayload
 from pkg.consts import Role
 from pkg.models import Company, CompanyManager
 from pkg.models import User
-from pkg.repositories.company_manager_repository import CompanyManagerRepository
+from pkg.repositories.company_member_repository import CompanyMemberRepository
 from pkg.repositories.company_repository import CompanyRepository
-from pkg.services.event_publisher import EventPublisher, RoutingKeys, Exchanges
+from pkg.services.event_service import EventPublisher, RoutingKeys, Exchanges
 from pkg.services.user_service import UserService
 
 
@@ -36,7 +36,7 @@ class CompanyMemberRegistrationStrategy(RegistrationStrategy):
         self,
         user_service: UserService,
         company_repository: CompanyRepository,
-        company_member_repository: CompanyManagerRepository,
+        company_member_repository: CompanyMemberRepository,
         event_service: EventPublisher,
     ):
         self.company_member_repository = company_member_repository
@@ -64,7 +64,7 @@ class CompanyRegistrationStrategy(RegistrationStrategy):
         self,
         user_service: UserService,
         company_repository: CompanyRepository,
-        company_member_repository: CompanyManagerRepository,
+        company_member_repository: CompanyMemberRepository,
         event_service: EventPublisher,
     ):
         self.user_service = user_service
@@ -91,24 +91,24 @@ class Registrator:
     def __init__(
         self,
         user_service: UserService,
-        company_manager_repository: CompanyManagerRepository,
+        company_member_repository: CompanyMemberRepository,
         company_repository: CompanyRepository,
         event_service: EventPublisher,
     ):
         self.user_service = user_service
-        self.company_manager_repository = company_manager_repository
+        self.company_member_repository = company_member_repository
         self.company_repository = company_repository
         self.event_service = event_service
 
     def get_strategy(self, registration_type: Role) -> RegistrationStrategy:
         if registration_type == Role.COMPANY_ADMIN:
             return CompanyRegistrationStrategy(
-                self.user_service, self.company_repository, self.company_manager_repository, self.event_service
+                self.user_service, self.company_repository, self.company_member_repository, self.event_service
             )
 
         if registration_type == Role.COMPANY_MEMBER:
             return CompanyMemberRegistrationStrategy(
-                self.user_service, self.company_repository, self.company_manager_repository, self.event_service
+                self.user_service, self.company_repository, self.company_member_repository, self.event_service
             )
 
         if registration_type == Role.CANDIDATE:

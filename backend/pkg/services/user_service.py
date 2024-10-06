@@ -5,7 +5,7 @@ from pkg import password, utils
 from pkg.consts import Role, AuthStatus, ConfirmStatusCode
 from pkg.models import User, ConfirmCode
 from pkg.repositories.user_repository import UserRepository
-from pkg.services.event_publisher import EventPublisher
+from pkg.services.event_service import EventPublisher
 
 
 class UserService:
@@ -27,7 +27,11 @@ class UserService:
             codes=[
                 ConfirmCode(
                     code=utils.generate_code(6),
-                    status=ConfirmStatusCode.CREATED,
+                    # The status should be:
+                    # status=ConfirmStatusCode.CREATED
+                    # But since we do not implement email service yet
+                    # we will assume that confirm status is sent by default
+                    status=ConfirmStatusCode.SENT, 
                 )
             ],
         )

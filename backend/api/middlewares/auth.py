@@ -5,47 +5,47 @@
 from http import HTTPStatus
 from typing import List
 
+import aiohttp_sqlalchemy
+import jwt
 from aiohttp import web
 
 from pkg import response
+from pkg.consts import AuthStatus
 from pkg.consts import Role
+from pkg.models import User
+from pkg.settings import Config
 
 
 @web.middleware
 async def auth_middleware(request, handler):
-    # if "Authorization" not in request.headers:
-    #     return response.error_response(None, status=HTTPStatus.UNAUTHORIZED)
-    #
-    # token = request.headers["Authorization"].replace("Bearer ", "")
-    # try:
-    #     claims = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-    #     if "sub" not in claims:
-    #         return response.error_response(None, ["Invalid claims"], status=HTTPStatus.UNAUTHORIZED)
-    #
-    #     async with request.app["session"] as session:
-    #         user = await repositories.get_user(
-    #             session,
-    #             **{
-    #                 "id": claims["sub"],
-    #                 "active": True,
-    #                 "status": AuthStatus.ACTIVE,
-    #             }
-    #         )
-    #
-    #         if not user:
-    #             return response.error_response(None, ["User not found"], status=HTTPStatus.UNAUTHORIZED)
-    #
-    #         if user.manager:
-    #             company = await repositories.get_company(session, **{"id": user.manager.company_id})
-    #             request["company"] = company
-    #
-    #         request["user"] = user
-    #
-    # except jwt.ExpiredSignatureError:
-    #     return response.error_response(None, ["Expired"], status=HTTPStatus.UNAUTHORIZED)
-    #
-    # except jwt.InvalidTokenError:
-    #     return response.error_response(None, ["Invalid token"], status=HTTPStatus.UNAUTHORIZED)
+
+    if "Authorization" not in request.headers:
+        return response.error_response(None, status=HTTPStatus.UNAUTHORIZED)
+
+    token = request.headers["Authorization"].replace("Bearer ", "")
+    config: Config = request.app["config"]
+    session = aiohttp_sqlalchemy.get_session(request)
+    try:
+        claims = jwt.decode(token, config.APP_SECRET, algorithms=["HS256"])
+        if "sub" not in claims:
+            return response.error_response(None, ["Invalid claims"], status=HTTPStatus.UNAUTHORIZED)
+        user: User = await request.app["repository_user"].get_user(
+            session, id=claims["sub"], active=True, status=AuthStatus.ACTIVE
+        )
+        if not user:
+            return response.error_response(None, ["User not found"], status=HTTPStatus.UNAUTHORIZED)
+
+        if user.manager:
+            company = await request.app["repository_company"].get_by_id(session, user.manager.company_id)
+            request["company"] = company
+
+        request["user"] = user
+
+    except jwt.ExpiredSignatureError:
+        return response.error_response(None, ["Expired"], status=HTTPStatus.UNAUTHORIZED)
+
+    except jwt.InvalidTokenError:
+        return response.error_response(None, ["Invalid token"], status=HTTPStatus.UNAUTHORIZED)
 
     return await handler(request)
 
