@@ -1,6 +1,6 @@
 from typing import Generic, TypeVar, Type, Optional
 
-from sqlalchemy import update, delete
+from sqlalchemy import update, delete, select, Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T")
@@ -37,3 +37,10 @@ class BaseRepository(Generic[T]):
 
     async def delete_by_id(self, session: AsyncSession, user_id) -> None:
         await session.execute(delete(self.model).where(self.model.id == user_id))
+
+    async def list(self, session: AsyncSession, **kwargs) -> Sequence[T]:
+        stmt = select(self.model)
+        # TODO: apply limit/offset pagination from kwargs
+        # TODO: apply filter from kwargs
+        result = await session.execute(stmt)
+        return result.fetchall()

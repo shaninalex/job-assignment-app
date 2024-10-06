@@ -81,7 +81,7 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('email', sa.VARCHAR(length=100), nullable=False),
     sa.Column('code', sa.VARCHAR(length=6), nullable=False),
-    sa.Column('status', sa.Enum('CREATED', 'SENDED', 'USED', name='confirmstatuscode'), nullable=False),
+    sa.Column('status', sa.Enum('CREATED', 'SENT', 'USED', name='confirmstatuscode'), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('expired_at', sa.DateTime(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
