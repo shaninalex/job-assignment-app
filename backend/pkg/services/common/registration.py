@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from deprecated import deprecated
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -87,7 +88,14 @@ class CompanyRegistrationStrategy(RegistrationStrategy):
         return user
 
 
+@deprecated(
+    reason="Not flexible enough to register new users, companies and members",
+    category=DeprecationWarning
+)
 class Registrator:
+    """
+    Deprecated: Not flexible enough to register new users, companies and members
+    """
     def __init__(
         self,
         user_service: UserService,

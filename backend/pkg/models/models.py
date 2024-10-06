@@ -121,7 +121,9 @@ class Company(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    name: Mapped[str] = mapped_column(String(30), unique=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    website: Mapped[str] = mapped_column(String(100), unique=True) 
+    email: Mapped[str] = mapped_column(String(100), unique=True) 
     image_link: Mapped[str] = mapped_column(Text, nullable=True)
     managers: Mapped[List["CompanyManager"]] = relationship("CompanyManager", back_populates="company")
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
