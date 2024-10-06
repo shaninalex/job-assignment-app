@@ -36,3 +36,25 @@ Run live reload:
 ```bash
 adev runserver main.py --port=8080
 ```
+
+## Tests
+
+```bash
+# to run test first need to start test database
+
+cd ../  # back in project root folder
+
+make stop  # stop dev containers
+
+make test_start
+
+cd ./backend/
+
+# apply alembic migrations into test database
+
+alembic --name alembic_test upgrade head
+
+# run tests
+pytest -n auto
+
+```
