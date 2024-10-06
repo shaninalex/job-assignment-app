@@ -8,7 +8,7 @@ from pkg.models.models import ConfirmCode, User
 
 
 @pytest.mark.asyncio(loop_scope="function")
-async def test_unauthorized_post_request_on_guarded_endpoint(aiohttp_client, test_config, async_session, cleanup):
+async def test_unauthorized_post_request_on_guarded_endpoint(aiohttp_client, test_config, async_session):
     app = await api_factory(test_config)
     payload = {"invalid": "payload"}
     client = await aiohttp_client(app)
@@ -49,10 +49,7 @@ async def test_unauthorized_post_request_on_guarded_endpoint(aiohttp_client, tes
     assert data["messages"] == ["Invalid token"]
 
     # test_invalid_jwt_user
-    user = User(
-        id=uuid.uuid4(),
-        role=Role.COMPANY_ADMIN
-    )
+    user = User(id=uuid.uuid4(), role=Role.COMPANY_ADMIN)
     token = create_jwt_token(test_config.APP_SECRET, user)
     resp = await client.post("/api/company/position", json=payload, headers={"Authorization": token})
     data = await resp.json()
@@ -61,9 +58,10 @@ async def test_unauthorized_post_request_on_guarded_endpoint(aiohttp_client, tes
     assert data["messages"] == ["User not found"]
 
     # test_registered_user_candidate_access_role_specific_endpoint
+    unique_id = uuid.uuid4()
     payload = {
-        "name": "test_name",
-        "email": "test@test.com",
+        "name": f"test_name_{str(unique_id)}",
+        "email": f"test_{str(unique_id)}@test.com",
         "password": "testPassword",
         "password_confirm": "testPassword",
         "type": "candidate",
@@ -72,26 +70,33 @@ async def test_unauthorized_post_request_on_guarded_endpoint(aiohttp_client, tes
     resp = await client.post("/api/auth/register", json=payload)
     data = await resp.json()
     user_data = data["data"]["user"]
-    async with async_session as session:
-        confirm_code_query = select(ConfirmCode).where(
-            (ConfirmCode.user_id == user_data["id"]) &
-            (ConfirmCode.status == ConfirmStatusCode.SENT)
-        )
-        result = await session.execute(confirm_code_query)
-        confirm_code = result.scalars().first()
-        resp = await client.post("/api/auth/confirm", json={
+
+    confirm_code_query = select(ConfirmCode).where(
+        (ConfirmCode.user_id == user_data["id"]) & (ConfirmCode.status == ConfirmStatusCode.SENT)
+    )
+    result = await async_session.execute(confirm_code_query)
+    confirm_code = result.scalars().first()
+    resp = await client.post(
+        "/api/auth/confirm",
+        json={
             "id": str(confirm_code.id),
             "code": confirm_code.code,
-        })
+        },
+    )
 
-    resp = await client.post("/api/auth/login", json={
-        "email": payload["email"],
-        "password": payload["password"],
-    })
+    resp = await client.post(
+        "/api/auth/login",
+        json={
+            "email": payload["email"],
+            "password": payload["password"],
+        },
+    )
     login_data = await resp.json()
 
     payload = {"dummy": "data"}
-    resp = await client.post("/api/company/position", json=payload, headers={"Authorization": login_data["data"]["token"]})
+    resp = await client.post(
+        "/api/company/position", json=payload, headers={"Authorization": login_data["data"]["token"]}
+    )
 
     assert resp.status == 403, f"Expected status not 200, got {resp.status}"
     data = await resp.json()

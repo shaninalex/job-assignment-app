@@ -53,7 +53,7 @@ class BaseRepository(Generic[T]):
                 offset = kwargs[k]
             else:
                 filters[k] = kwargs[k]
-        
+
         if limit is not None:
             stmt = stmt.limit(limit)
         if offset is not None:

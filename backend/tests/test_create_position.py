@@ -1,38 +1,52 @@
+import uuid
+import sys
 import pytest
+import logging
 from sqlalchemy import select
 
 from api.main import api_factory
 from pkg.consts import ConfirmStatusCode, PositionStatus, Remote, SalaryType, TravelRequired, WorkingHours
 from pkg.models.models import ConfirmCode, Position
+from pkg.utils import generate_code
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)],
+)
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.asyncio(loop_scope="function")
-async def test_create_position(aiohttp_client, test_config, async_session, test_app, cleanup):
+async def test_create_position(aiohttp_client, test_config, async_session):
+    app = await api_factory(test_config)
+    unique_id = uuid.uuid4()
     payload = {
-        "name": "testCompany",
-        "email": "testCompany@gmail.com",
+        "name": f"test_name_{str(unique_id)}",
+        "email": f"test_{str(unique_id)}@test.com",
         "password": "123",
         "password_confirm": "123",
         "type": "company_admin",
-        "company_name": "ABC",
+        "company_name": f"Company-{generate_code(6)}",
     }
-    client = await aiohttp_client(test_app)
+    client = await aiohttp_client(app)
     resp = await client.post("/api/auth/register", json=payload)
     data = await resp.json()
     user_data = data["data"]["user"]
-    async with async_session as session:
-        confirm_code_query = select(ConfirmCode).where(
-            (ConfirmCode.user_id == user_data["id"]) & (ConfirmCode.status == ConfirmStatusCode.SENT)
-        )
-        result = await session.execute(confirm_code_query)
-        confirm_code = result.scalars().first()
-        resp = await client.post(
-            "/api/auth/confirm",
-            json={
-                "id": str(confirm_code.id),
-                "code": confirm_code.code,
-            },
-        )
+
+    confirm_code_query = select(ConfirmCode).where(
+        (ConfirmCode.user_id == user_data["id"]) & (ConfirmCode.status == ConfirmStatusCode.SENT)
+    )
+    result = await async_session.execute(confirm_code_query)
+    confirm_code = result.scalars().first()
+    resp = await client.post(
+        "/api/auth/confirm",
+        json={
+            "id": str(confirm_code.id),
+            "code": confirm_code.code,
+        },
+    )
 
     # login
     resp = await client.post(
@@ -58,7 +72,7 @@ async def test_create_position(aiohttp_client, test_config, async_session, test_
         "hours": "full_time",
         "travel": "no_matter",
         "status": "active",
-        "company_id": data["data"]["company"]["id"]
+        "company_id": data["data"]["company"]["id"],
     }
 
     # create position
@@ -66,7 +80,7 @@ async def test_create_position(aiohttp_client, test_config, async_session, test_
         "/api/company/position", json=payload, headers={"Authorization": f"Bearer {data["data"]["token"]}"}
     )
     data = await resp.json()
-
+    logger.error(data)
     assert resp.status == 200, f"Expected status 200, got {resp.status}"
     assert data["data"]["id"] != ""
     assert data["data"]["title"] == payload["title"]

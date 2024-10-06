@@ -40,21 +40,22 @@ adev runserver main.py --port=8080
 ## Tests
 
 ```bash
-# to run test first need to start test database
+# to run test first need to start test environment
 
-cd ../  # back in project root folder
+# back in project root folder
+cd ../  
 
-make stop  # stop dev containers
+# stop dev containers
+make stop
 
+# start test container
 make test_start
 
 cd ./backend/
 
 # apply alembic migrations into test database
-
 alembic --name alembic_test upgrade head
 
 # run tests
 pytest -n auto
-
 ```

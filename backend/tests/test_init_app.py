@@ -5,7 +5,7 @@ from api.main import api_factory
 
 
 @pytest.mark.asyncio(loop_scope="function")
-async def test_init_app(aiohttp_client, test_config, cleanup):
+async def test_init_app(aiohttp_client, test_config):
     app = await api_factory(test_config)
 
     assert isinstance(app, web.Application), "App is not an instance of web.Application"

@@ -1,7 +1,12 @@
 {
     "python.testing.pytestArgs": [
-        "-n", "auto", "tests"
+        "-n",
+        "auto",
+        "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "cSpell.words": [
+        "sessionfinish"
+    ]
 }
