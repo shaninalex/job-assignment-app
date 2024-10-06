@@ -1,7 +1,10 @@
-from typing import Generic, TypeVar, Type, Optional
-
-from sqlalchemy import update, delete, select, Sequence
+import logging
+from typing import Generic, List, TypeVar, Type, Optional
+from sqlalchemy import update, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
@@ -38,9 +41,26 @@ class BaseRepository(Generic[T]):
     async def delete_by_id(self, session: AsyncSession, user_id) -> None:
         await session.execute(delete(self.model).where(self.model.id == user_id))
 
-    async def list(self, session: AsyncSession, **kwargs) -> Sequence[T]:
+    async def list(self, session: AsyncSession, **kwargs) -> List[T]:
         stmt = select(self.model)
-        # TODO: apply limit/offset pagination from kwargs
-        # TODO: apply filter from kwargs
+        filters = {}
+        limit = None
+        offset = None
+        for k in kwargs.keys():
+            if k == "limit":
+                limit = kwargs[k]
+            elif k == "offset":
+                offset = kwargs[k]
+            else:
+                filters[k] = kwargs[k]
+        
+        if limit is not None:
+            stmt = stmt.limit(limit)
+        if offset is not None:
+            stmt = stmt.offset(offset)
+
+        if len(filters) != 0:
+            for key, value in filters.items():
+                stmt = stmt.where(getattr(self.model, key) == value)
         result = await session.execute(stmt)
-        return result.fetchall()
+        return result.scalars().all()

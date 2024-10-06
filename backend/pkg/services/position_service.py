@@ -1,4 +1,4 @@
-from sqlalchemy import Sequence
+from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.routes.company.form import PositionForm
@@ -18,7 +18,6 @@ class PositionService:
         self.event_service: EventPublisher = event_service
 
     async def create_new_position(self, session: AsyncSession, payload: PositionForm) -> Position:
-        print(payload)
         p = Position(
             title=payload.title,
             description=payload.description,
@@ -40,5 +39,5 @@ class PositionService:
         await self.event_service.publish_event(Exchanges.ADMIN, RoutingKeys.NEW_POSITION, {"position": position.json()})
         return position
 
-    async def list(self, session: AsyncSession) -> Sequence[Position]:
-        return await self.repository.list(session)
+    async def list(self, session: AsyncSession, **kwargs) -> List[Position]:
+        return await self.repository.list(session, **kwargs)

@@ -1,6 +1,10 @@
+import os
 import logging
 import sys
 from dataclasses import dataclass
+
+
+DEBUG = bool(int(os.getenv("DEBUG", "0")))
 
 
 @dataclass

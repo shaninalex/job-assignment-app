@@ -60,9 +60,7 @@ class AuthService:
         return await strategy.register(session, payload)
 
     async def confirm(self, session: AsyncSession, payload: ConfirmCodePayload) -> bool:
-        code = await self.confirm_codes_repository.get_code(
-            session, payload.id, payload.code, ConfirmStatusCode.SENT
-        )
+        code = await self.confirm_codes_repository.get_code(session, payload.id, payload.code, ConfirmStatusCode.SENT)
         if code is None:
             raise Exception("confirm code is used or not found")
 

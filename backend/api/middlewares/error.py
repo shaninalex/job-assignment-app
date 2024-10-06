@@ -1,7 +1,6 @@
 from aiohttp import web
 from pydantic import ValidationError
 from sqlalchemy.exc import DatabaseError
-
 from pkg.response import error_response
 
 

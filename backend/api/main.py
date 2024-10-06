@@ -6,6 +6,7 @@ from aiohttp_cache import setup_cache, RedisConfig
 
 from api.middlewares.error import error_middleware
 from api.routes import public, company, utils
+from pkg.app_keys import AppKeys
 from pkg.database import db_session_middleware
 from pkg.initialize import initialize_dependencies
 from pkg.settings import Config
@@ -26,7 +27,7 @@ async def api_factory(config: Config):
 
     initialize_dependencies(app, config)
 
-    await app["service_events"].connect()
+    await app[AppKeys.service_events].connect()
 
     setup_cache(
         app,
@@ -42,6 +43,5 @@ async def api_factory(config: Config):
     app.middlewares.append(db_session_middleware)
 
     setup_routes(app)
-
     logging.info("App initialized")
     return app

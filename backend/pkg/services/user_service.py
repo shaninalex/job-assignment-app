@@ -31,7 +31,7 @@ class UserService:
                     # status=ConfirmStatusCode.CREATED
                     # But since we do not implement email service yet
                     # we will assume that confirm status is sent by default
-                    status=ConfirmStatusCode.SENT, 
+                    status=ConfirmStatusCode.SENT,
                 )
             ],
         )

@@ -1,7 +1,6 @@
 import pytest
 from aiohttp import web
 
-# from aiohttp.pytest_plugin import aiohttp_client
 from api.main import api_factory
 
 

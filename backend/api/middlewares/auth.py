@@ -10,6 +10,7 @@ import jwt
 from aiohttp import web
 
 from pkg import response
+from pkg.app_keys import AppKeys
 from pkg.consts import AuthStatus
 from pkg.consts import Role
 from pkg.models import User
@@ -29,14 +30,14 @@ async def auth_middleware(request, handler):
         claims = jwt.decode(token, config.APP_SECRET, algorithms=["HS256"])
         if "sub" not in claims:
             return response.error_response(None, ["Invalid claims"], status=HTTPStatus.UNAUTHORIZED)
-        user: User = await request.app["repository_user"].get_user(
+        user: User = await request.app[AppKeys.repository_user].get_user(
             session, id=claims["sub"], active=True, status=AuthStatus.ACTIVE
         )
         if not user:
             return response.error_response(None, ["User not found"], status=HTTPStatus.UNAUTHORIZED)
 
         if user.manager:
-            company = await request.app["repository_company"].get_by_id(session, user.manager.company_id)
+            company = await request.app[AppKeys.repository_company].get_by_id(session, user.manager.company_id)
             request["company"] = company
 
         request["user"] = user
