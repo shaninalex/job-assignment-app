@@ -57,6 +57,6 @@ async def cleanup():
 async def db_cleanup():
     engine = create_async_engine("postgresql+asyncpg://postgres:postgres@localhost:5432/application_test", echo=False)
     async with engine.begin() as conn:
-        for table in ["company_manager", "company", "confirm_codes", "user"]:
+        for table in ["positions", "company_manager", "company", "confirm_codes", "user"]:
             await conn.execute(text(f"""DELETE FROM "{table}";"""))
     logger.info("Database tables cleaned up")
