@@ -21,7 +21,7 @@ from pkg.settings import Config
 async def auth_middleware(request, handler):
 
     if "Authorization" not in request.headers:
-        return response.error_response(None, status=HTTPStatus.UNAUTHORIZED)
+        return response.error_response(None, ["Unauthorized"], status=HTTPStatus.UNAUTHORIZED)
 
     token = request.headers["Authorization"].replace("Bearer ", "")
     config: Config = request.app["config"]
@@ -30,9 +30,11 @@ async def auth_middleware(request, handler):
         claims = jwt.decode(token, config.APP_SECRET, algorithms=["HS256"])
         if "sub" not in claims:
             return response.error_response(None, ["Invalid claims"], status=HTTPStatus.UNAUTHORIZED)
+        
         user: User = await request.app[AppKeys.repository_user].get_user(
             session, id=claims["sub"], active=True, status=AuthStatus.ACTIVE
         )
+        
         if not user:
             return response.error_response(None, ["User not found"], status=HTTPStatus.UNAUTHORIZED)
 

@@ -7,8 +7,7 @@ from pkg.models.models import ConfirmCode, Position
 
 
 @pytest.mark.asyncio(loop_scope="function")
-async def test_create_position(aiohttp_client, test_config, async_session, cleanup):
-    app = await api_factory(test_config)
+async def test_create_position(aiohttp_client, test_config, async_session, test_app, cleanup):
     payload = {
         "name": "testCompany",
         "email": "testCompany@gmail.com",
@@ -17,11 +16,11 @@ async def test_create_position(aiohttp_client, test_config, async_session, clean
         "type": "company_admin",
         "company_name": "ABC",
     }
-    client = await aiohttp_client(app)
+    client = await aiohttp_client(test_app)
     resp = await client.post("/api/auth/register", json=payload)
     data = await resp.json()
     user_data = data["data"]["user"]
-    async with async_session() as session:
+    async with async_session as session:
         confirm_code_query = select(ConfirmCode).where(
             (ConfirmCode.user_id == user_data["id"]) & (ConfirmCode.status == ConfirmStatusCode.SENT)
         )
@@ -83,7 +82,7 @@ async def test_create_position(aiohttp_client, test_config, async_session, clean
     assert data["data"]["travel"] == payload["travel"]
     assert data["data"]["status"] == payload["status"]
 
-    async with async_session() as session:
+    async with async_session as session:
         confirm_code_query = select(Position).where(Position.id == data["data"]["id"])
         result = await session.execute(confirm_code_query)
         position: Position = result.scalars().first()

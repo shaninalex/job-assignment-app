@@ -4,7 +4,7 @@ import sys
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from api.main import api_factory
 
 from pkg.settings import Config, Redis
 
@@ -29,23 +29,33 @@ config: Config = Config(
     APP_SECRET="test_jwt_token",
 )
 
-_engine: AsyncEngine = create_async_engine(config.DATABASE_URI, echo=True)
-_async_session: AsyncSession = sessionmaker(bind=_engine, class_=AsyncSession, expire_on_commit=False)
+_engine: AsyncEngine = create_async_engine(config.DATABASE_URI, echo=False)
+# _async_session: AsyncSession = sessionmaker(bind=_engine, class_=AsyncSession, expire_on_commit=False)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def test_config() -> Config:
+    # Create a fresh config for each test
     return config
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def async_engine() -> AsyncEngine:
+    # Return a fresh async engine for each test
     return _engine
 
 
-@pytest.fixture(scope="module")
-def async_session() -> AsyncSession:
-    return _async_session
+@pytest.fixture
+async def test_app(test_config):
+    return await api_factory(test_config)
+
+
+@pytest.fixture(scope="function")
+async def async_session(async_engine: AsyncEngine) -> AsyncSession: # type: ignore
+    # Create a new async session per test
+    async with AsyncSession(async_engine) as session:
+        yield session
+        await session.rollback()
 
 
 @pytest.fixture
