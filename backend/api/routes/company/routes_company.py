@@ -1,12 +1,18 @@
+from aiohttp.web_request import Request
 import aiohttp_sqlalchemy
 from aiohttp import web
 
 from api import middlewares
 from api.routes.company.form import PositionForm
+from api.routes.public.typing import RegistrationPayload
 from pkg import response, utils
 from pkg.app_keys import share_keys, AppKeys
 from pkg.consts import Role
 from pkg.models import User
+from pkg.models.models import Company
+
+# testing
+from pkg.services.common.new_registrator import MemberRegistration, registration_process
 
 
 def setup_company_routes(app: web.Application):
@@ -17,6 +23,7 @@ def setup_company_routes(app: web.Application):
     company.middlewares.append(middlewares.auth_middleware)
     company.middlewares.append(middlewares.roles_required([Role.COMPANY_MEMBER, Role.COMPANY_ADMIN]))
 
+    company.router.add_post("/create-member", handle_create_member)
     company.router.add_post("/position", handle_create_position)
     company.router.add_get("/positions", handle_list_position)
     company.router.add_get("/position/{id}", handle_position)
@@ -26,13 +33,45 @@ def setup_company_routes(app: web.Application):
     app.add_subapp("/api/company/", company)
 
 
+async def handle_create_member(request: web.Request):
+    session = aiohttp_sqlalchemy.get_session(request)
+    payload = await utils.request_payload(request, RegistrationPayload)
+    if payload.type != Role.COMPANY_MEMBER:
+        return response.error_response(None, ["Only company members allowed"])
+
+    user: User = request["user"]
+    company: Company = request["company"]
+
+    member: MemberRegistration = MemberRegistration(
+        company_id=str(company.id),
+        registrator_user_id=str(user.id),
+        name=payload.name,
+        email=payload.email,
+        password=payload.password,
+        password_confirm=payload.password_confirm,
+    )
+    user = await registration_process(
+        type_=Role.COMPANY_MEMBER,
+        data=member.model_dump(),
+        publisher=request.app[AppKeys.service_events],
+        session=session,
+    )
+
+    if not user:
+        return response.error_response(None, ["User was not created"])
+
+    return response.success_response(user.json(), [])
+
 async def handle_create_position(request: web.Request):
     payload = await utils.request_payload(request, PositionForm)
     session = aiohttp_sqlalchemy.get_session(request)
     user: User = request["user"]
+    company: Company = request["company"]
     payload.company_id = str(user.manager.company_id)
     service = request.app[AppKeys.service_position]
     position = await service.create_new_position(session, payload)
+
+
     return response.success_response(position.json(), [])
 
 

@@ -44,8 +44,12 @@ class RoutingKeys(enum.StrEnum):
 
 
 class IPublisher(Protocol):
-    async def connect(self): ...
-    async def publish_event(self, exchange_name: Exchanges, routing_key: RoutingKeys, event: Dict[str, Any]): ...
+
+    async def connect(self):
+        ...
+
+    async def publish_event(self, exchange_name: Exchanges, routing_key: RoutingKeys, event: Dict[str, Any]):
+        ...
 
 
 class EventPublisher:

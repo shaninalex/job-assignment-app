@@ -4,6 +4,7 @@ from typing import Optional, Type, TypeVar, Generic, Union
 import uuid
 
 from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from pkg import password, utils
 from pkg.consts import AuthStatus, ConfirmStatusCode, Role
@@ -35,7 +36,7 @@ class CompanyRegistration(BaseModel, extra="forbid"):
 
 class MemberRegistration(BaseModel, extra="forbid"):
     company_id: str
-    registrator_user_id: str # id of a user who add this member
+    registrator_user_id: str  # id of a user who add this member
     name: str
     email: EmailStr
     password: str
@@ -47,7 +48,7 @@ class RegistrationValidator(ABC, Generic[T]):
     """Strategy for validation."""
 
     @abstractmethod
-    def validate(self, payload: T):
+    async def validate(self, payload: T, session: AsyncSession):
         """Define validation logic."""
         pass
 
@@ -55,38 +56,50 @@ class RegistrationValidator(ABC, Generic[T]):
 class CandidateValidator(RegistrationValidator[CandidateRegistration]):
     """Validation logic for a new candidate registration."""
 
-    def validate(self, payload: CandidateRegistration):
+    async def validate(self, payload: CandidateRegistration, session: AsyncSession):
         if payload.password != payload.password_confirm:
             raise ValueError("Passwords do not match")
-        # session: AsyncSession,
-        # Logic to check if user with this email exists
-        # e.g., raise ValueError("User with this email already exists")
-        pass
+        q = select(User).where(User.email == payload.email)
+        result = await session.execute(q)
+        user = result.scalar_one_or_none()
+        if user is not None:
+            raise ValueError("User with this email already registered")
 
 
 class CompanyValidator(RegistrationValidator[CompanyRegistration]):
     """Validation logic for a new user and company registration."""
 
-    def validate(self, payload: CompanyRegistration):
+    async def validate(self, payload: CompanyRegistration, session: AsyncSession):
         if payload.password != payload.password_confirm:
             raise ValueError("Passwords do not match")
-        # session: AsyncSession,
         # Logic to check if user with this email exists
-        # Logic to check if company with this name exists
-        pass
+        q = select(User).where(User.email == payload.email)
+        result = await session.execute(q)
+        user = result.scalar_one_or_none()
+        if user is not None:
+            raise ValueError("User with this email already registered")
+
+        q = select(Company).where(Company.name == payload.name) # TODO: Company.email
+        result = await session.execute(q)
+        company = result.scalar_one_or_none()
+        if company is not None:
+            raise ValueError("Company with this name already registered")
 
 
 class MemberValidator(RegistrationValidator[MemberRegistration]):
     """Validation logic for adding a new company member."""
 
-    def validate(self, payload: MemberRegistration):
+    async def validate(self, payload: MemberRegistration, session: AsyncSession):
         if payload.password != payload.password_confirm:
             raise ValueError("Passwords do not match")
-        # session: AsyncSession,
-        # Logic to check if user with this email exists
-        pass
 
-# Factory Method for Registrator
+        q = select(User).where(User.email == payload.email)
+        result = await session.execute(q)
+        user = result.scalar_one_or_none()
+        if user is not None:
+            raise ValueError("User with this email already registered")
+
+
 class Registrator(Generic[T]):
     """Handle registration of new candidate, user + company, or add user to company."""
 
@@ -103,7 +116,7 @@ class Registrator(Generic[T]):
         return User(
             id=uuid.uuid4(),
             email=payload.email,
-            name=payload.name, 
+            name=payload.name,
             role=self._role,
             status=AuthStatus.PENDING,
             password_hash=password.get_hashed_password(payload.password),
@@ -117,12 +130,12 @@ class Registrator(Generic[T]):
                     status=ConfirmStatusCode.SENT,
                 )
             ],
-        ) 
+        )
 
     async def register(self, payload: T, session: AsyncSession) -> Union[User, None]:
         """Process the registration using the appropriate validator."""
         if self._validator:
-            errors = self._validator.validate(payload)
+            errors = await self._validator.validate(payload, session)
             if errors:
                 raise ValueError(errors)
 
@@ -132,8 +145,12 @@ class Registrator(Generic[T]):
                 session.add(user)
 
                 if self._role == Role.COMPANY_MEMBER:
-                    session.add(CompanyManager(user=user, company_id=payload.company_id))
+                    session.add(CompanyManager(
+                        user=user, company_id=payload.company_id))
                 if self._role == Role.COMPANY_ADMIN:
+                    # NOTE: now creating user with role Role.COMPANY_ADMIN creates
+                    # a company. Need to refactor this and add ability to add multiple
+                    # administrators in single company
                     company = Company(
                         name=payload.company_name,
                         email=payload.company_email,
@@ -182,6 +199,4 @@ async def registration_process(session: AsyncSession, type_: Role, data: dict, p
         registrator.set_validator(MemberValidator())
 
     return await registrator.register(payload, session)
-
-
 
