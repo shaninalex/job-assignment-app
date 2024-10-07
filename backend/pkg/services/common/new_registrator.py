@@ -128,20 +128,22 @@ class Registrator(Generic[T]):
 
             # Logic for actual registration process
             try:
-                await session.commit()
                 user = self._create_user(payload)
                 session.add(user)
 
                 if self._role == Role.COMPANY_MEMBER:
                     session.add(CompanyManager(user=user, company_id=payload.company_id))
                 if self._role == Role.COMPANY_ADMIN:
-                    session.add(
-                        Company(
-                            name=payload.company_name,
-                            email=payload.company_email,
-                            website=payload.company_website,
-                        )
+                    company = Company(
+                        name=payload.company_name,
+                        email=payload.company_email,
+                        website=payload.company_website,
                     )
+                    session.add(company)
+                    session.add(CompanyManager(user=user, company=company))
+
+                await session.commit()
+
             except Exception as e:
                 # rollback if something went wrong
                 await session.rollback()

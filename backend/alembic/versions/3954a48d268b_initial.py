@@ -47,7 +47,7 @@ def upgrade() -> None:
     sa.Column('social_accounts', sa.JSON(), nullable=True),
     sa.Column('confirmed', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.Column('status', sa.Enum('ACTIVE', 'BANNED', 'PENDING', name='authstatus'), nullable=False),
-    sa.Column('role', sa.Enum('CANDIDATE', 'COMPANY_MANAGER', 'COMPANY_ADMIN', name='role'), nullable=False),
+    sa.Column('role', sa.Enum('CANDIDATE', 'COMPANY_MEMBER', 'COMPANY_ADMIN', name='role'), nullable=False),
     sa.Column('password_hash', sa.Text(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
@@ -69,12 +69,11 @@ def upgrade() -> None:
     )
     op.create_table('company_manager',
     sa.Column('id', sa.UUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('user_id', sa.UUID(), nullable=True),
+    sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('company_id', sa.UUID(), nullable=False),
     sa.ForeignKeyConstraint(['company_id'], ['company.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('company_id'),
     sa.UniqueConstraint('user_id')
     )
     op.create_table('confirm_codes',

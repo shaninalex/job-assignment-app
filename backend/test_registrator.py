@@ -17,7 +17,7 @@ config = Config(
 )
 
 async def main():
-    eng = create_async_engine(config.DATABASE_URI, echo=True)
+    eng = create_async_engine(config.DATABASE_URI, echo=False)
     session = AsyncSession(bind=eng, expire_on_commit=False)
     event_publisher = EventPublisher(rabbitmq_url=config.RABBIT_URL)
     await event_publisher.connect()
@@ -39,10 +39,12 @@ async def main():
     )
 
     member: MemberRegistration = MemberRegistration(
-        company_id=str(uuid.uuid4()),
+        # hardcoded because it's proof of concept
+        # real company id will be taken from request context
+        company_id="fea7cbd2-5585-4990-82a8-270f6fc415a3", 
         registrator_user_id=str(uuid.uuid4()),
-        name="Mulder",
-        email="mulder@xfiles.com",
+        name="ABC member",
+        email="scully@xfiles.com",
         password="123",
         password_confirm="123",
     )

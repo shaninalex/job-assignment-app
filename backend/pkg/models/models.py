@@ -155,9 +155,9 @@ class CompanyManager(Base):
         default=uuid.uuid4,
         server_default=text("uuid_generate_v4()"),
     )
-    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
+    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=False)
     user: Mapped["User"] = relationship("User", back_populates="manager")
-    company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("company.id"), unique=True, nullable=False)
+    company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("company.id"), nullable=False)
     company: Mapped["Company"] = relationship("Company", back_populates="managers")
 
     def json(self):
