@@ -34,12 +34,12 @@ class BaseRepository(Generic[T]):
         await session.refresh(obj)
         return obj
 
-    async def update_by_id(self, session: AsyncSession, user_id, obj_in: dict) -> Optional[T]:
-        await session.execute(update(self.model).where(self.model.id == user_id).values(**obj_in))
-        return await self.get_by_id(session, user_id)
+    async def update_by_id(self, session: AsyncSession, entity_id, obj_in: dict) -> Optional[T]:
+        await session.execute(update(self.model).where(self.model.id == entity_id).values(**obj_in))
+        return await self.get_by_id(session, entity_id)
 
-    async def delete_by_id(self, session: AsyncSession, user_id) -> None:
-        await session.execute(delete(self.model).where(self.model.id == user_id))
+    async def delete_by_id(self, session: AsyncSession, entity_id) -> None:
+        await session.execute(delete(self.model).where(self.model.id == entity_id))
 
     async def list(self, session: AsyncSession, **kwargs) -> List[T]:
         stmt = select(self.model)

@@ -10,7 +10,7 @@ class AppKeys(StrEnum):
     repository_confirm_codes = "repository_confirm_codes"
     repository_position = "repository_position"
     service_events = "service_events"
-    service_position = "service_position"
+    # service_position = "service_position"
     service_user = "service_user"
     service_auth = "service_auth"
 

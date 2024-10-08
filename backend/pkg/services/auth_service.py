@@ -2,13 +2,12 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.routes.public.typing import RegistrationPayload, ConfirmCodePayload, LoginPayload
+from api.routes.public.typing import ConfirmCodePayload, LoginPayload
 from pkg import password, jwt
 from pkg.consts import ConfirmStatusCode, AuthStatus, Role
 from pkg.repositories.company_member_repository import CompanyMemberRepository
 from pkg.repositories.company_repository import CompanyRepository
 from pkg.repositories.confirm_codes_repository import ConfirmCodeRepository
-from pkg.services.common import registration
 from pkg.services.event_service import EventPublisher, Exchanges, RoutingKeys
 from pkg.services.user_service import UserService
 from pkg.settings import Config
@@ -39,7 +38,6 @@ class AuthService:
     def __init__(
         self,
         user_service: UserService,
-        company_member_repository: CompanyMemberRepository,
         company_repository: CompanyRepository,
         confirm_codes_repository: ConfirmCodeRepository,
         event_service: EventPublisher,
@@ -48,16 +46,8 @@ class AuthService:
         self.config = config
         self.confirm_codes_repository = confirm_codes_repository
         self.event_service = event_service
-        self.company_member_repository = company_member_repository
         self.user_service = user_service
         self.company_repository = company_repository
-        self._registration = registration.Registrator(
-            user_service, company_member_repository, company_repository, event_service
-        )
-
-    async def registration(self, session: AsyncSession, payload: RegistrationPayload):
-        strategy = self._registration.get_strategy(payload.type)
-        return await strategy.register(session, payload)
 
     async def confirm(self, session: AsyncSession, payload: ConfirmCodePayload) -> bool:
         code = await self.confirm_codes_repository.get_code(session, payload.id, payload.code, ConfirmStatusCode.SENT)
@@ -80,6 +70,9 @@ class AuthService:
                 "status": AuthStatus.ACTIVE,
             },
         )
+
+        if not user:
+            return False
 
         await self.confirm_codes_repository.update_by_id(session, code.id, {"status": ConfirmStatusCode.USED})
         await self.event_service.publish_event(
@@ -106,17 +99,15 @@ class AuthService:
             )
             return Exception("invalid password")
 
-        company = None
-        if user.role in [Role.COMPANY_ADMIN, Role.COMPANY_MEMBER]:
-            company = await self.company_repository.get_by_id(session, user.manager.company_id)
-
         resp = {
             "token": jwt.create_jwt_token(self.config.APP_SECRET, user),
             "user": user.json(),
         }
 
-        if company:
-            resp["company"] = company.json()
+        if user.role in [Role.COMPANY_ADMIN, Role.COMPANY_MEMBER]:
+            company = await self.company_repository.get_by_id(session, user.manager.company_id)
+            if company:
+                resp["company"] = company.json()
 
         await self.event_service.publish_event(Exchanges.LOG, RoutingKeys.USER_LOGIN, {"email": payload.email})
         return resp

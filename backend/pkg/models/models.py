@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timedelta
 from typing import List
@@ -133,6 +134,7 @@ class Company(Base):
         onupdate=func.now(),
         nullable=True,
     )
+    positions: Mapped[List["Position"]] = relationship(back_populates="company")
 
     # NOTE:
     # company_rating ??
@@ -168,6 +170,9 @@ class CompanyManager(Base):
         }
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class Position(Base):
     __tablename__ = "positions"
     id: Mapped[UUID] = mapped_column(
@@ -188,13 +193,7 @@ class Position(Base):
     travel: Mapped[TravelRequired] = mapped_column(Enum(TravelRequired))
     status: Mapped[PositionStatus] = mapped_column(Enum(PositionStatus))
     price_range: Mapped[str] = mapped_column(VARCHAR(50))
-
     company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("company.id"), nullable=False)
-
-    # NOTE: column ideas
-    # - search_tags
-    # - featured/important
-
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(),
@@ -202,9 +201,14 @@ class Position(Base):
         onupdate=func.now(),
         nullable=True,
     )
+    company: Mapped["Company"] = relationship(back_populates="positions")
+    
+    # NOTE: column ideas
+    # - search_tags
+    # - featured/important
 
     def json(self):
-        return {
+        position = {
             "id": str(self.id),
             "title": self.title,
             "description": self.description,
@@ -222,6 +226,10 @@ class Position(Base):
             "created_at": str(self.created_at),
             "updated_at": str(self.updated_at),
         }
+
+        if self.company:
+            position["company"] = self.company.json()
+        return position
 
 
 class PositionViews(Base):
