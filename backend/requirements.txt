@@ -1,9 +1,6 @@
 asyncio
 fastapi[all]
-pytest
-pytest-asyncio
 uuid
-black
 pydantic
 PyJWT
 
@@ -11,3 +8,14 @@ PyJWT
 SQLAlchemy
 alembic
 asyncpg
+
+# tests
+pytest
+pytest-asyncio
+pytest-cov
+
+# formatter
+black
+
+# password hasher
+bcrypt

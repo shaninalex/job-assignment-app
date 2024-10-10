@@ -11,12 +11,6 @@ from app.enums import AuthStatus, Role, ConfirmStatusCode
 
 class User(Base):
     __tablename__ = "user"
-    # id: Mapped[UUID] = mapped_column(
-    #     UUID(as_uuid=True),
-    #     primary_key=True,
-    #     default=uuid.uuid4,
-    #     server_default=text("uuid_generate_v4()"),
-    # )
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)

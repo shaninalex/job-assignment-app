@@ -3,6 +3,7 @@ $ pylint *.py
 ```
 
 App required next dependencies:
+
 - aiohttp
 - aiohttp-devtools
 - sqlalchemy
@@ -16,6 +17,7 @@ App required next dependencies:
 - pyjwt
 
 Init:
+
 ```bash
 cd backend
 python3 -m venv env
@@ -24,6 +26,7 @@ pip install -r requirements.txt
 ```
 
 Run server:
+
 ```bash
 # if clear db run alembic:
 alembic upgrade head
@@ -33,6 +36,7 @@ python main.py
 ```
 
 Run live reload:
+
 ```bash
 adev runserver main.py --port=8080
 ```
@@ -54,8 +58,8 @@ make test_start
 cd ./backend/
 
 # apply alembic migrations into test database
-alembic --name alembic_test upgrade head
+# alembic --name alembic_test upgrade head
 
 # run tests
-pytest -n auto
+pytest --verbose --cov=app
 ```
