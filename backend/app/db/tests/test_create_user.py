@@ -1,41 +1,24 @@
-import pytest
 import uuid
 
-from app.db.models import User
-from app.db.operations import create_user
+import pytest
+from pydantic import ValidationError
+
+from app.db.operations.user import UserPayload, create_user, get_user_by_email
 from app.enums import AuthStatus, ConfirmStatusCode, Role
 from app.utilites.password import check_password
-
-
-@pytest.mark.asyncio
-async def test_create_user(session):
-    async with session() as session:
-        user = User(
-            name="test",
-            email="test@test.com",
-            active=True,
-            status=AuthStatus.ACTIVE,
-            role=Role.CANDIDATE,
-            password_hash="password_hash",
-        )
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        assert user.id is not None
-        assert user.id == 1
 
 
 @pytest.mark.asyncio
 async def test_create_candidate(session):
     async with session() as session:
         u = uuid.uuid4()
-        payload = create_user.CreateUserPayload(
+        payload = UserPayload(
             name=str(u),
             email=f"{str(u)}@test.com",
             password="testtest",
             password_confirm="testtest",
         )
-        user, confirm_code = await create_user.create_candidate(session, payload)
+        user, confirm_code = await create_user(session, payload, Role.CANDIDATE)
         assert user is not None
         assert user.id is not None
         assert user.email == payload.email
@@ -48,11 +31,22 @@ async def test_create_candidate(session):
         assert confirm_code is not None
         assert confirm_code.status == ConfirmStatusCode.CREATED
 
-        new_user = await create_user.get_user_by_email(session, user.email)
+        new_user = await get_user_by_email(session, user.email)
         assert new_user is not None
-        assert new_user.id == 1
         assert new_user.codes is not None
         assert len(new_user.codes) == 1
         assert new_user.codes[0].status == ConfirmStatusCode.CREATED
         assert new_user.codes[0].code == confirm_code.code
 
+
+@pytest.mark.asyncio
+async def test_invalid_payload():
+    with pytest.raises(ValidationError) as exc_info:
+        UserPayload(name="name", email="invalid-email", password="testtest_", password_confirm="testtest_")
+
+    assert "value is not a valid email address" in str(exc_info.value)
+
+    with pytest.raises(ValidationError) as exc_info:
+        UserPayload(name="name", email="test@test.com", password="testtest_", password_confirm="different_password")
+
+    assert "passwords do not match" in str(exc_info.value)
