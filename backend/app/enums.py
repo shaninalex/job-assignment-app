@@ -56,8 +56,14 @@ class PositionStatus(StrEnum):
     CLOSED = "closed"
     REMOVED = "removed"  # position moved to "trash can"
 
+
 class CompanyStatus(StrEnum):
     ACTIVE = "active"  # healthy company
     INACTIVE = "inactive"  # not active
     BANNED = "banned"  # banned, not active
     PENDING = "pending"  # just created, waiting for confirmation
+
+
+class CompanyMemberStatus(StrEnum):
+    ACTIVE = "active"  # healthy member
+    PENDING = "pending"  # company waiting for user confirm invitation

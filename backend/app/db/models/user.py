@@ -31,7 +31,7 @@ class User(Base):
         onupdate=func.now(),
         nullable=True,
     )
-
+    member: Mapped["CompanyMember"] = relationship("CompanyMember", back_populates="user")
     codes: Mapped[List["ConfirmCode"]] = relationship("ConfirmCode", back_populates="user")
 
 

@@ -19,10 +19,11 @@ async def get_user_by_id(session: AsyncSession, user_id: int) -> Union[User, Non
 
 async def get_user_by_email(session: AsyncSession, email: str) -> Union[User, None]:
     q = await session.execute(select(User).where(User.email == email).options(selectinload(User.codes)))
-    return q.scalar_one_or_none()
+    user = q.scalar_one_or_none()
+    return user
 
 
-class UserPayload(BaseModel):
+class UserPayload(BaseModel, extra="forbid"):
     name: str
     email: EmailStr
     password: str
@@ -33,30 +34,6 @@ class UserPayload(BaseModel):
         if not is_password_valid(self.password, self.password_confirm):
             raise ValueError("passwords do not match")
         return self
-
-
-async def create_candidate(session: AsyncSession, payload: UserPayload) -> Tuple[User, ConfirmCode]:
-    if await get_user_by_email(session, payload.email):
-        raise ValueError("user already exist")
-
-    user = User(
-        name=payload.name,
-        email=payload.email,
-        password_hash=create_password_hash(payload.password),
-        role=Role.CANDIDATE,
-        status=AuthStatus.PENDING,
-    )
-    confirm_code = ConfirmCode(
-        user=user,
-        code=generate_numeric_code(6),
-        status=ConfirmStatusCode.CREATED,
-    )
-    session.add(user)
-    session.add(confirm_code)
-    await session.commit()
-    await session.refresh(user)
-    await session.refresh(confirm_code)
-    return user, confirm_code
 
 
 async def create_user(session: AsyncSession, payload: UserPayload, role: Role) -> Tuple[User, ConfirmCode]:
@@ -81,3 +58,21 @@ async def create_user(session: AsyncSession, payload: UserPayload, role: Role) -
     await session.refresh(user)
     await session.refresh(confirm_code)
     return user, confirm_code
+
+
+class ConfirmCodePayload(BaseModel, extra="forbid"):
+    code: str
+    key: str
+
+
+async def confirm_user(session: AsyncSession, code: ConfirmCodePayload, user_id: int):
+    user = await get_user_by_id(session, user_id)
+    if not user:
+        raise ValueError
+
+    # TODO: validate confirm code
+    # IDEA: different confirmation methods ( email, phone ) ?
+
+    user.status = AuthStatus.ACTIVE
+    await session.commit()
+    await session.refresh(user)
