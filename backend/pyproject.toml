@@ -1,7 +1,10 @@
 [project]
-name = "backend"
-version = "0.6.3"
-package-mode = true
+name = "JobCrafter"
+version = "0.0.0"
+description = "Backend api for JobCrafter application"
+authors = ["shaninalex"]
+license = "MIT"
+readme = "README.md"
 
 [tool.black]
 line-length = 120
