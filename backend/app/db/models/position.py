@@ -2,10 +2,11 @@ from datetime import datetime
 from sqlalchemy import String, Text, func, Integer, ForeignKey, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models import Base, Company
+from app.db.models.utils import CreatedUpdatedFields
 from app.enums import PositionStatus, Remote, SalaryType, TravelRequired, WorkingHours
 
 
-class Position(Base):
+class Position(Base, CreatedUpdatedFields):
     __tablename__ = "positions"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(100))
@@ -23,16 +24,5 @@ class Position(Base):
     status: Mapped[PositionStatus] = mapped_column(Enum(PositionStatus))
     price_range: Mapped[str] = mapped_column(String(100))
 
-    created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now(), nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(
-        default=func.now(),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=True,
-    )
-
-    company: Mapped["Company"] = relationship( # type: ignore # noqa
-        "Company", 
-        back_populates="positions"
-    )
+    company: Mapped["Company"] = relationship("Company", back_populates="positions") # type: ignore # noqa
 

@@ -18,7 +18,7 @@ def is_password_valid(password: str | None, password_confirm: str | None) -> boo
     return password is not None and password_confirm is not None and password == password_confirm
 
 
-
+# handmade password strength
 # def password_strength(password):
 #     if len(password) < 8:
 #         return "Weak Password: Password must be at least 8 characters long."

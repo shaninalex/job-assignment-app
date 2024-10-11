@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple
 
 from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import select
@@ -12,14 +12,23 @@ from app.utilites.generate_random_code import generate_numeric_code
 from app.utilites.password import is_password_valid, create_password_hash
 
 
-async def get_user_by_id(session: AsyncSession, user_id: int) -> Union[User, None]:
+class UserNotFoundError(Exception):
+    pass
+
+
+async def get_user_by_id(session: AsyncSession, user_id: int) -> User:
     q = await session.execute(select(User).where(User.id == user_id).options(selectinload(User.codes)))
-    return q.scalar_one_or_none()
+    user = q.scalar_one_or_none()
+    if user is None:
+        raise UserNotFoundError(f"User with ID {user_id} not found.")
+    return user
 
 
-async def get_user_by_email(session: AsyncSession, email: str) -> Union[User, None]:
+async def get_user_by_email(session: AsyncSession, email: str) -> User:
     q = await session.execute(select(User).where(User.email == email).options(selectinload(User.codes)))
     user = q.scalar_one_or_none()
+    if user is None:
+        raise UserNotFoundError(f"User with email {user} not found.")
     return user
 
 
@@ -37,8 +46,10 @@ class UserPayload(BaseModel, extra="forbid"):
 
 
 async def create_user(session: AsyncSession, payload: UserPayload, role: Role) -> Tuple[User, ConfirmCode]:
-    if await get_user_by_email(session, payload.email):
-        raise ValueError("user already exist")
+    try:
+        await get_user_by_email(session, payload.email)
+    except UserNotFoundError:
+        pass
 
     user = User(
         name=payload.name,
@@ -54,9 +65,7 @@ async def create_user(session: AsyncSession, payload: UserPayload, role: Role) -
     )
     session.add(user)
     session.add(confirm_code)
-    await session.commit()
-    await session.refresh(user)
-    await session.refresh(confirm_code)
+    await session.flush()
     return user, confirm_code
 
 
@@ -67,12 +76,10 @@ class ConfirmCodePayload(BaseModel, extra="forbid"):
 
 async def confirm_user(session: AsyncSession, code: ConfirmCodePayload, user_id: int):
     user = await get_user_by_id(session, user_id)
-    if not user:
-        raise ValueError
 
     # TODO: validate confirm code
     # IDEA: different confirmation methods ( email, phone ) ?
 
     user.status = AuthStatus.ACTIVE
-    await session.commit()
-    await session.refresh(user)
+    await session.flush()
+    # await session.refresh(user)

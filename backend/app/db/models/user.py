@@ -6,10 +6,11 @@ from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
 from app.db.models import Base
+from app.db.models.utils import CreatedUpdatedFields
 from app.enums import AuthStatus, Role, ConfirmStatusCode
 
 
-class User(Base):
+class User(Base, CreatedUpdatedFields):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(100))
@@ -22,16 +23,8 @@ class User(Base):
     status: Mapped[AuthStatus] = mapped_column(Enum(AuthStatus), default=AuthStatus.PENDING)
     role: Mapped[Role] = mapped_column(Enum(Role))
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        default=func.now(), server_default=text("current_timestamp"), nullable=True
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        default=func.now(),
-        server_default=text("current_timestamp"),
-        onupdate=func.now(),
-        nullable=True,
-    )
-    member: Mapped["CompanyMember"] = relationship("CompanyMember", back_populates="user")
+
+    member: Mapped["CompanyMember"] = relationship("CompanyMember", back_populates="user")  # type: ignore
     codes: Mapped[List["ConfirmCode"]] = relationship("ConfirmCode", back_populates="user")
 
 
@@ -40,19 +33,13 @@ def default_expired_at():
     return datetime.now() + timedelta(minutes=5)
 
 
-class ConfirmCode(Base):
+class ConfirmCode(Base, CreatedUpdatedFields):
     __tablename__ = "confirm_codes"
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
     code: Mapped[str] = mapped_column(VARCHAR(6))
     status: Mapped[ConfirmStatusCode] = mapped_column(Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENT)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())
-    expired_at: Mapped[datetime] = mapped_column(default=default_expired_at)
-    updated_at: Mapped[datetime] = mapped_column(
-        default=func.now(),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=True,
-    )
 
     user: Mapped["User"] = relationship("User", back_populates="codes")
+

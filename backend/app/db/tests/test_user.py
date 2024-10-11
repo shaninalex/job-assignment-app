@@ -3,7 +3,7 @@ import uuid
 import pytest
 from pydantic import ValidationError
 
-from app.db.operations.user import UserPayload, create_user, get_user_by_email
+from app.db.operations.user_op import UserPayload, create_user, get_user_by_email
 from app.enums import AuthStatus, ConfirmStatusCode, Role
 from app.utilites.password import check_password
 

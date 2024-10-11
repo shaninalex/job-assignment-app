@@ -45,9 +45,10 @@ class DatabaseSessionManager:
         session = self._sessionmaker()
         try:
             yield session
+            await session.commit()
         except SQLAlchemyError as e:
             await session.rollback()
             # logger.error(f"Session error occurred: {e}")
-            raise ServiceError("Session error")
+            raise ServiceError("Session error") from e
         finally:
             await session.close()
