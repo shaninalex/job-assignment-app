@@ -1,4 +1,5 @@
 from typing import Self, Tuple, Union
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import delete, select
@@ -22,7 +23,7 @@ class CompanyMemberAlreadyExists(ServiceError):
     pass
 
 
-async def get_company_by_id(session: AsyncSession, company_id: int) -> Company:
+async def get_company_by_id(session: AsyncSession, company_id: UUID) -> Company:
     q = await session.execute(select(Company).where(Company.id == company_id).options(selectinload(Company.members)))
     company = q.scalar_one_or_none()
     if company is None:
@@ -94,7 +95,7 @@ class CreateCompanyMemberPayload(BaseModel, extra="forbid"):
     role: Role
     password: str
     password_confirm: str
-    company_id: int
+    company_id: UUID
 
     @model_validator(mode="after")
     def check_passwords_match(self) -> Self:
@@ -130,7 +131,7 @@ async def create_member(
 
 
 async def add_member(
-    session: AsyncSession, company_id: int, user_id: int, role: Role
+    session: AsyncSession, company_id: UUID, user_id: UUID, role: Role
 ) -> Tuple[User, CompanyMember]:
     company = await get_company_by_id(session, company_id)
 
@@ -147,7 +148,7 @@ async def add_member(
     return user, company_member
 
 
-async def delete_member(session: AsyncSession, company_id: int, user_id: int):
+async def delete_member(session: AsyncSession, company_id: UUID, user_id: UUID):
     stmt = delete(CompanyMember).where((CompanyMember.company_id == company_id) & (CompanyMember.user_id == user_id))
     await session.execute(stmt)
 

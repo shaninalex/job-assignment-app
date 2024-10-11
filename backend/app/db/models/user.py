@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from typing import List
+import uuid
 
-from sqlalchemy import String, Boolean, Text, JSON, VARCHAR, Enum, text, func, Integer, ForeignKey
+from sqlalchemy import UUID, String, Boolean, Text, JSON, VARCHAR, Enum, text, func, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
@@ -12,7 +13,12 @@ from app.enums import AuthStatus, Role, ConfirmStatusCode
 
 class User(Base, CreatedUpdatedFields):
     __tablename__ = "user"
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("uuid_generate_v4()"),
+    )
     name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(VARCHAR(100), unique=True)
     settings: Mapped[JSON] = mapped_column(JSON, nullable=True)
@@ -35,8 +41,13 @@ def default_expired_at():
 
 class ConfirmCode(Base, CreatedUpdatedFields):
     __tablename__ = "confirm_codes"
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("uuid_generate_v4()"),
+    )
+    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
     code: Mapped[str] = mapped_column(VARCHAR(6))
     status: Mapped[ConfirmStatusCode] = mapped_column(Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENT)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())

@@ -4,6 +4,7 @@ from collections.abc import AsyncIterator
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine, AsyncEngine, AsyncConnection
 
+from app.config import settings
 
 class ServiceError(Exception):
     pass

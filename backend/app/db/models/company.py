@@ -1,7 +1,7 @@
-from datetime import datetime
 from typing import List
+import uuid
 
-from sqlalchemy import Enum, String, Text, func, Integer, ForeignKey
+from sqlalchemy import UUID, Enum, String, Text, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.models import Base
@@ -11,7 +11,12 @@ from app.enums import CompanyStatus, CompanyMemberStatus
 
 class Company(Base, CreatedUpdatedFields):
     __tablename__ = "company"
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("uuid_generate_v4()"),
+    )
     name: Mapped[str] = mapped_column(String(100), unique=True)
     website: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
@@ -28,9 +33,14 @@ class Company(Base, CreatedUpdatedFields):
 
 class CompanyMember(Base, CreatedUpdatedFields):
     __tablename__ = "company_member"
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), unique=True, nullable=True)
-    company_id: Mapped[int] = mapped_column(Integer, ForeignKey("company.id"), nullable=False)
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("uuid_generate_v4()"),
+    )
+    user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"), unique=True, nullable=True)
+    company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("company.id"), nullable=False)
     user: Mapped["User"] = relationship("User", back_populates="member")  # type: ignore
     status: Mapped[CompanyMemberStatus] = mapped_column(Enum(CompanyMemberStatus), default=CompanyMemberStatus.ACTIVE)
     company: Mapped["Company"] = relationship("Company", back_populates="members")

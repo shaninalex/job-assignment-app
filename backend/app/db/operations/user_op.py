@@ -1,4 +1,5 @@
 from typing import Tuple
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, model_validator
 from sqlalchemy import select
@@ -16,11 +17,11 @@ class UserNotFoundError(Exception):
     pass
 
 
-async def get_user_by_id(session: AsyncSession, user_id: int) -> User:
+async def get_user_by_id(session: AsyncSession, user_id: UUID) -> User:
     q = await session.execute(select(User).where(User.id == user_id).options(selectinload(User.codes)))
     user = q.scalar_one_or_none()
     if user is None:
-        raise UserNotFoundError(f"User with ID {user_id} not found.")
+        raise UserNotFoundError(f"User with ID {str(user_id)} not found.")
     return user
 
 
@@ -74,7 +75,7 @@ class ConfirmCodePayload(BaseModel, extra="forbid"):
     key: str
 
 
-async def confirm_user(session: AsyncSession, code: ConfirmCodePayload, user_id: int):
+async def confirm_user(session: AsyncSession, code: ConfirmCodePayload, user_id: UUID):
     user = await get_user_by_id(session, user_id)
 
     # TODO: validate confirm code
