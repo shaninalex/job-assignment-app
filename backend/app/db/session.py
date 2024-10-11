@@ -9,6 +9,8 @@ class ServiceError(Exception):
     pass
 
 
+# thx Arjan :)
+
 class DatabaseSessionManager:
     def __init__(self, host: str):
         # NOTE: create_async_engine require connect_args={"check_same_thread": False} only if you use sqlite+aiosqlite:///
@@ -52,3 +54,12 @@ class DatabaseSessionManager:
             raise ServiceError("Session error") from e
         finally:
             await session.close()
+
+
+
+sessionmanager = DatabaseSessionManager(settings.database_url)
+
+
+async def get_db_session():
+    async with sessionmanager.session() as session:
+        yield session

@@ -32,13 +32,17 @@ Run server:
 alembic upgrade head
 
 # run server
-python main.py
+uvicorn main:app --port=8080
+# or using fastapi cli on production mode
+fastapi run main.py --port=8080
 ```
 
-Run live reload:
+Run dev live reload:
 
 ```bash
-adev runserver main.py --port=8080
+fastapi dev main.py --port=8080
+# or
+uvicorn main:app --reload --port=8080
 ```
 
 ## Tests
@@ -55,10 +59,13 @@ make stop
 # start test container
 make test_start
 
+# back to the backend folder
 cd ./backend/
 
 # apply alembic migrations into test database
 # alembic --name alembic_test upgrade head
+# NOTE: no need to do that, since tests create all tables by Base.metadata.create_all
+# and clear tables after tests
 
 # run tests
 pytest --verbose --cov=app
