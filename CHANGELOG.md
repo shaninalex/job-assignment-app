@@ -1,3 +1,12 @@
+## 0.8.1 (2024-10-13)
+
+### Fix
+
+- **db**: position model, default options
+- **db**: position model, default options
+- **api**: position creation validation
+- **api**: position routes
+
 ## 0.8.0 (2024-10-12)
 
 ### Feat
