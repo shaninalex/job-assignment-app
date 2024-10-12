@@ -63,9 +63,7 @@ make test_start
 cd ./backend/
 
 # apply alembic migrations into test database
-# alembic --name alembic_test upgrade head
-# NOTE: no need to do that, since tests create all tables by Base.metadata.create_all
-# and clear tables after tests
+alembic --name alembic_test upgrade head
 
 # run tests
 pytest --verbose --cov=app
