@@ -17,7 +17,7 @@ ENV PYTHONUNBUFFERED 1
 # ENTRYPOINT [ "/usr/src/app/entrypoint.sh" ]
 
 # pull official base image
-# FROM python:3.11.4-alpine
+# FROM python:3.12.3-alpine
 
 # set work directory
 WORKDIR /usr/src/app
