@@ -1,5 +1,6 @@
 import uuid
 import pytest
+from loguru import logger
 from sqlalchemy import func, select
 
 from app.db.models import CompanyMember
@@ -10,6 +11,7 @@ from app.db.operations.company_op import (
     create_company,
     create_member,
     delete_member,
+    get_company_members,
 )
 from app.db.operations.user_op import UserPayload, create_user, get_user_by_email
 from app.enums import AuthStatus, CompanyStatus, ConfirmStatusCode, Role
@@ -174,3 +176,25 @@ async def test_remove_member(session):
         result = await session.execute(statement)
         company_members_count = result.scalar()
         assert company_members_count == 1
+
+
+@pytest.mark.asyncio
+async def test_get_company_members(session):
+    async with session() as session:
+        # create company
+        u = uuid.uuid4()
+        company_payload = CreateCompanyPayload(
+            name=str(u),
+            email=f"{str(u)}@test.com",
+            website=f"https://{str(u)}.com",
+            company_admin_name=str(u),
+            company_admin_email=f"{str(u)}@test.com",
+            password="testtest",
+            password_confirm="testtest",
+        )
+        company, _user, _cc = await create_company(session, company_payload)
+        logger.info(f"{company.id}, {_user.member.company_id}")
+        assert company.id == _user.member.company_id
+        members = await get_company_members(session, company.id)
+        logger.info(members)
+        assert len(members) == 1, f"Expected 1 company member. Got: {len(members)}"

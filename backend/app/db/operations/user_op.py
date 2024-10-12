@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from typing_extensions import Self
 
+from app.db.models.company import CompanyMember
 from app.db.models.user import ConfirmCode, User
 from app.db.operations.confirm_code_op import get_confirm_code
 from app.enums import Role, AuthStatus, ConfirmStatusCode
@@ -15,8 +16,19 @@ from app.utilites.generate_random_code import generate_numeric_code, generate_st
 from app.utilites.password import is_password_valid, create_password_hash
 
 
-async def get_user_by_id(session: AsyncSession, user_id: UUID) -> User:
-    q = await session.execute(select(User).where(User.id == user_id).options(selectinload(User.codes)))
+async def get_user_by_id(session: AsyncSession, user_id: UUID, **kwargs) -> User:
+    stmt = (
+        select(User)
+        .where(User.id == user_id)
+        .options(
+            selectinload(User.codes),
+            selectinload(User.member).joinedload(CompanyMember.company)
+        )
+    )
+    if "active" in kwargs:
+        stmt = stmt.where(User.active == kwargs["active"])
+
+    q = await session.execute(stmt)
     user = q.scalar_one_or_none()
     if user is None:
         raise UserNotFoundError(f"User with ID {str(user_id)} not found.")
@@ -24,7 +36,15 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID) -> User:
 
 
 async def get_user_by_email(session: AsyncSession, email: str) -> User:
-    q = await session.execute(select(User).where(User.email == email).options(selectinload(User.codes)))
+    stmt = (
+        select(User)
+        .where(User.email == email)
+        .options(
+            selectinload(User.codes),
+            selectinload(User.member)
+        )
+    )
+    q = await session.execute(stmt)
     user = q.scalar_one_or_none()
     if user is None:
         raise UserNotFoundError(f"User with email {email} not found.")

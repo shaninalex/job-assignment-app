@@ -1,7 +1,7 @@
 from fastapi.exceptions import RequestValidationError
 from pika.exceptions import AMQPConnectionError
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 from loguru import logger
 from pydantic import ValidationError
 from starlette.responses import JSONResponse
@@ -35,10 +35,21 @@ def apply_exception_handlers(app: FastAPI):
             content=APIResponse(error=exc.errors(), message=["Payload validation error"], status=False).model_dump(),
         )
 
-    # this is not db connection error. It's general connection error
-    app.add_exception_handler(
-        exc_class_or_status_code=ConnectionRefusedError, handler=database_connection_exception_handler()
-    )
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request, exc: HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=APIResponse(message=[exc.detail], status=False).model_dump(),
+        )
+
+    @app.exception_handler(ConnectionRefusedError)
+    async def database_connection_exception_handler(_, exc) -> JSONResponse:
+        logger.error(f"Database connection error: {exc}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
+        )
+
     app.add_exception_handler(exc_class_or_status_code=AMQPConnectionError, handler=amqp_connection_exception_handler())
     app.add_exception_handler(
         exc_class_or_status_code=ServiceError,
@@ -61,15 +72,6 @@ def amqp_connection_exception_handler():
     return exception_handler
 
 
-def database_connection_exception_handler():
-    async def exception_handler(_, exc) -> JSONResponse:
-        logger.error(f"Database connection error: {exc}")
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
-        )
-
-    return exception_handler
 
 
 def get_service_error_handler():

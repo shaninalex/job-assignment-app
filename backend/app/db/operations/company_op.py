@@ -1,4 +1,4 @@
-from typing import Self, Tuple, Union
+from typing import List, Self, Tuple, Union
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, model_validator
@@ -149,4 +149,17 @@ async def delete_member(session: AsyncSession, company_id: UUID, user_id: UUID):
     await session.execute(stmt)
 
 
-# TODO: update, deactivate ( delete is not a right way )
+async def get_company_members(session, company_id: UUID) -> List[User]:
+    stmt = (
+        select(User)
+        .join(User.member)
+        .where(CompanyMember.company_id == company_id)
+        .options(
+            selectinload(User.member) # .selectinload(CompanyMember.company)
+        )
+    )
+    query = await session.execute(stmt)
+    users = query.scalars().all()
+    return users
+
+# TODO: update, deactivate ( delete company is not a right way )

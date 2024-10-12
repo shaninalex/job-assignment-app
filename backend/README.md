@@ -30,8 +30,6 @@ bcrypt
 pika
 
 # other
-uuid
-PyJWT
 
 
 Init:

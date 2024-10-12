@@ -15,7 +15,10 @@ from app.utilites.jwt import create_jwt_token
 from app.utilites.password import check_password
 
 
-router = APIRouter(prefix="/api/v1/auth")
+router = APIRouter(
+    prefix="/api/v1/auth", 
+    tags=["Auth"]
+)
 
 
 @router.post("/register")
