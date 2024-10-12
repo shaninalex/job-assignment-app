@@ -22,10 +22,6 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID, **kwargs) -> User
         .where(User.id == user_id)
         .options(selectinload(User.codes), selectinload(User.member).joinedload(CompanyMember.company))
     )
-    # if "active" in kwargs:
-    #     stmt = stmt.where(User.active == kwargs["active"])
-    # if "status" in kwargs:
-    #     stmt = stmt.where(User.status == kwargs["status"])
 
     for key, value in kwargs.items():
         if getattr(User, key):

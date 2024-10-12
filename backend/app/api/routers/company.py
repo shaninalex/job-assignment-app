@@ -1,9 +1,8 @@
 from typing import List, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,6 +22,10 @@ from app.db.operations.position_op import (
     PartialPositionParamsPayload,
     position_create,
     PositionCreatePayload,
+    position_get_by_id,
+    position_update,
+    PartialPositionUpdatePayload,
+    position_delete,
 )
 from app.db.session import get_db_session
 from app.enums import Role, CompanyStatus, PositionStatus, TravelRequired, WorkingHours, SalaryType, Remote
@@ -133,27 +136,14 @@ async def list_positions_handler(
     return APIResponseGen(data=api_positions)
 
 
-# NOTE: validation not complete
 @router.post("/position")
 async def create_position_handler(
     payload: APIPosition,
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
 ) -> APIResponseGen[APIPosition]:
-    position_create_payload = PositionCreatePayload(  # **payload.model_dump())
-        title=payload.title,
-        company_id=user.member.company_id,
-        description=payload.description,
-        interview_stages=payload.interview_stages,
-        responsibilities=payload.responsibilities,
-        requirements=payload.requirements,
-        offer=payload.offer,
-        remote=payload.remote,
-        salary=payload.salary,
-        hours=payload.hours,
-        travel=payload.travel,
-        status=payload.status,
-        price_range=payload.price_range,
+    position_create_payload = PositionCreatePayload(
+        **payload.model_dump(exclude_unset=True), company_id=user.member.company_id
     )
     position = await position_create(session, position_create_payload)
     payload.id = position.id
@@ -163,26 +153,33 @@ async def create_position_handler(
 
 @router.get("/position/{position_id}")
 async def get_position_handler(
-    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    position_id: UUID,
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
-):
-    return JSONResponse(content=APIResponse(data={}, status=True), status_code=status.HTTP_200_OK)
+) -> APIResponseGen[APIPosition]:
+    position = await position_get_by_id(session, position_id=position_id, company_id=user.member.company_id)
+    return APIResponseGen(data=position)
 
 
 @router.patch("/position/{position_id}")
 async def update_position_handler(
-    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    position_id: UUID,
+    payload: PartialPositionUpdatePayload,
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
-):
-    return JSONResponse(content=APIResponse(data={}, status=True), status_code=status.HTTP_200_OK)
+) -> APIResponseGen[APIPosition]:
+    position = await position_update(
+        session, position_id=position_id, payload=payload, company_id=user.member.company_id
+    )
+    out = APIPosition(**position.__dict__)
+    return APIResponseGen(data=out)
 
 
 @router.delete("/position/{position_id}")
 async def delete_position_handler(
-    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+    position_id: UUID,
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
-):
-    return JSONResponse(content=APIResponse(data={}, status=True), status_code=status.HTTP_200_OK)
+) -> APIResponse:
+    await position_delete(session, position_id=position_id, company_id=user.member.company_id)
+    return APIResponse(message=[f"Position {position_id} deleted"], status=True)
