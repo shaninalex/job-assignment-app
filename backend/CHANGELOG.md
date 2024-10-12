@@ -1,3 +1,14 @@
+## 0.8.0 (2024-10-12)
+
+### Feat
+
+- **api**: specific role route
+
+### Fix
+
+- **db**: position crud
+- **api**: company members list
+
 ## 0.7.0 (2024-10-12)
 
 ### Feat
