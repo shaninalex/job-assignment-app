@@ -105,40 +105,20 @@ class PositionCreatePayload(BaseModel, extra="forbid"):
 
 
 async def position_create(session: AsyncSession, payload: PositionCreatePayload) -> Position:
-    position = Position(
-        title=payload.title,
-        company_id=payload.company_id,
-        description=payload.description,
-    )
-
-    if payload.interview_stages:
-        position.interview_stages = payload.interview_stages
-    if payload.responsibilities:
-        position.responsibilities = payload.responsibilities
-    if payload.requirements:
-        position.requirements = payload.requirements
-    if payload.offer:
-        position.offer = payload.offer
-    if payload.remote:
-        position.remote = payload.remote
-    if payload.salary:
-        position.salary = payload.salary
-    if payload.hours:
-        position.hours = payload.hours
-    if payload.travel:
-        position.travel = payload.travel
-    if payload.status:
-        position.status = payload.status
-    if payload.price_range:
-        position.price_range = payload.price_range
-
+    position = Position(**payload.model_dump(exclude_unset=True))
     session.add(position)
     await session.flush()
+    await session.refresh(position)
     return position
 
 
-async def position_get_by_id(session: AsyncSession, position_id) -> Position:
+async def position_get_by_id(session: AsyncSession, position_id, **kwargs) -> Position:
     stmt = select(Position).where(Position.id == position_id)
+
+    for key, value in kwargs.items():
+        if getattr(Position, key):
+            stmt = stmt.where(getattr(Position, key) == value)
+
     result = await session.execute(stmt)
     position = result.scalar_one_or_none()
     if position is None:
@@ -161,8 +141,10 @@ class PartialPositionUpdatePayload(BaseModel, extra="forbid"):
     status: Optional[PositionStatus] = None
 
 
-async def position_update(session: AsyncSession, position_id: UUID, payload: PartialPositionUpdatePayload) -> Position:
-    position = await position_get_by_id(session, position_id)
+async def position_update(
+    session: AsyncSession, position_id: UUID, payload: PartialPositionUpdatePayload, **kwargs
+) -> Position:
+    position = await position_get_by_id(session, position_id, **kwargs)
     for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(position, key, value)
     await session.flush()
@@ -170,6 +152,7 @@ async def position_update(session: AsyncSession, position_id: UUID, payload: Par
 
 
 async def position_delete(session: AsyncSession, position_id: UUID, company_id: UUID):
+    await position_get_by_id(session, position_id, **{"company_id": company_id})
     stmt = delete(Position).where((Position.id == position_id) & (Position.company_id == company_id))
     await session.execute(stmt)
     await session.flush()

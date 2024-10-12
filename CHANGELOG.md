@@ -1,33 +1,61 @@
+## 0.8.1 (2024-10-13)
+
+### Fix
+
+- **db**: position model, default options
+- **db**: position model, default options
+- **api**: position creation validation
+- **api**: position routes
+
+## 0.8.0 (2024-10-12)
+
+### Feat
+
+- **api**: specific role route
+
+### Fix
+
+- **db**: position crud
+- **api**: company members list
+
+## 0.7.0 (2024-10-12)
+
+### Feat
+
+- **database**: add company member
+- **backend**: start from the begging with proper testing
+
+### Fix
+
+- **db**: reinit alembic
+- **api**: user confirm
+- **database**: use UUID again
+- **api**: create api app folders and routers structure
+- **database**: company model and tests
+- **database**: create new candidate and tests
+- **backend**: use new registrator for members
+- **db**: schema and test new registrator methods
+- **backend**: positions list and detail
+
+### Refactor
+
+- simplification
+
 ## 0.6.4 (2024-10-06)
 
 ### Fix
 
 - **backend**: refactor, register, company auth middleware and create position
-
-## 0.6.3 (2024-10-05)
-
-### Fix
-
 - **backend**: test, db session
 - config
-
-## 0.6.2 (2024-10-05)
-
-### Fix
-
 - **backend**: di, tests, structure
 - **backend**: user services and repositories
+- **backend**: public positions list, configurations, config dataclass
+- **api**: public positions list
 
 ### Refactor
 
 - **backend**: reformat code, black on save, moved database to pkg
-
-## 0.6.1 (2024-10-01)
-
-### Fix
-
-- **backend**: public positions list, configurations, config dataclass
-- **api**: public positions list
 
 ## 0.6.0 (2024-08-31)
 
