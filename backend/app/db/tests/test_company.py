@@ -1,6 +1,6 @@
 import uuid
+
 import pytest
-from loguru import logger
 from sqlalchemy import func, select
 
 from app.db.models import CompanyMember
@@ -12,9 +12,14 @@ from app.db.operations.company_op import (
     create_member,
     delete_member,
     get_company_members,
+    create_company_only,
+    patch_company,
+    PartialCompanyPayload,
+    CreateCompanyOnlyPayload,
+    disable_company,
 )
 from app.db.operations.user_op import UserPayload, create_user, get_user_by_email
-from app.enums import AuthStatus, CompanyStatus, ConfirmStatusCode, Role
+from app.enums import Role, AuthStatus, ConfirmStatusCode, CompanyStatus
 from app.utilites.password import check_password
 
 
@@ -193,8 +198,48 @@ async def test_get_company_members(session):
             password_confirm="testtest",
         )
         company, _user, _cc = await create_company(session, company_payload)
-        logger.info(f"{company.id}, {_user.member.company_id}")
         assert company.id == _user.member.company_id
         members = await get_company_members(session, company.id)
-        logger.info(members)
         assert len(members) == 1, f"Expected 1 company member. Got: {len(members)}"
+
+
+@pytest.mark.asyncio
+async def test_create_company_only(session):
+    async with session() as session:
+        u = uuid.uuid4()
+        payload = CreateCompanyOnlyPayload(name=str(u), email=f"{str(u)}@test.com", website=f"https://{str(u)}.com")
+        company = await create_company_only(session, payload)
+        assert company is not None
+        assert company.name == payload.name
+        assert company.email == payload.email
+        assert company.website == payload.website
+        assert company.status == CompanyStatus.PENDING
+
+
+@pytest.mark.asyncio
+async def test_patch_company(session):
+    async with session() as session:
+        u = uuid.uuid4()
+        payload = CreateCompanyOnlyPayload(name=str(u), email=f"{str(u)}@test.com", website=f"https://{str(u)}.com")
+        company = await create_company_only(session, payload)
+        updates = PartialCompanyPayload(
+            name="updated_name",
+            website="updated_website",
+            email="updated@email.com",
+            image_link="updated_image_link",
+        )
+        updated_company = await patch_company(session, company_id=company.id, payload=updates)
+        assert updated_company.name == updates.name
+        assert updated_company.email == updates.email
+        assert updated_company.website == updates.website
+        assert updated_company.image_link == updates.image_link
+
+
+@pytest.mark.asyncio
+async def test_disable_company(session):
+    async with session() as session:
+        u = uuid.uuid4()
+        payload = CreateCompanyOnlyPayload(name=str(u), email=f"{str(u)}@test.com", website=f"https://{str(u)}.com")
+        company = await create_company_only(session, payload)
+        disabled_company = await disable_company(session, company_id=company.id)
+        assert company.status == disabled_company.status

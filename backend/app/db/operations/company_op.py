@@ -1,4 +1,4 @@
-from typing import List, Self, Tuple
+from typing import List, Self, Tuple, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, model_validator
@@ -26,8 +26,11 @@ class CompanyMemberAlreadyExists(ServiceError):
 async def get_company_by_id(session: AsyncSession, company_id: UUID) -> Company:
     stmt = (
         select(Company)
-        .where(Company.id == company_id)
-        .options(selectinload(Company.members).selectinload(CompanyMember.user))
+        # join(User.member)
+        .where(Company.id == company_id).options(
+            selectinload(Company.members).joinedload(CompanyMember.user),
+            selectinload(Company.positions),  # TODO: get views ( views not implemented yet )
+        )
     )
     q = await session.execute(stmt)
     company = q.scalar_one_or_none()
@@ -39,7 +42,7 @@ async def get_company_by_id(session: AsyncSession, company_id: UUID) -> Company:
 async def get_company_by_email(session: AsyncSession, company_email: str) -> Company:
     stmt = (
         select(Company)
-        .where(Company.id == company_email)
+        .where(Company.email == company_email)
         .options(selectinload(Company.members).selectinload(CompanyMember.user))
     )
     q = await session.execute(stmt)
@@ -171,4 +174,41 @@ async def get_company_members(session, company_id: UUID) -> List[User]:
     return users
 
 
-# TODO: update, deactivate ( delete company is not a right way )
+class CreateCompanyOnlyPayload(BaseModel, extra="forbid"):
+    name: str
+    website: str  # pydantic.HttpUrl ?
+    email: EmailStr
+
+
+async def create_company_only(session: AsyncSession, payload: CreateCompanyOnlyPayload) -> Company:
+    company = Company(
+        name=payload.name,
+        email=payload.email,
+        website=payload.website,
+        status=CompanyStatus.PENDING,
+    )
+    session.add(company)
+    await session.flush()
+    return company
+
+
+class PartialCompanyPayload(BaseModel, extra="forbid"):
+    name: Optional[str] = None
+    website: Optional[str] = None  # pydantic.HttpUrl ?
+    email: Optional[EmailStr] = None
+    image_link: Optional[str] = None
+
+
+async def patch_company(session: AsyncSession, company_id: UUID, payload: PartialCompanyPayload) -> Company:
+    company = await get_company_by_id(session, company_id)
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(company, key, value)
+    await session.flush()
+    return company
+
+
+async def disable_company(session: AsyncSession, company_id: UUID) -> Company:
+    company = await get_company_by_id(session, company_id)
+    company.status = CompanyStatus.INACTIVE
+    await session.flush()
+    return company

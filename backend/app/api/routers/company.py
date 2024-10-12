@@ -22,7 +22,7 @@ auth_scheme = HTTPBearer()
 
 
 @router.get("/members")
-async def get_company_members(
+async def get_company_members_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
@@ -45,7 +45,7 @@ async def get_company_members(
 
 
 @router.patch("/company")
-async def get_company(
+async def get_company_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER, Role.COMPANY_HR])),
     session: AsyncSession = Depends(get_db_session),
@@ -54,7 +54,7 @@ async def get_company(
 
 
 @router.patch("/company")
-async def patch_company(
+async def patch_company_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
@@ -63,7 +63,7 @@ async def patch_company(
 
 
 @router.patch("/company/disable")
-async def disable_company(
+async def disable_company_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN])),
     session: AsyncSession = Depends(get_db_session),
@@ -72,7 +72,7 @@ async def disable_company(
 
 
 @router.get("/positions")
-async def list_positions(
+async def list_positions_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER, Role.COMPANY_HR])),
     session: AsyncSession = Depends(get_db_session),
@@ -81,7 +81,7 @@ async def list_positions(
 
 
 @router.post("/position")
-async def create_position(
+async def create_position_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
@@ -90,7 +90,7 @@ async def create_position(
 
 
 @router.get("/position/{position_id}")
-async def get_position(
+async def get_position_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
@@ -99,7 +99,7 @@ async def get_position(
 
 
 @router.patch("/position/{position_id}")
-async def update_position(
+async def update_position_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
@@ -108,7 +108,7 @@ async def update_position(
 
 
 @router.delete("/position/{position_id}")
-async def delete_position(
+async def delete_position_handler(
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),

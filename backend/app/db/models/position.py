@@ -1,6 +1,8 @@
 import uuid
+
 from sqlalchemy import UUID, String, Text, ForeignKey, Enum, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.db.models import Base, Company
 from app.db.models.utils import CreatedUpdatedFields
 from app.enums import PositionStatus, Remote, SalaryType, TravelRequired, WorkingHours
@@ -21,7 +23,6 @@ class Position(Base, CreatedUpdatedFields):
     interview_stages: Mapped[str] = mapped_column(Text)
     offer: Mapped[str] = mapped_column(Text)
     company_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("company.id"))
-
     remote: Mapped[Remote] = mapped_column(Enum(Remote))
     salary: Mapped[SalaryType] = mapped_column(Enum(SalaryType))
     hours: Mapped[WorkingHours] = mapped_column(Enum(WorkingHours))
