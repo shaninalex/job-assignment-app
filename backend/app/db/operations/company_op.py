@@ -11,7 +11,7 @@ from app.db.models.user import ConfirmCode, User
 from app.db.operations.user_op import get_user_by_id
 from app.db.session import ServiceError
 from app.enums import CompanyStatus, Role, AuthStatus, ConfirmStatusCode, CompanyMemberStatus
-from app.utilites.generate_random_code import generate_numeric_code
+from app.utilites.generate_random_code import generate_numeric_code, generate_string_code
 from app.utilites.password import is_password_valid, create_password_hash
 
 
@@ -68,8 +68,8 @@ async def create_company(session: AsyncSession, payload: CreateCompanyPayload) -
         status=CompanyStatus.PENDING,
     )
     user = User(
-        name=payload.name,
-        email=payload.email,
+        name=payload.company_admin_name,
+        email=payload.company_admin_email,
         password_hash=create_password_hash(payload.password),
         role=Role.COMPANY_ADMIN,
         status=AuthStatus.PENDING,
@@ -77,15 +77,13 @@ async def create_company(session: AsyncSession, payload: CreateCompanyPayload) -
     confirm_code = ConfirmCode(
         user=user,
         code=generate_numeric_code(6),
+        key=generate_string_code(128),
         status=ConfirmStatusCode.CREATED,
     )
 
     company_member = CompanyMember(company=company, user=user, status=CompanyMemberStatus.ACTIVE)
     session.add_all([company, user, confirm_code, company_member])
     await session.flush()
-    # await session.refresh(company)
-    # await session.refresh(user)
-    # await session.refresh(confirm_code)
     return company, user, confirm_code
 
 
@@ -122,7 +120,7 @@ async def create_member(
         role=payload.role,
         status=AuthStatus.PENDING,
     )
-    confirm_code = ConfirmCode(user=user, code=generate_numeric_code(6), status=ConfirmStatusCode.CREATED)
+    confirm_code = ConfirmCode(user=user, code=generate_numeric_code(6), key=generate_string_code(128), status=ConfirmStatusCode.CREATED)
     company_member = CompanyMember(company=company, user=user, status=CompanyMemberStatus.ACTIVE)
 
     session.add_all([company, user, confirm_code, company_member])

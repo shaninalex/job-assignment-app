@@ -1,6 +1,5 @@
-from datetime import datetime
 import uuid
-from sqlalchemy import UUID, String, Text, func, Integer, ForeignKey, Enum, text
+from sqlalchemy import UUID, String, Text, ForeignKey, Enum, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models import Base, Company
 from app.db.models.utils import CreatedUpdatedFields

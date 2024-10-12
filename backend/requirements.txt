@@ -19,3 +19,6 @@ black
 
 # password hasher
 bcrypt
+
+# rabbitmq
+pika

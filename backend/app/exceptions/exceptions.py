@@ -11,3 +11,15 @@ class ServiceError(BaseApiError):
     """failures in external services or APIs, like a database or a third-party service"""
 
     pass
+
+
+class UserNotFoundError(ServiceError):
+    pass
+
+
+class ConfirmCodeNotFound(ServiceError):
+    pass
+
+
+class ConfirmCodeAlreadyUsed(ServiceError):
+    pass

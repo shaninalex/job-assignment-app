@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import List
 import uuid
 
-from sqlalchemy import UUID, String, Boolean, Text, JSON, VARCHAR, Enum, text, func, Integer, ForeignKey
+from sqlalchemy import UUID, String, Boolean, Text, JSON, VARCHAR, Enum, text, func, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 
@@ -49,6 +49,7 @@ class ConfirmCode(Base, CreatedUpdatedFields):
     )
     user_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("user.id"))
     code: Mapped[str] = mapped_column(VARCHAR(6))
+    key: Mapped[str] = mapped_column(Text)
     status: Mapped[ConfirmStatusCode] = mapped_column(Enum(ConfirmStatusCode), default=ConfirmStatusCode.SENT)
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())
 

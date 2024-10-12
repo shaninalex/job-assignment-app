@@ -3,21 +3,21 @@ import uuid
 import pytest
 from pydantic import ValidationError
 
-from app.db.operations.user_op import UserPayload, create_user, get_user_by_email
+from app.db.operations.user_op import ConfirmCodePayload, UserPayload, confirm_user, create_user, get_user_by_email
 from app.enums import AuthStatus, ConfirmStatusCode, Role
 from app.utilites.password import check_password
 
 
 @pytest.mark.asyncio
 async def test_create_candidate(session):
+    u = uuid.uuid4()
+    payload = UserPayload(
+        name=str(u),
+        email=f"{str(u)}@test.com",
+        password="testtest",
+        password_confirm="testtest",
+    )
     async with session() as session:
-        u = uuid.uuid4()
-        payload = UserPayload(
-            name=str(u),
-            email=f"{str(u)}@test.com",
-            password="testtest",
-            password_confirm="testtest",
-        )
         user, confirm_code = await create_user(session, payload, Role.CANDIDATE)
         assert user is not None
         assert user.id is not None
@@ -50,3 +50,22 @@ async def test_invalid_payload():
         UserPayload(name="name", email="test@test.com", password="testtest_", password_confirm="different_password")
 
     assert "passwords do not match" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_confirm_user(session):
+    u = uuid.uuid4()
+    payload = UserPayload(
+        name=str(u),
+        email=f"{str(u)}@test.com",
+        password="testtest",
+        password_confirm="testtest",
+    )
+    async with session() as session:
+        user, confirm_code = await create_user(session, payload, Role.CANDIDATE)
+        confirm_payload = ConfirmCodePayload(code=confirm_code.code, key=confirm_code.key)
+        await confirm_user(session, confirm_payload)
+        assert user.status == AuthStatus.ACTIVE
+        assert user.confirmed == True
+        assert confirm_code.status == ConfirmStatusCode.USED
+

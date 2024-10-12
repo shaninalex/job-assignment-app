@@ -21,11 +21,11 @@ async def test_create_company(session):
     async with session() as session:
         u = uuid.uuid4()
         payload = CreateCompanyPayload(
-            name=str(u),
-            email=f"{str(u)}@test.com",
+            name=f"company_name_{str(u)}",
+            email=f"{str(u)}@company.com",
             website=f"https://{str(u)}.com",
-            company_admin_name=str(u),
-            company_admin_email=f"{str(u)}@test.com",
+            company_admin_name=f"user_name_{str(u)}",
+            company_admin_email=f"user_name_{str(u)}@company.com",
             password="testtest",
             password_confirm="testtest",
         )
@@ -42,8 +42,8 @@ async def test_create_company(session):
         # test company admin
         assert user is not None
         assert user.id is not None
-        assert user.email == payload.email
-        assert user.name == payload.name
+        assert user.email == payload.company_admin_email
+        assert user.name == payload.company_admin_name
         assert user.password_hash != payload.password
         assert check_password(payload.password, user.password_hash)
         assert user.role == Role.COMPANY_ADMIN

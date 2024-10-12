@@ -1,4 +1,5 @@
 import pytest_asyncio
+from sqlalchemy import text
 
 from app.db.models import Base
 from app.db.session import DatabaseSessionManager
@@ -12,6 +13,7 @@ async def session():
 
     # Create tables before the test
     async with on_test.connect() as conn:
+        await conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'))
         await conn.run_sync(Base.metadata.create_all)
 
     enter = DatabaseSessionManager(DATABASE_URL)
