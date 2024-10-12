@@ -4,17 +4,35 @@ $ pylint *.py
 
 App required next dependencies:
 
-- aiohttp
-- aiohttp-devtools
-- sqlalchemy
-- psycopg2-binary
-- asyncpg
-- pydantic
-- pydantic[Email]
-- pika
-- python-dotenv
-- passlib
-- pyjwt
+# api
+fastapi[all]
+asyncio
+pydantic
+
+# database
+SQLAlchemy
+alembic
+asyncpg
+psycopg2-binary
+
+# tests
+pytest
+pytest-asyncio
+pytest-cov
+
+# formatter
+black
+
+# password hasher
+bcrypt
+
+# rabbitmq
+pika
+
+# other
+uuid
+PyJWT
+
 
 Init:
 

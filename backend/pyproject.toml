@@ -1,8 +1,8 @@
 [project]
 name = "JobCrafter"
-version = "0.0.0"
-description = "Backend api for JobCrafter application"
-authors = ["shaninalex"]
+version = "0.7.0"
+description = "Backend api for JobCrafter example application"
+authors = ["shanin.x@gmail.com"]
 license = "MIT"
 readme = "README.md"
 
