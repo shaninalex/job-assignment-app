@@ -68,4 +68,3 @@ async def test_confirm_user(session):
         assert user.status == AuthStatus.ACTIVE
         assert user.confirmed == True
         assert confirm_code.status == ConfirmStatusCode.USED
-

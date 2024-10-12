@@ -11,5 +11,4 @@ class Settings(BaseSettings):
     secret: str = "<app secret from environment>"
 
 
-
 settings = Settings()  # type: ignore

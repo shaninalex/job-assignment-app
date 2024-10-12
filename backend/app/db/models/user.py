@@ -54,4 +54,3 @@ class ConfirmCode(Base, CreatedUpdatedFields):
     created_at: Mapped[datetime] = mapped_column(default=func.now(), server_default=func.now())
 
     user: Mapped["User"] = relationship("User", back_populates="codes")
-

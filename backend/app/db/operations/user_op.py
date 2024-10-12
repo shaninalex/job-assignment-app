@@ -58,10 +58,7 @@ async def create_user(session: AsyncSession, payload: UserPayload, role: Role) -
         status=AuthStatus.PENDING,
     )
     confirm_code = ConfirmCode(
-        user=user,
-        code=generate_numeric_code(6),
-        status=ConfirmStatusCode.CREATED,
-        key=generate_string_code(128)
+        user=user, code=generate_numeric_code(6), status=ConfirmStatusCode.CREATED, key=generate_string_code(128)
     )
     session.add(user)
     session.add(confirm_code)
@@ -76,7 +73,7 @@ class ConfirmCodePayload(BaseModel, extra="forbid"):
 
 async def confirm_user(session: AsyncSession, code: ConfirmCodePayload):
     confirm_code = await get_confirm_code(session, key=code.key, code=code.code)
-    # we do not need to check is confirm_code is SENT since in this case user cannot know the confirm code 
+    # we do not need to check is confirm_code is SENT since in this case user cannot know the confirm code
     # key and code since code was not sent.
     if confirm_code.status == ConfirmStatusCode.USED:
         raise ConfirmCodeAlreadyUsed(message="Confirm code is already used.")
@@ -86,5 +83,3 @@ async def confirm_user(session: AsyncSession, code: ConfirmCodePayload):
     user.confirmed = True
     confirm_code.status = ConfirmStatusCode.USED
     await session.flush()
-
-

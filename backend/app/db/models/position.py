@@ -29,5 +29,5 @@ class Position(Base, CreatedUpdatedFields):
     status: Mapped[PositionStatus] = mapped_column(Enum(PositionStatus))
     price_range: Mapped[str] = mapped_column(String(100))
 
-    company: Mapped["Company"] = relationship("Company", back_populates="positions") # type: ignore # noqa
+    company: Mapped["Company"] = relationship("Company", back_populates="positions")  # type: ignore # noqa
     # TODO: company member who created this ( or member who responsible for this)

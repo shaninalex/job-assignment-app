@@ -27,4 +27,3 @@ def create_jwt_token(secret: str, user: User) -> str:
     }
     access_token = jwt.encode(claims, secret, algorithm="HS256")
     return access_token
-

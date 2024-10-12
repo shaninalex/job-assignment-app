@@ -16,4 +16,3 @@ class APIResponse(BaseModel):
     error: Union[Any, None] = None
     message: List[str] = []
     status: bool = True
-

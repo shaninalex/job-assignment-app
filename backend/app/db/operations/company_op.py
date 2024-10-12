@@ -102,9 +102,7 @@ class CreateCompanyMemberPayload(BaseModel, extra="forbid"):
         return self
 
 
-async def create_member(
-    session: AsyncSession, payload: CreateCompanyMemberPayload
-) -> Tuple[User, ConfirmCode]:
+async def create_member(session: AsyncSession, payload: CreateCompanyMemberPayload) -> Tuple[User, ConfirmCode]:
     company = await get_company_by_id(session, payload.company_id)
 
     # check is user already exist in company members
@@ -120,7 +118,9 @@ async def create_member(
         role=payload.role,
         status=AuthStatus.PENDING,
     )
-    confirm_code = ConfirmCode(user=user, code=generate_numeric_code(6), key=generate_string_code(128), status=ConfirmStatusCode.CREATED)
+    confirm_code = ConfirmCode(
+        user=user, code=generate_numeric_code(6), key=generate_string_code(128), status=ConfirmStatusCode.CREATED
+    )
     company_member = CompanyMember(company=company, user=user, status=CompanyMemberStatus.ACTIVE)
 
     session.add_all([company, user, confirm_code, company_member])
@@ -128,9 +128,7 @@ async def create_member(
     return user, confirm_code
 
 
-async def add_member(
-    session: AsyncSession, company_id: UUID, user_id: UUID, role: Role
-) -> Tuple[User, CompanyMember]:
+async def add_member(session: AsyncSession, company_id: UUID, user_id: UUID, role: Role) -> Tuple[User, CompanyMember]:
     company = await get_company_by_id(session, company_id)
 
     for member in company.members:

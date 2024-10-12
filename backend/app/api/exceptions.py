@@ -32,11 +32,7 @@ def apply_exception_handlers(app: FastAPI):
     async def validation_exception_handler(request, exc: RequestValidationError):
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content=APIResponse(
-                error=exc.errors(),
-                message=["Payload validation error"],
-                status=False
-            ).model_dump()
+            content=APIResponse(error=exc.errors(), message=["Payload validation error"], status=False).model_dump(),
         )
 
     # this is not db connection error. It's general connection error
@@ -59,7 +55,7 @@ def amqp_connection_exception_handler():
         logger.error(f"AMQP connection error: {exc}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump()
+            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
         )
 
     return exception_handler
@@ -70,7 +66,7 @@ def database_connection_exception_handler():
         logger.error(f"Database connection error: {exc}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump()
+            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
         )
 
     return exception_handler
@@ -93,8 +89,7 @@ def create_exception_handler(status_code: int, initial_detail: str):
         #     detail["message"] = f"{detail['message']} [{exc.name}]"
 
         return JSONResponse(
-            status_code=status_code,
-            content=APIResponse(message=[detail["message"]], status=False).model_dump()
+            status_code=status_code, content=APIResponse(message=[detail["message"]], status=False).model_dump()
         )
 
     return exception_handler
@@ -105,12 +100,7 @@ def create_validation_error_handler():
         logger.error(f"Form validation error: {exc}")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=APIResponse(
-                message=[SERVICE_ERROR_PAYLOAD_VALIDATION],
-                status=False
-            ).model_dump()
+            content=APIResponse(message=[SERVICE_ERROR_PAYLOAD_VALIDATION], status=False).model_dump(),
         )
 
     return exception_handler
-
-

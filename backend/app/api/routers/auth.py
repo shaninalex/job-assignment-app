@@ -33,15 +33,17 @@ async def register_company(payload: APICreateCompanyPayload, session: AsyncSessi
     db_payload = CreateCompanyPayload(**payload.model_dump())
     company, user, confirm_code = await create_company(session, db_payload)
     logger.debug(f"AMQP: New company: {company.name}. User: {user.email}. confirm_code: {confirm_code.code}")
-    return {
-        "status": True
-    }
+    return {"status": True}
+
 
 @router.post("/login")
 async def register_login(payload: APILoginPayload, session: AsyncSession = Depends(get_db_session)):
     user = await get_user_by_email(session, payload.email)
     if not check_password(payload.password, user.password_hash):
-        return JSONResponse(content=APIResponse(message=["Invalid credentials"], status=False).model_dump(), status_code=status.HTTP_400_BAD_REQUEST)
+        return JSONResponse(
+            content=APIResponse(message=["Invalid credentials"], status=False).model_dump(),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
     token = create_jwt_token(settings.secret, user)
     return APIResponse(
         data={
@@ -54,11 +56,7 @@ async def register_login(payload: APILoginPayload, session: AsyncSession = Depen
 
 # IDEA: different confirmation methods ( email, phone ) ?
 @router.post("/confirm/{hash}", description="Simplified user confirmation.")
-async def confirm_account(
-    hash: str,
-    payload: APIConfirmCodePayload,
-    session: AsyncSession = Depends(get_db_session)
-):
+async def confirm_account(hash: str, payload: APIConfirmCodePayload, session: AsyncSession = Depends(get_db_session)):
     code = ConfirmCodePayload(code=payload.code, key=hash)
     await confirm_user(session, code)
     return APIResponse(
@@ -67,4 +65,3 @@ async def confirm_account(
         },
         message=["User successfully confirmed"],
     )
-

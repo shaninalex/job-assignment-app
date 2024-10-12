@@ -126,7 +126,7 @@ async def test_add_member(session):
         assert updated_user.email == payload.email
         assert company_member.user_id == updated_user.id
         assert company_member.company_id == company.id
-        
+
         statement = select(func.count()).select_from(CompanyMember)
         result = await session.execute(statement)
         company_members_count = result.scalar()
@@ -174,4 +174,3 @@ async def test_remove_member(session):
         result = await session.execute(statement)
         company_members_count = result.scalar()
         assert company_members_count == 1
-

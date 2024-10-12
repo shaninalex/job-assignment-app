@@ -1,9 +1,7 @@
-
-from typing import Any, List, Self, Union
+from typing import Self
 from pydantic import BaseModel, EmailStr, model_validator
 
 from app.utilites.password import is_password_valid
-
 
 
 class APIRegisterCandidatePayload(BaseModel, extra="forbid"):
