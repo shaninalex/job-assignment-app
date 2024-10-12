@@ -8,14 +8,11 @@ from app.config import settings
 from app.exceptions.exceptions import ServiceError
 
 
-# thx Arjan :)
-
-
 class DatabaseSessionManager:
     def __init__(self, host: str):
         # NOTE: create_async_engine require connect_args={"check_same_thread": False} only if you use sqlite+aiosqlite:///
         # database. Because it's file based db. For postgresql+asyncpg:// this check is not needed.
-        self.engine: AsyncEngine | None = create_async_engine(host, echo=False)
+        self.engine: AsyncEngine | None = create_async_engine(host, echo=True)
         self._sessionmaker: async_sessionmaker[AsyncSession] = async_sessionmaker(autocommit=False, bind=self.engine)
 
     async def close(self):

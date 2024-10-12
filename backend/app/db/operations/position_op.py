@@ -1,9 +1,11 @@
 from typing import List, Optional, Sequence
+from uuid import UUID
 
 from pydantic import BaseModel
-from sqlalchemy import UUID, select, and_, delete
+from sqlalchemy import select, and_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.core_types import Pagination
 from app.db.models import Position
 from app.enums import Remote, SalaryType, WorkingHours, TravelRequired, PositionStatus
 from app.exceptions.exceptions import ServiceError
@@ -32,32 +34,53 @@ class PartialPositionSearchPayload(BaseModel, extra="forbid"):
     price_range: Optional[str] = None
 
 
+class PositionListOptionsRequiredError(ServiceError):
+    pass
+
+
 async def positions_list(
-    session: AsyncSession, params: PartialPositionParamsPayload, string_params: PartialPositionSearchPayload
+    session: AsyncSession,
+    params: Optional[PartialPositionParamsPayload] = None,
+    string_params: Optional[PartialPositionSearchPayload] = None,
+    pagination: Optional[Pagination] = None,
 ) -> List[Position] | Sequence[Position]:
+    if not params and not string_params:
+        raise PositionListOptionsRequiredError()
+
     stmt = select(Position)
     filters = []
 
-    # search params
-    if params.company_id:
-        filters.append(Position.company_id == params.company_id)
-    if params.remote:
-        filters.append(Position.remote == params.remote)
-    if params.salary:
-        filters.append(Position.salary == params.salary)
-    if params.hours:
-        filters.append(Position.hours == params.hours)
-    if params.travel:
-        filters.append(Position.travel == params.travel)
-    if params.status:
-        filters.append(Position.status == params.status)
+    if params:
+        # search params
+        if params.company_id:
+            filters.append(Position.company_id == params.company_id)
+        if params.remote:
+            filters.append(Position.remote == params.remote)
+        if params.salary:
+            filters.append(Position.salary == params.salary)
+        if params.hours:
+            filters.append(Position.hours == params.hours)
+        if params.travel:
+            filters.append(Position.travel == params.travel)
+        if params.status:
+            filters.append(Position.status == params.status)
 
-    # search values
-    for field, value in string_params.model_dump(exclude_unset=True).items():
-        filters.append(getattr(Position, field).ilike(f"%{value}%"))
+    if string_params:
+        # search values
+        for field, value in string_params.model_dump(exclude_unset=True).items():
+            filters.append(getattr(Position, field).ilike(f"%{value}%"))
 
     if filters:
         stmt = stmt.where(and_(*filters))
+
+    if pagination:
+        if pagination.limit:
+            stmt = stmt.limit(pagination.limit)
+
+        if pagination.offset:
+            stmt = stmt.limit(pagination.offset)
+
+    # TODO: sorting
 
     result = await session.execute(stmt)
     positions = result.scalars().all()
@@ -82,7 +105,33 @@ class PositionCreatePayload(BaseModel, extra="forbid"):
 
 
 async def position_create(session: AsyncSession, payload: PositionCreatePayload) -> Position:
-    position = Position(**payload.model_dump(exclude_unset=True))
+    position = Position(
+        title=payload.title,
+        company_id=payload.company_id,
+        description=payload.description,
+    )
+
+    if payload.interview_stages:
+        position.interview_stages = payload.interview_stages
+    if payload.responsibilities:
+        position.responsibilities = payload.responsibilities
+    if payload.requirements:
+        position.requirements = payload.requirements
+    if payload.offer:
+        position.offer = payload.offer
+    if payload.remote:
+        position.remote = payload.remote
+    if payload.salary:
+        position.salary = payload.salary
+    if payload.hours:
+        position.hours = payload.hours
+    if payload.travel:
+        position.travel = payload.travel
+    if payload.status:
+        position.status = payload.status
+    if payload.price_range:
+        position.price_range = payload.price_range
+
     session.add(position)
     await session.flush()
     return position

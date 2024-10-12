@@ -16,7 +16,6 @@ async def session():
     async with on_test.connect() as conn:
         for table in reversed(Base.metadata.sorted_tables):
             await conn.execute(table.delete())
-            # await conn.run_sync(Base.metadata.clear)
 
 
 @pytest_asyncio.fixture

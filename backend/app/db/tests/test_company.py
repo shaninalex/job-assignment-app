@@ -113,7 +113,7 @@ async def test_add_member(session):
             password="testtest",
             password_confirm="testtest",
         )
-        company, _user, _cc = await create_company(session, company_payload)
+        company, _, _ = await create_company(session, company_payload)
         um = uuid.uuid4()
         payload = UserPayload(
             name=str(um),
@@ -154,7 +154,7 @@ async def test_remove_member(session):
             password="testtest",
             password_confirm="testtest",
         )
-        company, _user, _cc = await create_company(session, company_payload)
+        company, _, _ = await create_company(session, company_payload)
 
         # create user without company
         um = uuid.uuid4()
@@ -197,7 +197,7 @@ async def test_get_company_members(session):
             password="testtest",
             password_confirm="testtest",
         )
-        company, _user, _cc = await create_company(session, company_payload)
+        company, _user, _ = await create_company(session, company_payload)
         assert company.id == _user.member.company_id
         members = await get_company_members(session, company.id)
         assert len(members) == 1, f"Expected 1 company member. Got: {len(members)}"
