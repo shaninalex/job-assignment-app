@@ -1,9 +1,9 @@
-from fastapi.exceptions import RequestValidationError
-from pika.exceptions import AMQPConnectionError
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, status
+from fastapi.exceptions import RequestValidationError
 from loguru import logger
-from pydantic import ValidationError
+from pika.exceptions import AMQPConnectionError
 from starlette.responses import JSONResponse
 
 from app.api.serializers import APIResponse
@@ -50,28 +50,34 @@ def apply_exception_handlers(app: FastAPI):
             content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
         )
 
-    app.add_exception_handler(exc_class_or_status_code=AMQPConnectionError, handler=amqp_connection_exception_handler())
-    app.add_exception_handler(
-        exc_class_or_status_code=ServiceError,
-        handler=get_service_error_handler(),
-    )
-    app.add_exception_handler(
-        exc_class_or_status_code=422,
-        handler=create_validation_error_handler(),
-    )
-
-
-def amqp_connection_exception_handler():
-    async def exception_handler(_, exc) -> JSONResponse:
+    @app.exception_handler(AMQPConnectionError)
+    def amqp_connection_exception_handler(_, exc) -> JSONResponse:
         logger.error(f"AMQP connection error: {exc}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
         )
 
-    return exception_handler
+    @app.exception_handler(status.HTTP_422_UNPROCESSABLE_ENTITY)
+    def create_validation_error_handler(_, exc) -> JSONResponse:
+        logger.error(f"Form validation error: {exc}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=APIResponse(message=[SERVICE_ERROR_PAYLOAD_VALIDATION], status=False).model_dump(),
+        )
 
+    app.add_exception_handler(
+        exc_class_or_status_code=ServiceError,
+        handler=get_service_error_handler(),
+    )
 
+    @app.exception_handler(Exception)
+    def unprocessed_exception(_, exc) -> JSONResponse:
+        logger.error(f"Error: {exc}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=APIResponse(message=[SERVICE_ERROR_MESSAGE], status=False).model_dump(),
+        )
 
 
 def get_service_error_handler():
@@ -85,24 +91,11 @@ def create_exception_handler(status_code: int, initial_detail: str):
         logger.error(exc)
         if exc.message:
             detail["message"] = exc.message
-
         # hide internal technical details from api
         # if exc.name:
         #     detail["message"] = f"{detail['message']} [{exc.name}]"
-
         return JSONResponse(
             status_code=status_code, content=APIResponse(message=[detail["message"]], status=False).model_dump()
-        )
-
-    return exception_handler
-
-
-def create_validation_error_handler():
-    async def exception_handler(_, exc) -> JSONResponse:
-        logger.error(f"Form validation error: {exc}")
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content=APIResponse(message=[SERVICE_ERROR_PAYLOAD_VALIDATION], status=False).model_dump(),
         )
 
     return exception_handler

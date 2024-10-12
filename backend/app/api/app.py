@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from app.api.routers import auth, health, company
 from app.api.exceptions import lifespan, apply_exception_handlers
+from app.api.routers import auth, health, company
 
 
 def create_app() -> FastAPI:
@@ -9,7 +9,6 @@ def create_app() -> FastAPI:
 
     apply_exception_handlers(app)
     # init rabbitmq event publisher
-    # add global middlewares
 
     # add routers
     app.include_router(health.router)

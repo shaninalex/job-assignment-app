@@ -20,13 +20,16 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID, **kwargs) -> User
     stmt = (
         select(User)
         .where(User.id == user_id)
-        .options(
-            selectinload(User.codes),
-            selectinload(User.member).joinedload(CompanyMember.company)
-        )
+        .options(selectinload(User.codes), selectinload(User.member).joinedload(CompanyMember.company))
     )
-    if "active" in kwargs:
-        stmt = stmt.where(User.active == kwargs["active"])
+    # if "active" in kwargs:
+    #     stmt = stmt.where(User.active == kwargs["active"])
+    # if "status" in kwargs:
+    #     stmt = stmt.where(User.status == kwargs["status"])
+
+    for key, value in kwargs.items():
+        if getattr(User, key):
+            stmt = stmt.where(getattr(User, key) == value)
 
     q = await session.execute(stmt)
     user = q.scalar_one_or_none()
@@ -36,14 +39,7 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID, **kwargs) -> User
 
 
 async def get_user_by_email(session: AsyncSession, email: str) -> User:
-    stmt = (
-        select(User)
-        .where(User.email == email)
-        .options(
-            selectinload(User.codes),
-            selectinload(User.member)
-        )
-    )
+    stmt = select(User).where(User.email == email).options(selectinload(User.codes), selectinload(User.member))
     q = await session.execute(stmt)
     user = q.scalar_one_or_none()
     if user is None:

@@ -17,3 +17,9 @@ class APIResponse(BaseModel):
     message: List[str] = []
     status: bool = True
 
+
+class APIResponseGen[T](BaseModel):
+    data: Union[T, None] = None
+    error: Union[Any, None] = None
+    message: List[str] = []
+    status: bool = True

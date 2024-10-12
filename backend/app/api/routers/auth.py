@@ -1,5 +1,5 @@
-from loguru import logger
 from fastapi import APIRouter, Depends, status
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
@@ -7,18 +7,14 @@ from app.api.serializers import APIResponse
 from app.api.serializers.auth import APILoginPayload, APIRegisterCandidatePayload, APICreateCompanyPayload
 from app.api.serializers.user import APIConfirmCodePayload, create_public_user_object
 from app.config import settings
-from app.db.operations.user_op import ConfirmCodePayload, UserPayload, confirm_user, create_user, get_user_by_email
 from app.db.operations.company_op import create_company, CreateCompanyPayload
+from app.db.operations.user_op import ConfirmCodePayload, UserPayload, confirm_user, create_user, get_user_by_email
 from app.db.session import get_db_session
 from app.enums import Role
 from app.utilites.jwt import create_jwt_token
 from app.utilites.password import check_password
 
-
-router = APIRouter(
-    prefix="/api/v1/auth", 
-    tags=["Auth"]
-)
+router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
 
 @router.post("/register")
@@ -53,7 +49,7 @@ async def register_login(payload: APILoginPayload, session: AsyncSession = Depen
             "token": token,
             "user": create_public_user_object(user),
         },
-        message=["Login successfull"],
+        message=["Login successful"],
     )
 
 

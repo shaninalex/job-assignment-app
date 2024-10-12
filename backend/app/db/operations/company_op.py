@@ -1,4 +1,4 @@
-from typing import List, Self, Tuple, Union
+from typing import List, Self, Tuple
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, model_validator
@@ -24,7 +24,12 @@ class CompanyMemberAlreadyExists(ServiceError):
 
 
 async def get_company_by_id(session: AsyncSession, company_id: UUID) -> Company:
-    q = await session.execute(select(Company).where(Company.id == company_id).options(selectinload(Company.members)))
+    stmt = (
+        select(Company)
+        .where(Company.id == company_id)
+        .options(selectinload(Company.members).selectinload(CompanyMember.user))
+    )
+    q = await session.execute(stmt)
     company = q.scalar_one_or_none()
     if company is None:
         raise CompanyNotFoundError(f"Company with ID {company_id} not found.")
@@ -32,7 +37,12 @@ async def get_company_by_id(session: AsyncSession, company_id: UUID) -> Company:
 
 
 async def get_company_by_email(session: AsyncSession, company_email: str) -> Company:
-    q = await session.execute(select(Company).where(Company.email == company_email))
+    stmt = (
+        select(Company)
+        .where(Company.id == company_email)
+        .options(selectinload(Company.members).selectinload(CompanyMember.user))
+    )
+    q = await session.execute(stmt)
     company = q.scalar_one_or_none()
     if company is None:
         raise CompanyNotFoundError(f"Company with email {company_email} not found.")
@@ -154,12 +164,11 @@ async def get_company_members(session, company_id: UUID) -> List[User]:
         select(User)
         .join(User.member)
         .where(CompanyMember.company_id == company_id)
-        .options(
-            selectinload(User.member) # .selectinload(CompanyMember.company)
-        )
+        .options(selectinload(User.member))  # .selectinload(CompanyMember.company)
     )
     query = await session.execute(stmt)
     users = query.scalars().all()
     return users
+
 
 # TODO: update, deactivate ( delete company is not a right way )
