@@ -8,6 +8,7 @@ PyJWT
 SQLAlchemy
 alembic
 asyncpg
+psycopg2-binary
 
 # tests
 pytest
