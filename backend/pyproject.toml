@@ -1,7 +1,17 @@
 [project]
-name = "backend"
-version = "0.6.3"
-package-mode = true
+name = "JobCrafter"
+version = "0.8.0"
+description = "Backend api for JobCrafter example application"
+authors = ["shanin.x@gmail.com"]
+license = "MIT"
+readme = "README.md"
 
 [tool.black]
 line-length = 120
+
+[tool.coverage.report]
+omit = [
+    "*/__init__.py",
+    "app/enums.py",
+    "app/api/serializers.py",
+]
