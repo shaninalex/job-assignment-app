@@ -105,20 +105,20 @@ async def disable_company_handler(
 
 
 class APIPosition(BaseModel):
-    id: Optional[UUID]
+    id: Optional[UUID] = None
     title: str
     description: str
-    responsibilities: Optional[str]
-    requirements: Optional[str]
-    interview_stages: Optional[str]
-    offer: Optional[str]
-    company_id: Optional[UUID]
-    remote: Optional[Remote]
-    salary: Optional[SalaryType]
-    hours: Optional[WorkingHours]
-    travel: Optional[TravelRequired]
-    status: Optional[PositionStatus]
-    price_range: Optional[str]
+    responsibilities: Optional[str] = None
+    requirements: Optional[str] = None
+    interview_stages: Optional[str] = None
+    offer: Optional[str] = None
+    company_id: Optional[UUID] = None
+    remote: Optional[Remote] = None
+    salary: Optional[SalaryType] = None
+    hours: Optional[WorkingHours] = None
+    travel: Optional[TravelRequired] = None
+    status: Optional[PositionStatus] = None
+    price_range: Optional[str] = None
 
 
 @router.get("/positions")
@@ -139,7 +139,7 @@ async def create_position_handler(
     payload: APIPosition,
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER])),
     session: AsyncSession = Depends(get_db_session),
-) -> APIResponseGen[List[APIPosition]]:
+) -> APIResponseGen[APIPosition]:
     position_create_payload = PositionCreatePayload(  # **payload.model_dump())
         title=payload.title,
         company_id=user.member.company_id,

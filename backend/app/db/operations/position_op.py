@@ -134,6 +134,7 @@ async def position_create(session: AsyncSession, payload: PositionCreatePayload)
 
     session.add(position)
     await session.flush()
+    await session.refresh(position)
     return position
 
 
