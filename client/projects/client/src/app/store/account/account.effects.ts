@@ -12,7 +12,7 @@ export class AccountEffects {
         ofType(ActionRegisterAccountStart.type),
         exhaustMap(({ payload }) => {
             console.log(payload)
-            this.http.post("api/auth/register", payload).subscribe({
+            this.http.post("api/v1/auth/register", payload).subscribe({
                 next: response => {
 
                 },
@@ -31,7 +31,7 @@ export class AccountEffects {
         ofType(ActionRegisterCompanyStart.type),
         exhaustMap(({ payload }) => {
             console.log(payload)
-            this.http.post("api/auth/register", payload).subscribe({
+            this.http.post("api/v1/auth/register", payload).subscribe({
                 next: response => {
 
                 },

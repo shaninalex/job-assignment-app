@@ -8,6 +8,5 @@ export interface RegistrationPayload {
     email: string
     password: string
     password_confirm: string
-    type: "company" | "candidate"
     companyName?: string
 }

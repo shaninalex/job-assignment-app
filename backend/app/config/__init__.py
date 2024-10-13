@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     project_name: str = "JobCrafter"
-    version: str = "v0.8.0"
+    version: str = "v0.8.1"
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/application"
     secret: str = "<app secret from environment>"
 

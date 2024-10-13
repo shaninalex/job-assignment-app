@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.user import get_user_if_role
 from app.api.serializers import APIResponse, APIResponseGen
 from app.api.serializers.user import APIPublicUser
+from app.core.core_types import APIPositionsQueryParams, Pagination
 from app.db.models.user import User
 from app.db.operations.company_op import (
     get_company_members as op_company_members,
@@ -26,6 +28,7 @@ from app.db.operations.position_op import (
     position_update,
     PartialPositionUpdatePayload,
     position_delete,
+    PartialPositionSearchPayload,
 )
 from app.db.session import get_db_session
 from app.enums import Role, CompanyStatus, PositionStatus, TravelRequired, WorkingHours, SalaryType, Remote
@@ -122,14 +125,25 @@ class APIPosition(BaseModel):
     travel: Optional[TravelRequired] = None
     status: Optional[PositionStatus] = None
     price_range: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 @router.get("/positions")
 async def list_positions_handler(
+    query: APIPositionsQueryParams = Depends(),
     user: User = Depends(get_user_if_role([Role.COMPANY_ADMIN, Role.COMPANY_MEMBER, Role.COMPANY_HR])),
     session: AsyncSession = Depends(get_db_session),
 ) -> APIResponseGen[List[APIPosition]]:
-    positions = await positions_list(session, PartialPositionParamsPayload(company_id=user.member.company_id))
+    pagination = Pagination(limit=query.limit, offset=query.offset)
+    string_params = PartialPositionSearchPayload(**query.model_dump(exclude_unset=True)).model_dump(exclude_none=True)
+    enum_params = PartialPositionParamsPayload(company_id=user.member.company_id)
+    positions = await positions_list(
+        session,
+        params=enum_params,
+        string_params=string_params if len(string_params) else None,
+        pagination=pagination,
+    )
     api_positions: List[APIPosition] = []
     for p in positions:
         api_positions.append(APIPosition(**p.__dict__))
