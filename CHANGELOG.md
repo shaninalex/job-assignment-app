@@ -1,3 +1,10 @@
+## 0.8.2 (2024-10-13)
+
+### Fix
+
+- **ui**: public search, login request, api response generic type
+- **api**: search positions params
+
 ## 0.8.1 (2024-10-13)
 
 ### Fix
