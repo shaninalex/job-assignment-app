@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from sqlalchemy import select, and_, delete
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.core_types import Pagination
@@ -47,7 +48,7 @@ async def positions_list(
     # if not params and not string_params or not pagination:
     #     raise PositionListOptionsRequiredError(message="No params provided in positions list")
 
-    stmt = select(Position)
+    stmt = select(Position).options(selectinload(Position.company))
     filters = []
 
     if params:

@@ -12,9 +12,16 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 @NgModule({ declarations: [
         AppComponent
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
         AppRoutingModule,
         StoreModule.forRoot(reducers),
         EffectsModule.forRoot(effects),
-        StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() })], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() })
+    ], 
+    providers: [
+        provideHttpClient(withInterceptorsFromDi())
+    ] 
+})
 export class AppModule { }

@@ -1,3 +1,4 @@
+from loguru import logger
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
@@ -127,6 +128,7 @@ class APIPosition(BaseModel):
     price_range: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    company: Optional[APICompany] = None
 
 
 @router.get("/positions")
