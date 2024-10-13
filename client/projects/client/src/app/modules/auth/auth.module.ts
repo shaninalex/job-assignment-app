@@ -7,6 +7,7 @@ import { RegisterComponent } from "./containers/register/register.component";
 import { ReactiveFormsModule } from "@angular/forms";
 import { UiModule } from "@ui";
 import { RegisterCompanyComponent } from "./containers/register-company/register-company.component";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
 
 @NgModule({
     declarations: [
@@ -22,5 +23,8 @@ import { RegisterCompanyComponent } from "./containers/register-company/register
         ReactiveFormsModule,
         UiModule,
     ],
+    providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+    ]
 })
 export class AuthModule { }

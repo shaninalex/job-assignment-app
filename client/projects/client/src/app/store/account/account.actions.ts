@@ -1,5 +1,10 @@
 import { createAction, props } from "@ngrx/store";
-import { RegistrationPayload } from "../../models";
+import { LoginPayload, RegistrationPayload } from "../../models";
+
+export const ActionLoginAccountStart = createAction(
+    "[account] login account start",
+    props<{ payload: LoginPayload }>(),
+)
 
 export const ActionRegisterAccountStart = createAction(
     "[account] register account start",

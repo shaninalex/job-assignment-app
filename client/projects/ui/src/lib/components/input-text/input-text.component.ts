@@ -19,6 +19,7 @@ export class InputTextComponent implements ControlValueAccessor {
     @Input() fieldName: string;
     @Input() type: string;
     @Input() label: string;
+    @Input() placeholder: string;
     @Input() isRequired: boolean
 
     id: string = uuid();

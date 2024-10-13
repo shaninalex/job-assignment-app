@@ -31,7 +31,6 @@ export class RegisterComponent {
                 email: this.form.controls['email'].value,
                 password: this.form.controls['password'].value,
                 password_confirm: this.form.controls['password_confirm'].value,
-                type: "candidate"
             }
         }))
     }

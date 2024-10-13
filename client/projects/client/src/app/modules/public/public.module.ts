@@ -6,6 +6,10 @@ import { AboutComponent } from './containers/about/about.component';
 import { ContactsComponent } from './containers/contacts/contacts.component';
 import { PublicNavbarComponent } from "./components/navbar/navbar.component";
 import { PublicRootComponent } from "./public-root.component";
+import { PublicPositionSearchComponent } from "./components/public-position-search/public-position-search.component";
+import { ReactiveFormsModule } from "@angular/forms";
+import { UiModule } from "@ui";
+import { RouterModule } from "@angular/router";
 
 @NgModule({
     declarations: [
@@ -16,11 +20,15 @@ import { PublicRootComponent } from "./public-root.component";
         ContactsComponent,
 
         // -- components
-        PublicNavbarComponent
+        PublicNavbarComponent,
+        PublicPositionSearchComponent
     ],
     imports: [
         CommonModule,
-        PublicRoutingModule
+        RouterModule,
+        PublicRoutingModule,
+        ReactiveFormsModule,
+        UiModule,
     ],
 })
 export class PublicModule { }

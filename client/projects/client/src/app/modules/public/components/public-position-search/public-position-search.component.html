@@ -1,0 +1,31 @@
+<form [formGroup]="form" class="flex gap-4 flex-col mb-8">
+    <ui-input-text
+        fieldName="search_query"
+        formControlName="search_query"
+        [parentForm]="form"
+        placeholder="Search"
+    />
+</form>
+
+@if (positions$ | async; as positions) {
+    <div class="flex flex-col gap-8">
+        @for (position of positions; track $index) {
+            <div>
+                <div class="flex items-center justify-start gap-2">
+                    <div class="rounded-full w-8 h-8 overflow-hidden bg-slate-200 flex items-center justify-center">
+                        <i class="fa fa-home" aria-hidden="true"></i>
+                    </div>
+                    <a class="font-bold" [routerLink]="['/company/', position.company.id]">
+                        {{ position.company.name }}
+                    </a>
+                    <div>133 views</div>
+                    <div>45 reviews</div>
+                    <div>2d</div>
+                </div>
+                <a [routerLink]="['/position/', position.id]" class="font-bold text-2xl">{{ position.title }}</a>
+                <div>{{ position.description }}</div>
+            </div>
+        }
+    </div>
+}
+

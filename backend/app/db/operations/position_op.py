@@ -1,8 +1,9 @@
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Dict
 from uuid import UUID
 
 from pydantic import BaseModel
 from sqlalchemy import select, and_, delete
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.core_types import Pagination
@@ -15,7 +16,7 @@ class PositionNotFoundError(ServiceError):
     pass
 
 
-class PartialPositionParamsPayload(BaseModel, extra="forbid"):
+class PartialPositionParamsPayload(BaseModel):
     company_id: Optional[UUID] = None
     remote: Optional[Remote] = None
     salary: Optional[SalaryType] = None
@@ -24,7 +25,7 @@ class PartialPositionParamsPayload(BaseModel, extra="forbid"):
     status: Optional[PositionStatus] = None
 
 
-class PartialPositionSearchPayload(BaseModel, extra="forbid"):
+class PartialPositionSearchPayload(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     responsibilities: Optional[str] = None
@@ -41,13 +42,13 @@ class PositionListOptionsRequiredError(ServiceError):
 async def positions_list(
     session: AsyncSession,
     params: Optional[PartialPositionParamsPayload] = None,
-    string_params: Optional[PartialPositionSearchPayload] = None,
+    string_params: Optional[Dict] = None,
     pagination: Optional[Pagination] = None,
 ) -> List[Position] | Sequence[Position]:
-    if not params and not string_params:
-        raise PositionListOptionsRequiredError()
+    # if not params and not string_params or not pagination:
+    #     raise PositionListOptionsRequiredError(message="No params provided in positions list")
 
-    stmt = select(Position)
+    stmt = select(Position).options(selectinload(Position.company))
     filters = []
 
     if params:
@@ -67,7 +68,7 @@ async def positions_list(
 
     if string_params:
         # search values
-        for field, value in string_params.model_dump(exclude_unset=True).items():
+        for field, value in string_params.items():
             filters.append(getattr(Position, field).ilike(f"%{value}%"))
 
     if filters:
